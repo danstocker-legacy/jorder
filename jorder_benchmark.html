@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>jOrder benchmark</title>
+    <script type="text/javascript" src="jorder.js"></script>
+    <script type="text/javascript" src="jorder_benchmark_data.js"></script>
+    <script type="text/javascript" src="jorder_benchmark.js"></script>
+    <script type="text/javascript">
+        jOrder.logging = false;
+
+        jorder_benchmark_where(1000);
+        jorder_benchmark_aggregate(1000);
+        jorder_benchmark_orderby(1000);
+
+        jOrder.logging = true;
+    </script>
+</head>
+<body>
+	<p>Turn on firebug's profiler and compare the 'time' column for these functions:</p>
+	<p>Search:</p>
+	<ul>
+		<li>jorder_explicit_index</li>
+		<li>jorder_implicit_index</li>
+		<li>jorder_no_index</li>
+	</ul>
+	<p>Ordering:</p>
+	<ul>
+		<li>jorder_ordered_index</li>
+		<li>jorder_unordered_index</li>
+	</ul>
+	<p>Aggregate:</p>
+	<ul>
+		<li>jorder_benchmark_aggregate</li>
+	</ul>
+</body>
+</html>
