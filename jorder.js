@@ -109,7 +109,7 @@ jOrder.values = function(object)
 // - _flat: array of uniform objects
 // - _fields: array of strings representing table fields
 // - _options: grouped, sorted, data type
-jOrder.index = function(_flat, _fields, _options)
+jOrder.index = function (_flat, _fields, _options)
 {
     // manipulation
     this.add = add;
@@ -119,6 +119,7 @@ jOrder.index = function(_flat, _fields, _options)
     // data access
     this.lookup = lookup;
     this.grouped = grouped;
+    this.ordered = ordered;
 
     // representation
     this.signature = signature;
@@ -255,6 +256,12 @@ jOrder.index = function(_flat, _fields, _options)
         return _options.grouped;
     }
 
+    // tells whether the index is ordered
+    function ordered()
+    {
+        return _options.ordered;
+    }
+
     // flat, json representation of the index data
     function flat()
     {
@@ -286,7 +293,7 @@ jOrder.index = function(_flat, _fields, _options)
     // reorders the index
     function _reorder()
     {
-        _order = _order.sort(function(a, b)
+        _order = _order.sort(function (a, b)
         {
             return a > b ? 1 : a < b ? -1 : 0;
         });
@@ -296,7 +303,7 @@ jOrder.index = function(_flat, _fields, _options)
 // jQuery.table
 // database-like table object
 // - data: json table the table object is based on
-jOrder.table = function(data)
+jOrder.table = function (data)
 {
     // manipulation
     this.index = index;
@@ -314,9 +321,11 @@ jOrder.table = function(data)
     this.filter = filter;           // linear traversing
     this.count = count;             // linear traversing
 
-    // representations
+    // data access
     this.flat = flat;
     this.column = column;
+    this.ordered = ordered;
+    this.grouped = grouped;
 
     // member variables
     var _data = jOrder.copyTable(data);
@@ -465,7 +474,7 @@ jOrder.table = function(data)
 
         // no index found, search linearly
         jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
-        return filter(function(row)
+        return filter(function (row)
         {
             var match = false;
             for (var idx in conditions)
@@ -557,7 +566,7 @@ jOrder.table = function(data)
         {
             // sorting on the fly
             jOrder.warning("Index '" + indexName + "' is not ordered. Sorting index on the fly.");
-            order = jOrder.keys(flat).sort(function(a, b)
+            order = jOrder.keys(flat).sort(function (a, b)
             {
                 return a > b ? 1 : a < b ? -1 : 0;
             });
@@ -571,19 +580,19 @@ jOrder.table = function(data)
         {
             if (jOrder.asc == direction)
                 for (var idx = 0; idx < order.length; idx++)
-                ids = ids.concat(flat[order[idx]]);
+                    ids = ids.concat(flat[order[idx]]);
             else
                 for (var idx = order.length - 1; idx >= 0; idx--)
-                ids = ids.concat(flat[order[idx]]);
+                    ids = ids.concat(flat[order[idx]]);
         }
         else
         {
             if (jOrder.asc == direction)
                 for (var idx = 0; idx < order.length; idx++)
-                ids.push(flat[order[idx]]);
+                    ids.push(flat[order[idx]]);
             else
                 for (var idx = order.length - 1; idx >= 0; idx--)
-                ids.push(flat[order[idx]]);
+                    ids.push(flat[order[idx]]);
         }
 
         return select(ids, true);
@@ -600,7 +609,7 @@ jOrder.table = function(data)
         var result = [];
         for (var idx in _data)
             if (selector(_data[idx]))
-            result[idx] = _data[idx];
+                result[idx] = _data[idx];
         return result;
     }
 
@@ -635,6 +644,24 @@ jOrder.table = function(data)
         return result;
     }
 
+    // tells whether there's an ordered index on the given fields
+    function ordered(fields)
+    {
+        var index = _index(fields);
+        if (!index)
+            return false;
+        return index.ordered();
+    }
+
+    // tells whether there's an ordered index on the given fields
+    function grouped(fields)
+    {
+        var index = _index(fields);
+        if (!index)
+            return false;
+        return index.grouped();
+    }
+
     // helper functions
 
     // looks up an index according to the given fields
@@ -652,5 +679,4 @@ jOrder.table = function(data)
         }
         return index;
     }
-
 }
