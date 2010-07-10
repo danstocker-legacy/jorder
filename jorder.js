@@ -1,6 +1,7 @@
 ﻿jOrder = {};
 
 // constants & properties
+jOrder.version = '1.0.0.2';
 jOrder.asc = 1;
 jOrder.desc = -1;
 jOrder.string = 1;
