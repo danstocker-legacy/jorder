@@ -117,15 +117,15 @@ jOrder.index = function (_flat, _fields, _options)
     this.remove = remove;
     this.rebuild = rebuild;
 
-    // data access
+    // querying
     this.lookup = lookup;
-    this.grouped = grouped;
-    this.ordered = ordered;
 
-    // representation
+    // getters
     this.signature = signature;
     this.flat = flat;
     this.order = order;
+    this.grouped = grouped;
+    this.ordered = ordered;
 
     // private values
     var _data = {};
