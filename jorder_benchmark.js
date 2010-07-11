@@ -14,27 +14,27 @@ var table_unindexed = new jOrder.table(jorder_benchmark_data);
 // - no_index:          ~9x
 function jorder_benchmark_where(benchmark_cycles)
 {
-	function jorder_explicit_index()
+	function jorder_where_explicit()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185}], 'group');
 	}
 
-	function jorder_implicit_index()
+	function jorder_where_implicit()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185}]);
 	}
 
-	function jorder_no_index()
+	function jorder_where_no_index()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			var hits = table_unindexed.where([{ 'GroupID': 107 }, { 'GroupID': 185}]);
 	}
 
-	jorder_explicit_index();
-	jorder_implicit_index();
-	jorder_no_index();
+	jorder_where_explicit();
+	jorder_where_implicit();
+	jorder_where_no_index();
 }
 
 // testing aggregation by summing table along
@@ -65,19 +65,19 @@ function jorder_benchmark_aggregate(benchmark_cycles)
 // - nonordered_index:  ~14x
 function jorder_benchmark_orderby(benchmark_cycles)
 {
-	function jorder_ordered_index()
+	function jorder_orderby_ordered_explicit()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			table_indexed.orderby(['ID'], jOrder.asc, 'id');
 	}
 
-	function jorder_unordered_index()
+	function jorder_orderby_unordered_explicit()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			table_indexed.orderby(['ID'], jOrder.asc, 'id_nosort');
 	}
 
-	jorder_ordered_index();
-	jorder_unordered_index();
+	jorder_orderby_ordered_explicit();
+	jorder_orderby_unordered_explicit();
 }
 
