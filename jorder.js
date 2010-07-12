@@ -1,4 +1,7 @@
-﻿jOrder = {};
+﻿// jOrder on GitHub (source, wiki, donation):
+// http://github.com/danstocker/jOrder
+
+jOrder = {};
 
 // constants & properties
 jOrder.version = '1.0.0.2';
@@ -450,7 +453,8 @@ jOrder.table = function (data)
     // - conditions: list of field-value pairs defining the data we're looking for
     //   (fields must be in the same exact order as in the index)
     // - indexName: index to use for search
-    function where(conditions, indexName)
+    // - renumber: whether or not to preserve row ids
+    function where(conditions, indexName, renumber)
     {
         // obtain index
         var index = null;
@@ -471,7 +475,7 @@ jOrder.table = function (data)
 
         // index found, return matching row by index
         if (index)
-            return select(index.lookup(conditions));
+            return select(index.lookup(conditions), renumber);
 
         // no index found, search linearly
         jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
