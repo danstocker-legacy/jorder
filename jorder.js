@@ -10,7 +10,7 @@ jOrder = (function()
     }
 
     // constants
-    jOrder.version = '1.0.0.3';
+    jOrder.version = '1.0.0.4';
     jOrder.name = "jOrder";
     jOrder.asc = 1;
     jOrder.desc = -1;
@@ -30,14 +30,14 @@ jOrder = (function()
 
         if (window.console)
         {
-            log = window.console.log;
-            warn = window.console.warn;
-            error = window.console.error;
+            log = function(msg) { window.console.log(msg); }
+            warn = function(msg) { window.console.warn(msg); }
+            error = function(msg) { window.console.error(msg); }
         }
         else if (Sys)
-            log = warn = error = Sys.Debug.trace;
+            log = warn = error = function(msg) { Sys.Debug.trace(msg); }
         else
-            log = warn = error = alert;
+            log = warn = error = function(msg) { window.alert(msg); }
 
         var prefix = jOrder.name + ": ";
         switch (level)
@@ -452,12 +452,11 @@ jOrder = (function()
             return result;
         }
 
-    // returns the first row as json table from the table ftting the conditions
-    // - conditions: list of field-value pairs defining the data we're looking for
-    //   (fields must be in the same exact order as in the index)
-    // - indexName: index to use for search
-    // - renumber: whether or not to preserve row ids
-        function where(conditions, indexName, renumber)
+        // returns the first row as json table from the table ftting the conditions
+        // - conditions: list of field-value pairs defining the data we're looking for
+        //   (fields must be in the same exact order as in the index)
+        // - indexName: index to use for search
+        function where(conditions, indexName)
         {
             // obtain index
             var index = null;
@@ -478,7 +477,7 @@ jOrder = (function()
 
             // index found, return matching row by index
             if (index)
-                return select(index.lookup(conditions), renumber);
+                return select(index.lookup(conditions));
 
             // no index found, search linearly
             jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
