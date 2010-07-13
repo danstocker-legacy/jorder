@@ -1,11 +1,11 @@
 // table that has group index on it
-var table_indexed = new jOrder.table(jorder_benchmark_data);
+var table_indexed = jOrder(jorder_benchmark_data);
 table_indexed.index('id', ['ID'], { ordered: true });
 table_indexed.index('id_nosort', ['ID']);
 table_indexed.index('group', ['GroupID'], { ordered: true, grouped: true });
 
 // table with no group index
-var table_unindexed = new jOrder.table(jorder_benchmark_data);
+var table_unindexed = jOrder(jorder_benchmark_data);
 
 // testing explicit, implicit and no index searching
 // benchmark for 1000 cycles shows (logging turned off):
@@ -16,8 +16,8 @@ function jorder_benchmark_where(benchmark_cycles)
 {
 	function jorder_where_explicit()
 	{
-		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185}], 'group');
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185}], { indexName: 'group' });
 	}
 
 	function jorder_where_implicit()
@@ -62,19 +62,19 @@ function jorder_benchmark_aggregate(benchmark_cycles)
 // testing ordering speed
 // benchmark for 1000 cycles shows (logging turned off):
 // - ordered_index:     ~1x
-// - nonordered_index:  ~14x
+// - nonordered_index:  ~12x
 function jorder_benchmark_orderby(benchmark_cycles)
 {
 	function jorder_orderby_ordered_explicit()
 	{
-		for (var i = 0; i < benchmark_cycles; i++)
-			table_indexed.orderby(['ID'], jOrder.asc, 'id');
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	}
 
 	function jorder_orderby_unordered_explicit()
 	{
-		for (var i = 0; i < benchmark_cycles; i++)
-			table_indexed.orderby(['ID'], jOrder.asc, 'id_nosort');
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id_nosort' });
 	}
 
 	jorder_orderby_ordered_explicit();

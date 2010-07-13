@@ -1,16 +1,16 @@
-// jOrder on GitHub (source, wiki, donation):
-// http://github.com/danstocker/jOrder
+﻿// jOrder on GitHub (source, wiki, donation):
+// http://github.com/danstocker/jorder
 
-jOrder = (function ()
+jOrder = (function()
 {
     // local jOrder variable
-    var jOrder = function (json)
+    var jOrder = function(json)
     {
         return new jOrder.table(json);
     }
 
     // constants
-    jOrder.version = '1.0.0.4';
+    jOrder.version = '1.0.0.5';
     jOrder.name = "jOrder";
     jOrder.asc = 1;
     jOrder.desc = -1;
@@ -21,7 +21,7 @@ jOrder = (function ()
     jOrder.logging = true;
 
     // general logging function
-    jOrder.log = function (message, level)
+    jOrder.log = function(message, level)
     {
         if (!jOrder.logging)
             return;
@@ -30,14 +30,14 @@ jOrder = (function ()
 
         if (window.console)
         {
-            log = function (msg) { window.console.log(msg); }
-            warn = function (msg) { window.console.warn(msg); }
-            error = function (msg) { window.console.error(msg); }
+            log = function(msg) { window.console.log(msg); }
+            warn = function(msg) { window.console.warn(msg); }
+            error = function(msg) { window.console.error(msg); }
         }
         else if (Sys)
-            log = warn = error = function (msg) { Sys.Debug.trace(msg); }
+            log = warn = error = function(msg) { Sys.Debug.trace(msg); }
         else
-            log = warn = error = function (msg) { window.alert(msg); }
+            log = warn = error = function(msg) { window.alert(msg); }
 
         var prefix = jOrder.name + ": ";
         switch (level)
@@ -55,19 +55,19 @@ jOrder = (function ()
     }
 
     // issues a warning
-    jOrder.warning = function (message)
+    jOrder.warning = function(message)
     {
         jOrder.log(message, 1);
     }
 
     // issues an error
-    jOrder.error = function (message)
+    jOrder.error = function(message)
     {
         jOrder.log(message, 2);
     }
 
     // provides a deep copy of a table (array of objects)
-    jOrder.copyTable = function (table, renumber)
+    jOrder.copyTable = function(table, renumber)
     {
         jOrder.log("Creating deep copy of table (length: " + table.length + ").");
         var result = [];
@@ -94,7 +94,7 @@ jOrder = (function ()
     }
 
     // retrieves the keys of an object
-    jOrder.keys = function (object)
+    jOrder.keys = function(object)
     {
         var result = [];
         for (var key in object)
@@ -103,7 +103,7 @@ jOrder = (function ()
     }
 
     // gathers the values of an object
-    jOrder.values = function (object)
+    jOrder.values = function(object)
     {
         var result = [];
         for (var key in object)
@@ -116,7 +116,7 @@ jOrder = (function ()
     // - _flat: array of uniform objects
     // - _fields: array of strings representing table fields
     // - _options: grouped, sorted, data type
-    jOrder.index = function (_flat, _fields, _options)
+    jOrder.index = function(_flat, _fields, _options)
     {
         // manipulation
         this.add = add;
@@ -300,7 +300,7 @@ jOrder = (function ()
         // reorders the index
         function _reorder()
         {
-            _order = _order.sort(function (a, b)
+            _order = _order.sort(function(a, b)
             {
                 return a > b ? 1 : a < b ? -1 : 0;
             });
@@ -310,7 +310,7 @@ jOrder = (function ()
     // jQuery.table
     // database-like table object
     // - data: json table the table object is based on
-    jOrder.table = function (data)
+    jOrder.table = function(data)
     {
         // manipulation
         this.index = index;
@@ -429,12 +429,17 @@ jOrder = (function ()
 
         // selects a set of rows using the specified row ids
         // - rowIds: specifies which rows to include in the result
-        // - renumber: whether or not to preserve row ids
-        function select(rowIds, renumber)
+        // - options:
+        //   - renumber: whether or not to preserve row ids
+        function select(rowIds, options)
         {
+            // default options
+            if (!options)
+                options = {};
+
             var result = [];
 
-            if (renumber)
+            if (options.renumber)
             {
                 for (var idx in rowIds)
                 {
@@ -456,18 +461,24 @@ jOrder = (function ()
         // returns the first row as json table from the table ftting the conditions
         // - conditions: list of field-value pairs defining the data we're looking for
         //   (fields must be in the same exact order as in the index)
-        // - indexName: index to use for search
-        function where(conditions, indexName)
+        // - options:
+        //   - indexName: index to use for search
+        //   - renumber: whether or not to preserve row ids
+        function where(conditions, options)
         {
+            // default options
+            if (!options)
+                options = {};
+
             // obtain index
             var index = null;
             var fields;
-            if (indexName)
+            if (options.indexName)
             {
                 // use specified index
-                if (!(indexName in _indexes))
+                if (!(options.indexName in _indexes))
                     throw "Invalid index name.";
-                index = _indexes[indexName];
+                index = _indexes[options.indexName];
             }
             else
             {
@@ -478,11 +489,11 @@ jOrder = (function ()
 
             // index found, return matching row by index
             if (index)
-                return select(index.lookup(conditions));
+                return select(index.lookup(conditions), { renumber: options.renumber });
 
             // no index found, search linearly
             jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
-            return filter(function (row)
+            return filter(function(row)
             {
                 var match = false;
                 for (var idx in conditions)
@@ -518,6 +529,8 @@ jOrder = (function ()
             if (!index.grouped())
                 throw "Can't aggregate using a non-group index! Signature: '" + index.signature() + "'.";
 
+            jOrder.warning("jOrder.table.aggregate() traverses the table linearly (length: " + _data.length + ").");
+
             // cycling through groups according to index
             var groupIndex = index.flat();
             var grouped = [];
@@ -547,17 +560,23 @@ jOrder = (function ()
         // sorts the contents of the table according to an index
         // - fields: array of field names to sort by
         // - direction: jOrder.asc or jOrder.desc
-        // - indexName: name of the index to use for sorting
-        function orderby(fields, direction, indexName)
+        // - options:
+        //   - indexName: name of the index to use for sorting
+        //   - compare: comparer callback (UNUSED)
+        function orderby(fields, direction, options)
         {
+            // default options
+            if (!options)
+                options = {};
+
             // obtain index
             var index = null;
-            if (indexName)
+            if (options.indexName)
             {
                 // use specified index
-                if (!(indexName in _indexes))
+                if (!(options.indexName in _indexes))
                     throw "Invalid index name.";
-                index = _indexes[indexName];
+                index = _indexes[options.indexName];
             }
             else
             {
@@ -573,8 +592,8 @@ jOrder = (function ()
             if (!order)
             {
                 // sorting on the fly
-                jOrder.warning("Index '" + indexName + "' is not ordered. Sorting index on the fly.");
-                order = jOrder.keys(flat).sort(function (a, b)
+                jOrder.warning("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
+                order = jOrder.keys(flat).sort(function(a, b)
                 {
                     return a > b ? 1 : a < b ? -1 : 0;
                 });
@@ -588,22 +607,22 @@ jOrder = (function ()
             {
                 if (jOrder.asc == direction)
                     for (var idx = 0; idx < order.length; idx++)
-                        ids = ids.concat(flat[order[idx]]);
+                    ids = ids.concat(flat[order[idx]]);
                 else
                     for (var idx = order.length - 1; idx >= 0; idx--)
-                        ids = ids.concat(flat[order[idx]]);
+                    ids = ids.concat(flat[order[idx]]);
             }
             else
             {
                 if (jOrder.asc == direction)
                     for (var idx = 0; idx < order.length; idx++)
-                        ids.push(flat[order[idx]]);
+                    ids.push(flat[order[idx]]);
                 else
                     for (var idx = order.length - 1; idx >= 0; idx--)
-                        ids.push(flat[order[idx]]);
+                    ids.push(flat[order[idx]]);
             }
 
-            return select(ids, true);
+            return select(ids, { renumber: true });
         }
 
         // filters table rows using the passed selector function
@@ -617,14 +636,14 @@ jOrder = (function ()
             var result = [];
             for (var idx in _data)
                 if (selector(_data[idx]))
-                    result[idx] = _data[idx];
+                result[idx] = _data[idx];
             return result;
         }
 
         // counts the lements in the table
         function count()
         {
-            jOrder.warning("jOrder.count() traverses the table linearly (length: " + _data.length + ").");
+            jOrder.warning("jOrder.table.count() traverses the table linearly (length: " + _data.length + ").");
 
             return jQuery.keys(_data).length;
         }
@@ -644,11 +663,16 @@ jOrder = (function ()
 
         // returns one column of the table as a flat array
         // - field: field name identifying the column
-        // - renumber: whether or not it should preserve row ids
-        function column(field, renumber)
+        // - options:
+        //   - renumber: whether or not it should preserve row ids
+        function column(field, options)
         {
+            // default options
+            if (!options)
+                options = {};
+
             var result = [];
-            if (renumber)
+            if (options.renumber)
             {
                 for (var idx in _data)
                     result.push(_data[idx][field]);
@@ -698,3 +722,4 @@ jOrder = (function ()
 
     return jOrder;
 })();
+
