@@ -1,1 +1,6 @@
+IMPORTANT:
+
+jOrder 1.0.0.5 replaced the optional parameters of table.select(), table.where(), table.orderby(), and table.column() with a single object parameter.
+
+Consult the Wiki for details.
 
