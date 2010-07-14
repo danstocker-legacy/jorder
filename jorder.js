@@ -352,7 +352,8 @@ jOrder = (function()
             if (null != _indexes[name])
                 delete _indexes[name];
             _indexes[name] = new jOrder.index(_data, fields, options);
-        }
+            return this;
+       }
 
         // rebuilds indexes on table
         function reindex()

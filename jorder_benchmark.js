@@ -1,8 +1,8 @@
 // table that has group index on it
-var table_indexed = jOrder(jorder_benchmark_data);
-table_indexed.index('id', ['ID'], { ordered: true });
-table_indexed.index('id_nosort', ['ID']);
-table_indexed.index('group', ['GroupID'], { ordered: true, grouped: true });
+var table_indexed = jOrder(jorder_benchmark_data)
+    .index('id', ['ID'], { ordered: true })
+    .index('id_nosort', ['ID'])
+    .index('group', ['GroupID'], { ordered: true, grouped: true });
 
 // table with no group index
 var table_unindexed = jOrder(jorder_benchmark_data);
