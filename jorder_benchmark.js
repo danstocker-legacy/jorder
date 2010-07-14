@@ -2,7 +2,9 @@
 var table_indexed = jOrder(jorder_benchmark_data)
     .index('id', ['ID'], { ordered: true })
     .index('id_nosort', ['ID'])
-    .index('group', ['GroupID'], { ordered: true, grouped: true });
+    .index('group', ['GroupID'], { ordered: true, grouped: true })
+    .index('total', ['Total'], { ordered: true, grouped: true })
+    .index('date', ['StartDate'], { ordered: true, grouped: true });
 
 // table with no group index
 var table_unindexed = jOrder(jorder_benchmark_data);
@@ -35,6 +37,44 @@ function jorder_benchmark_where(benchmark_cycles)
 	jorder_where_explicit();
 	jorder_where_implicit();
 	jorder_where_no_index();
+}
+
+// testing range search
+function jorder_benchmark_range(benchmark_cycles)
+{
+	function jorder_range_implicit()
+	{
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        var hits = table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+	}
+
+	function jorder_range_no_index()
+	{
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        var hits = table_unindexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+	}
+	
+	jorder_range_implicit();
+	jorder_range_no_index();
+}
+
+// testing start-of test search
+function jorder_benchmark_start(benchmark_cycles)
+{
+	function jorder_start_implicit()
+	{
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        var hits = table_indexed.where([{ 'StartDate': '2' }], { mode: jOrder.startof });
+	}
+
+	function jorder_start_no_index()
+	{
+	    for (var i = 0; i < benchmark_cycles; i++)
+	        var hits = table_unindexed.where([{ 'StartDate': '2' }], { mode: jOrder.startof });
+	}
+
+	jorder_start_implicit();
+	jorder_start_no_index();
 }
 
 // testing aggregation by summing table along

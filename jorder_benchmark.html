@@ -9,8 +9,10 @@
         jOrder.logging = false;
 
         jorder_benchmark_where(1000);
-        jorder_benchmark_aggregate(1000);
+		jorder_benchmark_range(1000);
+		jorder_benchmark_start(1000);
         jorder_benchmark_orderby(1000);
+        jorder_benchmark_aggregate(1000);
 
         jOrder.logging = true;
     </script>
@@ -22,6 +24,10 @@
 		<li>jorder_where_explicit</li>
 		<li>jorder_where_implicit</li>
 		<li>jorder_where_no_index</li>
+		<li>jorder_range_implicit</li>
+		<li>jorder_range_no_index</li>
+		<li>jorder_start_implicit</li>
+		<li>jorder_start_no_index</li>
 	</ul>
 	<p>Ordering:</p>
 	<ul>
