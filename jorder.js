@@ -12,12 +12,21 @@ jOrder = (function()
     // constants
     jOrder.version = '1.0.0.5';
     jOrder.name = "jOrder";
+    // sorting
     jOrder.asc = 1;
     jOrder.desc = -1;
-    jOrder.string = 1;
-    jOrder.number = 2;
+    // index types
+    jOrder.string = 0;
+    jOrder.number = 1;
+    // range params
+    jOrder.start = 0;
+    jOrder.end = 1;
+    // search mode
+    jOrder.exact = 0;
+    jOrder.range = 1;
+    jOrder.startof = 2;
 
-    // properties    
+    // properties
     jOrder.logging = true;
 
     // general logging function
@@ -116,6 +125,9 @@ jOrder = (function()
     // - _flat: array of uniform objects
     // - _fields: array of strings representing table fields
     // - _options: grouped, sorted, data type
+    // 	 - grouped: bool
+    // 	 - sorted: bool
+    //   - type: jOrder.string, jOrder.number, jOrder.text (stub)
     jOrder.index = function(_flat, _fields, _options)
     {
         // manipulation
@@ -125,6 +137,8 @@ jOrder = (function()
 
         // querying
         this.lookup = lookup;
+        this.bsearch = bsearch;
+        this.range = range;
 
         // getters
         this.signature = signature;
@@ -138,10 +152,8 @@ jOrder = (function()
         var _order = [];
 
         // default options
-        if (!_options) _options = {};
-        if (!_options.grouped) _options.grouped = false;
-        if (!_options.ordered) _options.ordered = false;
-        if (!_options.type) _options.type = jOrder.string;
+        if (!_options)
+        	_options = {};
 
         // start by building the index
         rebuild();
@@ -249,7 +261,7 @@ jOrder = (function()
                     continue;
 
                 // index element is either an array or a number
-                if ('object' == typeof (_data[key]))
+                if ('object' == typeof _data[key])
                     result = result.concat(_data[key]);
                 else
                     result.push(_data[key]);
@@ -257,6 +269,84 @@ jOrder = (function()
             return result;
         }
 
+        // internal function for bsearch
+        // - value: searched value
+        // - start: starting index in the order
+        // - end: ending index in the order
+        function _bsearch(value, start, end)
+        {
+            if (_order[start] == value)
+                return start;
+
+            if (end - start == 1)
+                return start;
+
+            var middle = start + Math.floor((end - start) / 2);
+            if (_order[middle] > value)
+                return _bsearch(value, start, middle);
+            else
+                return _bsearch(value, middle, end);
+        }
+
+        // binary search on ordered list
+        // returns the position or preceeding position of the searched value
+        // - value: value we're lookung for
+        // - type: jOrder.start or jOrder.end
+        function bsearch(value, type)
+        {
+            // index must be ordered
+            if (!_options.ordered)
+                throw "Attempted bsearch() on unordered index. Signature: " + signature() + ".";
+
+            // default range
+            var start = 0;
+            var end = _order.length - 1;
+
+            // is value off the index
+            if (value < _order[start])
+                return start;
+            if (value > _order[end])
+                return end;
+
+            // start search
+            var idx = _bsearch(value, start, end);
+
+            // return the found index on exact hit
+            if (_order[idx] == value)
+                return idx;
+
+            // return the next index if we're looking for a range start
+            if (type == jOrder.start)
+                return idx + 1;
+
+            return idx;
+        }
+
+        // returns a list of rowIds matching the given bounds
+        // - bounds:
+        //   - lower: lower bound for the range
+        //   - upper: upper bound of the range
+        function range(bounds)
+        {
+        	if ('object' != typeof bounds)
+        		throw "Invalid bounds passed to index.range().";
+        
+        	// default range
+            var start = bounds.lower ? bsearch(bounds.lower, jOrder.start) : 0;
+            var end = bounds.upper ? bsearch(bounds.upper, jOrder.end) : _order.length - 1;
+
+            var result = [];
+            for (var idx = start; idx <= end; idx++)
+            {
+                var rowIds = _data[_order[idx]];
+                if ('object' == typeof rowIds)
+                    result = result.concat(rowIds);
+                else
+                    result.push(rowIds);
+            }
+            return result;
+        }
+        
         // tells whether the index id grouped
         function grouped()
         {
@@ -325,8 +415,8 @@ jOrder = (function()
         this.where = where;             // uses index
         this.aggregate = aggregate;     // uses index
         this.orderby = orderby;         // uses ordered index
-        this.filter = filter;           // linear traversing
-        this.count = count;             // linear traversing
+        this.filter = filter;           // iterates
+        this.count = count;             // iterates
 
         // data access
         this.flat = flat;
@@ -353,7 +443,7 @@ jOrder = (function()
                 delete _indexes[name];
             _indexes[name] = new jOrder.index(_data, fields, options);
             return this;
-       }
+        }
 
         // rebuilds indexes on table
         function reindex()
@@ -464,6 +554,7 @@ jOrder = (function()
         //   (fields must be in the same exact order as in the index)
         // - options:
         //   - indexName: index to use for search
+        //   - mode: jOrder.exact, jOrder.range, jOrder.startof (not unicode!)
         //   - renumber: whether or not to preserve row ids
         function where(conditions, options)
         {
@@ -478,7 +569,7 @@ jOrder = (function()
             {
                 // use specified index
                 if (!(options.indexName in _indexes))
-                    throw "Invalid index name.";
+                    throw "Invalid index name: '" + options.indexName + "'.";
                 index = _indexes[options.indexName];
             }
             else
@@ -489,13 +580,43 @@ jOrder = (function()
             }
 
             // index found, return matching row by index
+            var rowIds;
             if (index)
-                return select(index.lookup(conditions), { renumber: options.renumber });
-
+            {
+            	switch (options.mode)
+				{
+				default:
+				case jOrder.exact:
+					rowIds = index.lookup(conditions);
+					break;
+				case jOrder.range:
+					rowIds = index.range(jOrder.values(conditions[0])[0]);
+					break;
+				case jOrder.startof:
+					var lower = jOrder.values(conditions[0])[0];
+					rowIds = index.range({ lower: lower, upper: lower + 'z' });
+					break;
+				}
+				return select(rowIds, { renumber: options.renumber });
+			}
+				
             // no index found, search linearly
             jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
             return filter(function(row)
             {
+            	// range search
+            	if (options.mode == jOrder.range)
+            	{
+            		var bounds = jOrder.values(conditions[0])[0];
+            		var field = jOrder.keys(conditions[0])[0];
+            		return bounds.lower <= row[field] && bounds.upper >= row[field];
+            	}
+            	
+            	// start-of partial match
+            	if (options.mode == jOrder.startof)
+            		return 0 == row[jOrder.keys(conditions[0])[0]].indexOf(jOrder.values(conditions[0])[0]);
+            	
+            	// exact match
                 var match = false;
                 for (var idx in conditions)
                 {
@@ -530,7 +651,7 @@ jOrder = (function()
             if (!index.grouped())
                 throw "Can't aggregate using a non-group index! Signature: '" + index.signature() + "'.";
 
-            jOrder.warning("jOrder.table.aggregate() traverses the table linearly (length: " + _data.length + ").");
+            jOrder.warning("jOrder.table.aggregate() iterates over the table (length: " + _data.length + ").");
 
             // cycling through groups according to index
             var groupIndex = index.flat();
@@ -644,7 +765,7 @@ jOrder = (function()
         // counts the lements in the table
         function count()
         {
-            jOrder.warning("jOrder.table.count() traverses the table linearly (length: " + _data.length + ").");
+            jOrder.warning("jOrder.table.count() iterates over the table (length: " + _data.length + ").");
 
             return jQuery.keys(_data).length;
         }
