@@ -2,23 +2,42 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>jOrder benchmark</title>
+    <script type="text/javascript" src="jlinq-2.2.1.js"></script>
     <script type="text/javascript" src="jorder.js"></script>
-    <script type="text/javascript" src="jorder_benchmark_data.js"></script>
+    <script type="text/javascript" src="jorder_benchmark_data77.js"></script>
+    <script type="text/javascript" src="jorder_benchmark_data1000.js"></script>
     <script type="text/javascript" src="jorder_benchmark.js"></script>
     <script type="text/javascript">
-        jOrder.logging = false;
-
-        jorder_benchmark_where(1000);
-		jorder_benchmark_range(1000);
-		jorder_benchmark_start(1000);
-        jorder_benchmark_orderby(1000);
-        jorder_benchmark_aggregate(1000);
-
-        jOrder.logging = true;
-    </script>
+    	function benchmark()
+    	{
+			jOrder.logging = false;
+	
+			jorder_benchmark1000_where(100);
+			jorder_benchmark1000_range(100);
+			jorder_benchmark1000_start(100);
+			jorder_benchmark_where(1000);
+			jorder_benchmark_range(1000);
+			jorder_benchmark_start(1000);
+			jorder_benchmark_orderby(1000);
+			jorder_benchmark_aggregate(1000);
+	
+			jOrder.logging = true;
+        }
+        
+        function test_full_text_search()
+        {
+			var table = jOrder(jorder_benchmark_data1000)
+				.index('id', ['id'], { ordered: true, type: jOrder.number })
+				.index('name', ['name'], { ordered: true, grouped: true, type: jOrder.text });
+			
+			var hits = table.where([{name: 'con'}], { mode: jOrder.startof });
+        }
+        
+        benchmark();
+    </script>                                    
 </head>
 <body>
-	<p>Turn on firebug's profiler and compare the 'time' column for these functions:</p>
+	<p>Turn on your browser's profiler and compare the 'time' column for these functions:</p>
 	<p>Search:</p>
 	<ul>
 		<li>jorder_where_explicit</li>
