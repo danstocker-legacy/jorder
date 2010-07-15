@@ -13,7 +13,7 @@ jOrder = (function()
     }
 
     // constants
-    jOrder.version = '1.0.0.5';
+    jOrder.version = '1.0.0.6';
     jOrder.name = "jOrder";
     // sorting
     jOrder.asc = 1;

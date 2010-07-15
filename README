@@ -1,6 +1,6 @@
-IMPORTANT:
+jOrder - JavaScript data management redefined
 
-jOrder 1.0.0.5 replaced the optional parameters of table.select(), table.where(), table.orderby(), and table.column() with a single object parameter.
+jOrder is a lightweight JavaScript library that supports fast search (including full-text), ordering, and modification on JSON tables.
 
-Consult the Wiki for details.
+Latest version: 1.0.0.6 (dev)
 
