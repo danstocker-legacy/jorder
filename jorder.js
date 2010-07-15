@@ -1,5 +1,8 @@
 ﻿// jOrder on GitHub (source, wiki, donation):
 // http://github.com/danstocker/jorder
+//
+// jOrder blog on Wordpress:
+// http://jorder.wordpress.com
 
 jOrder = (function()
 {
@@ -18,6 +21,7 @@ jOrder = (function()
     // index types
     jOrder.string = 0;
     jOrder.number = 1;
+    jOrder.text = 2;
     // range params
     jOrder.start = 0;
     jOrder.end = 1;
@@ -127,7 +131,7 @@ jOrder = (function()
     // - _options: grouped, sorted, data type
     // 	 - grouped: bool
     // 	 - sorted: bool
-    //   - type: jOrder.string, jOrder.number, jOrder.text (stub)
+    //   - type: jOrder.string, jOrder.number, jOrder.text
     jOrder.index = function(_flat, _fields, _options)
     {
         // manipulation
@@ -153,7 +157,7 @@ jOrder = (function()
 
         // default options
         if (!_options)
-        	_options = {};
+            _options = {};
 
         // start by building the index
         rebuild();
@@ -164,35 +168,43 @@ jOrder = (function()
         // - reorder: whether to re-calcuate order after addition
         function add(row, rowId, reorder)
         {
-            var key = _key(row);
+            // obtain keys associated with the row
+            var keys = jOrder.text == _options.type ?
+                row[_fields[0]].split(' ') :
+                [_key(row)];
 
-            // required field not found; row cannot be indexed
-            if (null == key)
-                throw "Can't add row to index. No field matches signature '" + signature() + "'";
+            for (idx in keys)
+            {
+                var key = keys[idx];
+                
+                // required field not found; row cannot be indexed
+                if (null == key)
+                    throw "Can't add row to index. No field matches signature '" + signature() + "'";
 
-            // extend (and re-calculate) order
-            if (_options.ordered && !(key in _data))
-            {
-                // number variable type must be preserved for sorting purposes
-                _order.push(jOrder.number == _options.type ? _flat[rowId][_fields[0]] : key);
-                if (!(false === reorder))
-                    _reorder();
-            }
+                // extend (and re-calculate) order
+                if (_options.ordered && !(key in _data))
+                {
+                    // number variable type must be preserved for sorting purposes
+                    _order.push(jOrder.number == _options.type ? row[_fields[0]] : key);
+                    if (!(false === reorder))
+                        _reorder();
+                }
 
-            // add row id to index
-            if (_options.grouped)
-            {
-                // grouped index
-                if (!_data[key])
-                    _data[key] = [];
-                _data[key][rowId] = rowId;
-            }
-            else
-            {
-                // non-grouped index
-                if (key in _data)
-                    throw "Can't add more than one row ID to the non-grouped index '" + signature() + "'. Consider using a group index instead.";
-                _data[key] = rowId;
+                // add row id to index
+                if (_options.grouped)
+                {
+                    // grouped index
+                    if (!_data[key])
+                        _data[key] = [];
+                    _data[key][rowId] = rowId;
+                }
+                else
+                {
+                    // non-grouped index
+                    if (key in _data)
+                        throw "Can't add more than one row ID to the non-grouped index '" + signature() + "'. Consider using a group index instead.";
+                    _data[key] = rowId;
+                }
             }
         }
 
@@ -222,6 +234,18 @@ jOrder = (function()
         // rebuilds the index
         function rebuild()
         {
+            // check parameter consistency
+            if (_fields.length > 1)
+            {
+                switch (_options.type)
+                {
+                    case jOrder.text:
+                        throw "Can't create a text index on more than one field.";
+                    case jOrder.number:
+                        throw "Can't create a number index on more than one field.";
+                }
+            }
+
             // clear index
             delete _data;
             _data = {};
@@ -328,13 +352,17 @@ jOrder = (function()
         //   - upper: upper bound of the range
         function range(bounds)
         {
-        	if ('object' != typeof bounds)
-        		throw "Invalid bounds passed to index.range().";
-        
-        	// default range
+        	if (!_options.ordered)
+        		throw "Can't call index.range() on the unordered index '" + signature() + "'. Set up the index as ordered.";
+        	
+            if ('object' != typeof bounds)
+                throw "Invalid bounds passed to index.range().";
+
+            // default range
             var start = bounds.lower ? bsearch(bounds.lower, jOrder.start) : 0;
             var end = bounds.upper ? bsearch(bounds.upper, jOrder.end) : _order.length - 1;
 
+            // the result may have duplicate values
             var result = [];
             for (var idx = start; idx <= end; idx++)
             {
@@ -346,7 +374,7 @@ jOrder = (function()
             }
             return result;
         }
-        
+
         // tells whether the index id grouped
         function grouped()
         {
@@ -583,40 +611,40 @@ jOrder = (function()
             var rowIds;
             if (index)
             {
-            	switch (options.mode)
-				{
-				default:
-				case jOrder.exact:
-					rowIds = index.lookup(conditions);
-					break;
-				case jOrder.range:
-					rowIds = index.range(jOrder.values(conditions[0])[0]);
-					break;
-				case jOrder.startof:
-					var lower = jOrder.values(conditions[0])[0];
-					rowIds = index.range({ lower: lower, upper: lower + 'z' });
-					break;
-				}
-				return select(rowIds, { renumber: options.renumber });
-			}
-				
+                switch (options.mode)
+                {
+                    default:
+                    case jOrder.exact:
+                        rowIds = index.lookup(conditions);
+                        break;
+                    case jOrder.range:
+                        rowIds = index.range(jOrder.values(conditions[0])[0]);
+                        break;
+                    case jOrder.startof:
+                        var lower = jOrder.values(conditions[0])[0];
+                        rowIds = index.range({ lower: lower, upper: lower + 'z' });
+                        break;
+                }
+                return select(rowIds, { renumber: options.renumber });
+            }
+
             // no index found, search linearly
             jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
             return filter(function(row)
             {
-            	// range search
-            	if (options.mode == jOrder.range)
-            	{
-            		var bounds = jOrder.values(conditions[0])[0];
-            		var field = jOrder.keys(conditions[0])[0];
-            		return bounds.lower <= row[field] && bounds.upper >= row[field];
-            	}
-            	
-            	// start-of partial match
-            	if (options.mode == jOrder.startof)
-            		return 0 == row[jOrder.keys(conditions[0])[0]].indexOf(jOrder.values(conditions[0])[0]);
-            	
-            	// exact match
+                // range search
+                if (options.mode == jOrder.range)
+                {
+                    var bounds = jOrder.values(conditions[0])[0];
+                    var field = jOrder.keys(conditions[0])[0];
+                    return bounds.lower <= row[field] && bounds.upper >= row[field];
+                }
+
+                // start-of partial match
+                if (options.mode == jOrder.startof)
+                    return 0 == row[jOrder.keys(conditions[0])[0]].indexOf(jOrder.values(conditions[0])[0]);
+
+                // exact match
                 var match = false;
                 for (var idx in conditions)
                 {
