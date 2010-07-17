@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>jOrder benchmark page</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="../jorder.js"></script>
+    <script type="text/javascript" src="data77.js"></script>
+    <script type="text/javascript" src="data1000.js"></script>
+    <script type="text/javascript" src="benchmark.js"></script>
+    <style rel="css">
+    	body
+    	{
+			font-family: arial, sans;
+			font-size: 12px;
+    	}
+    
+    	table
+		{
+			margin: 8px 0 0 0;
+			width: 500px;
+			border-collapse: collapse;
+			border: 1px solid #ddd;
+		}
+		
+		table col.desc
+		{
+			width: 70%;
+		}
+		
+		table col.button
+		{
+			width: 10%;
+		}
+		
+		table col.time
+		{
+			width: 20%;
+		}
+		
+		table th,
+		table td
+		{
+			padding: 4px;
+			vertical-align: baseline;
+			border: 1px solid #ddd;
+		}
+		
+		table th
+		{
+			text-align: left;
+			font-weight: bold
+		}
+	</style>
+</head>
+<body>
+	<h1>jOrder benchmarks</h1>
+	<p>Benchmarks are performed on these two datasets:</p>
+	<ul>
+		<li>A <a href="data77.js" target="new">small table</a> of 77 rows</li>
+		<li>A <a href="data1000.js" target="new">large table</a> of 1000 rows</li>
+	</ul>
+	<label for="count">Test cycles: </label>
+	<select id="count">
+		<option value="10" selected="selected">10</option>
+		<option value="100">100</option>
+		<option value="1000">1000</option>
+	</select>
+	<h2>Small table results</h2>
+	<table id="small">
+		<colgroup>
+			<col class="desc" />
+			<col class="button" />
+			<col class="time" />
+		</colgroup>
+	</table>
+	<h2>Large table results</h2>
+	<table id="large">
+		<colgroup>
+			<col class="desc" />
+			<col class="button" />
+			<col class="time" />
+		</colgroup>
+	</table>
+</body>
+</html>
