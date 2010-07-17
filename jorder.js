@@ -641,7 +641,7 @@ jOrder = (function()
 					var bounds = jOrder.values(conditions[0])[0];
 					var field = jOrder.keys(conditions[0])[0];
 					return bounds.lower <= row[field] && bounds.upper >= row[field];
-				});
+				}, options);
 
 			
 			// start-of partial match
@@ -649,7 +649,7 @@ jOrder = (function()
 				return filter(function(row)
 				{
 					0 == row[jOrder.keys(conditions[0])[0]].indexOf(jOrder.values(conditions[0])[0]);
-				});
+				}, options);
 
 			// exact match
 			return filter(function(row)
@@ -669,7 +669,7 @@ jOrder = (function()
 						break;
 				}
 				return match;
-			});
+			}, options);
 
 			return [];
 		}
@@ -796,14 +796,29 @@ jOrder = (function()
 		// runs the selector on each row of the table
 		// returns a json table; preserves row ids
 		// - selector: function that takes the row (object) as argument and returns a bool
-		function filter(selector)
+		// - options:
+		// 	 - renumber: whether to preserve original row ids
+		function filter(selector, options)
 		{
 			jOrder.warning("Performing linear search on table (length: " + _data.length + "). Consider using an index.");
 
+			// default options
+			if (!options)
+				options = {};
+			
 			var result = [];
+			
+			if (options.renumber)
+			{
+				for (var idx in _data)
+					if (selector(_data[idx]))
+						result.push(_data[idx]);
+				return result;
+			}
+			
 			for (var idx in _data)
 				if (selector(_data[idx]))
-				result[idx] = _data[idx];
+					result[idx] = _data[idx];
 			return result;
 		}
 
