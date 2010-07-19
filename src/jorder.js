@@ -352,7 +352,10 @@ jOrder = (function()
 		// - bounds:
 		//	 - lower: lower bound for the range
 		//	 - upper: upper bound of the range
-		function range(bounds)
+		// - options:
+		// 	 - offset
+		//   - limit
+		function range(bounds, options)
 		{
 			if (!_options.ordered)
 				throw "Can't call index.range() on the unordered index '" + signature() + "'. Set up the index as ordered.";
@@ -360,9 +363,17 @@ jOrder = (function()
 			if ('object' != typeof bounds)
 				throw "Invalid bounds passed to index.range().";
 
-			// default range
-			var start = bounds.lower ? bsearch(bounds.lower, jOrder.start) : 0;
-			var end = bounds.upper ? bsearch(bounds.upper, jOrder.end) : _order.length - 1;
+			// default options
+			if (!options)
+				options = {};
+			
+			// get range
+			var start =
+				(bounds.lower ? bsearch(bounds.lower, jOrder.start) : 0) +
+				(options.offset ? options.offset : 0);
+			var end =
+				options.limit ? ((start + options.limit) < _order.length ? start + options.limit - 1 : _order.length - 1) :
+				bounds.upper ? bsearch(bounds.upper, jOrder.end) : _order.length - 1;
 
 			// the result may have duplicate values
 			var result = [];
@@ -397,9 +408,20 @@ jOrder = (function()
 		}
 
 		// returns a copy of the index order
-		function order()
+		// - options
+		//   - offset
+		//	 - limit
+		function order(options)
 		{
-			return _order.length ? _order : null;
+			if (!options || !options.offset && !options.limit)
+				return _order.length ? _order : null;
+			
+			if (!options.offset)
+				options.offset = 0;
+			if (!options.limit)
+				options.limit = 1;
+
+			return _order.slice(options.offset, options.offset + options.limit - 1);
 		}
 
 		// helper functions
@@ -587,6 +609,8 @@ jOrder = (function()
 		//	 - indexName: index to use for search
 		//	 - mode: jOrder.exact, jOrder.range, jOrder.startof (not unicode!)
 		//	 - renumber: whether or not to preserve row ids
+		//	 - offset: search offset
+		//	 - limit: munber of rows to return starting from offset
 		function where(conditions, options)
 		{
 			// default options
@@ -621,11 +645,11 @@ jOrder = (function()
 						rowIds = index.lookup(conditions);
 						break;
 					case jOrder.range:
-						rowIds = index.range(jOrder.values(conditions[0])[0]);
+						rowIds = index.range(jOrder.values(conditions[0])[0], options);
 						break;
 					case jOrder.startof:
 						var lower = jOrder.values(conditions[0])[0];
-						rowIds = index.range({ lower: lower, upper: lower + 'z' });
+						rowIds = index.range({ lower: lower, upper: lower + 'z' }, options);
 						break;
 				}
 				return select(rowIds, { renumber: options.renumber });
@@ -747,7 +771,7 @@ jOrder = (function()
 
 			// assess sorting order
 			var flat = index.flat();
-			var order = index.order();
+			var order = index.order(options);
 			if (!order)
 			{
 				// sorting on the fly
