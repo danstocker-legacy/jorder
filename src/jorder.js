@@ -13,7 +13,7 @@ jOrder = (function()
 	}
 
 	// constants
-	jOrder.version = '1.0.0.6';
+	jOrder.version = '1.0.0.7';
 	jOrder.name = "jOrder";
 	// sorting
 	jOrder.asc = 1;
@@ -150,6 +150,7 @@ jOrder = (function()
 		this.order = order;
 		this.grouped = grouped;
 		this.ordered = ordered;
+		this.type = type;
 
 		// private values
 		var _data = {};
@@ -169,23 +170,30 @@ jOrder = (function()
 		function add(row, rowId, reorder)
 		{
 			// obtain keys associated with the row
-			var keys = jOrder.text == _options.type ?
-				row[_fields[0]].split(' ') :
-				[_key(row)];
+			var keys;
+			if (jOrder.text == _options.type)
+			{
+				keys = row[_fields[0]].split(' ');
+			}
+			else
+			{
+				// required field not found; row cannot be indexed
+				var key = _key(row);
+				if (null == key)
+					throw "Can't add row to index. No field matches signature '" + signature() + "'";
+
+				keys = [key];
+			}
 
 			for (idx in keys)
 			{
 				var key = keys[idx];
 				
-				// required field not found; row cannot be indexed
-				if (null == key)
-					throw "Can't add row to index. No field matches signature '" + signature() + "'";
-
 				// extend (and re-calculate) order
-				if (_options.ordered && !(key in _data))
+				if (_options.ordered)
 				{
 					// number variable type must be preserved for sorting purposes
-					_order.push(jOrder.number == _options.type ? row[_fields[0]] : key);
+					_order.push({ key: (jOrder.number == _options.type ? row[_fields[0]] : key), rowId: rowId });
 					if (!(false === reorder))
 						_reorder();
 				}
@@ -301,14 +309,14 @@ jOrder = (function()
 		// - end: ending index in the order
 		function _bsearch(value, start, end)
 		{
-			if (_order[start] == value)
+			if (_order[start].key == value)
 				return start;
 
 			if (end - start == 1)
 				return start;
 
 			var middle = start + Math.floor((end - start) / 2);
-			if (_order[middle] > value)
+			if (_order[middle].key > value)
 				return _bsearch(value, start, middle);
 			else
 				return _bsearch(value, middle, end);
@@ -329,16 +337,16 @@ jOrder = (function()
 			var end = _order.length - 1;
 
 			// is value off the index
-			if (value < _order[start])
+			if (value < _order[start].key)
 				return start;
-			if (value > _order[end])
+			if (value > _order[end].key)
 				return end;
 
 			// start search
 			var idx = _bsearch(value, start, end);
 
 			// return the found index on exact hit
-			if (_order[idx] == value)
+			if (_order[idx].key == value)
 				return idx;
 
 			// return the next index if we're looking for a range start
@@ -378,14 +386,7 @@ jOrder = (function()
 			// the result may have duplicate values
 			var result = [];
 			for (var idx = start; idx <= end; idx++)
-			{
-				var rowIds = _data[_order[idx]];
-				if ('object' == typeof rowIds)
-					for (var jdx in rowIds)
-						result.push(rowIds[jdx]);
-				else
-					result.push(rowIds);
-			}
+				result.push(_order[idx].rowId);
 			return result;
 		}
 
@@ -401,6 +402,12 @@ jOrder = (function()
 			return _options.ordered;
 		}
 
+		// returns index type
+		function type()
+		{
+			return _options.type;
+		}
+		
 		// flat, json representation of the index data
 		function flat()
 		{
@@ -421,7 +428,7 @@ jOrder = (function()
 			if (!options.limit)
 				options.limit = 1;
 
-			return _order.slice(options.offset, options.offset + options.limit - 1);
+			return _order.slice(options.offset, options.offset + options.limit);
 		}
 
 		// helper functions
@@ -445,7 +452,7 @@ jOrder = (function()
 		{
 			_order.sort(function(a, b)
 			{
-				return a > b ? 1 : a < b ? -1 : 0;
+				return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
 			});
 		}
 	}
@@ -588,8 +595,7 @@ jOrder = (function()
 				for (var idx in rowIds)
 				{
 					var rowId = rowIds[idx];
-					if (rowId in _data)
-						result.push(_data[rowId]);
+					result.push(_data[rowId]);
 				}
 				return result;
 			}
@@ -768,7 +774,9 @@ jOrder = (function()
 			}
 			if (!index)
 				throw "Can't order by unindexed fields: '" + fields.join(',') + "'.";
-
+			if (jOrder.text == index.type())
+				throw "Can't order by free-text index: '" + fields.join(',') + "'.";
+			
 			// assess sorting order
 			var flat = index.flat();
 			var order = index.order(options);
@@ -783,37 +791,23 @@ jOrder = (function()
 			}
 
 			// assembling ordered set
-			// NOTE: breaking down the following section will result in
-			// a performance drop!
-			var ids = [];
+			var rowIds = [];
 			if (jOrder.asc == direction)
-			{
-				if (index.grouped())
-					for (var idx = 0; idx < order.length; idx++)
-					{
-						var rowIds = flat[order[idx]];
-						for (var jdx in rowIds)
-							ids = ids.concat(rowIds[jdx]);
-					}
-				else
-					for (var idx = 0; idx < order.length; idx++)
-						ids.push(flat[order[idx]]);
-			}
+				for (var idx = 0; idx < order.length; idx++)
+				{
+					if (!(order[idx].rowId in _data))
+						order.splice(idx, 1);
+					rowIds.push(order[idx].rowId);
+				}
 			else
-			{
-				if (index.grouped())
-					for (var idx = order.length - 1; idx >= 0; idx--)
-					{
-						var rowIds = flat[order[idx]];
-						for (var jdx in rowIds)
-							ids = ids.concat(rowIds[jdx]);
-					}
-				else
-					for (var idx = order.length - 1; idx >= 0; idx--)
-						ids.push(flat[order[idx]]);
-			}
+				for (var idx = order.length - 1; idx >= 0; idx--)
+				{
+					if (!(order[idx].rowId in _data))
+						order.splice(idx, 1);
+					rowIds.push(order[idx].rowId);
+				}
 
-			return select(ids, { renumber: true });
+			return select(rowIds, { renumber: true });
 		}
 
 		// filters table rows using the passed selector function
