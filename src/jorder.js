@@ -138,6 +138,7 @@ jOrder = (function()
 		this.add = add;
 		this.remove = remove;
 		this.rebuild = rebuild;
+		this.compact = compact;
 
 		// querying
 		this.lookup = lookup;
@@ -170,20 +171,9 @@ jOrder = (function()
 		function add(row, rowId, reorder)
 		{
 			// obtain keys associated with the row
-			var keys;
-			if (jOrder.text == _options.type)
-			{
-				keys = row[_fields[0]].split(' ');
-			}
-			else
-			{
-				// required field not found; row cannot be indexed
-				var key = _key(row);
-				if (null == key)
-					throw "Can't add row to index. No field matches signature '" + signature() + "'";
-
-				keys = [key];
-			}
+			var keys = _keys(row);
+			if (null == keys)
+				throw "Can't add row to index. No field matches signature '" + signature() + "'";
 
 			for (idx in keys)
 			{
@@ -218,25 +208,30 @@ jOrder = (function()
 
 		// removes a key from the index
 		// - row: row to delete
+		// - rowId: id of row to delete
 		function remove(row, rowId)
 		{
-			var key = _key(row);
-
-			if (!(key in _data))
-				throw "Can't remove row. Row '" + key + "' doesn't match signature '" + signature() + "'.";
-
-			// non-group index
-			if (!_options.grouped)
+			var keys = _keys(row);
+			for (idx in keys)
 			{
-				delete _data[key];
-				return;
+				var key = keys[idx];
+
+				if (!(key in _data))
+					throw "Can't remove row. Row '" + key + "' doesn't match signature '" + signature() + "'.";
+	
+				// non-group index
+				if (!_options.grouped)
+				{
+					delete _data[key];
+					return;
+				}
+	
+				if (null == rowId)
+					throw "Must pass rowId when deleting from group index.";
+	
+				// group index
+				delete _data[key][rowId];
 			}
-
-			if (null == rowId)
-				throw "Must pass rowId when deleting from group index.";
-
-			// group index
-			delete _data[key][rowId];
 		}
 
 		// rebuilds the index
@@ -272,6 +267,19 @@ jOrder = (function()
 			_reorder();
 		}
 
+		// compacts the order by eliminating orphan entries
+		function compact()
+		{
+			// compacting operates on index order
+			if (!_options.ordered)
+				throw "Attempted to compact an unordered index: '" + signature() + "'.";
+
+			// remove orphan entries
+			for (idx in _order)
+				if (!(_order[idx].rowId in _flat))
+					_order.splice(idx, 1);
+		}
+		
 		// generates or validates a signature for the index
 		// - sig: signature to validate
 		function signature(fields)
@@ -288,7 +296,7 @@ jOrder = (function()
 			var result = [];
 			for (var idx in rows)
 			{
-				var key = _key(rows[idx]);
+				var key = _keys(rows[idx])[0];
 				if (!(key in _data))
 					continue;
 
@@ -435,8 +443,11 @@ jOrder = (function()
 
 		// constructs a key based on values of a row
 		// - row: data row that serves as basis for the index key
-		function _key(row)
+		function _keys(row)
 		{
+			if (jOrder.text == _options.type)
+				return row[_fields[0]].split(' ');
+
 			var key = [];
 			for (var idx in _fields)
 			{
@@ -444,7 +455,7 @@ jOrder = (function()
 					return null;
 				key.push(row[_fields[idx]]);
 			}
-			return escape(key.join('_'));
+			return [escape(key.join('_'))];
 		}
 
 		// reorders the index
@@ -515,15 +526,35 @@ jOrder = (function()
 		// updates, inserts or deletes one row in the table, modifies indexes
 		// - before: data row
 		// - after: changed data row
-		function update(before, after)
+		// - options: [indexName]
+		function update(before, after, options)
 		{
+			if (!options)
+				options = {};
+			
+			// obtain index explicitely
+			// or take the first available unique one
+			var index;
+			if (options.indexName)
+				index = _indexes[indexName];
+			else
+			{
+				for (idx in _indexes)
+					if (!_indexes[idx].grouped())
+						index = _indexes[idx];
+			}
+			
+			// obtain current rowId
 			var rowId = null;
-
-			// here we assume that the first index is the id index
 			if (before)
-				rowId = jOrder.values(_indexes)[0].lookup([before])[0];
-
-			// are we inseting?
+			{
+				if (!index)
+					throw "Can't find suitable index for fields: '" + jOrder.keys(before).join(",") + "'.";
+				rowId = index.lookup([before])[0];
+				before = _data[rowId];
+			}
+			
+			// are we inserting?
 			if (null == rowId)
 			{
 				if (!after)
@@ -555,18 +586,20 @@ jOrder = (function()
 
 		// inserts a row into the table, updates indexes
 		// - rows: table rows to be inserted
-		function insert(rows)
+		// - options: [indexName]
+		function insert(rows, options)
 		{
 			for (var idx in rows)
-				update(null, rows[idx]);
+				update(null, rows[idx], options);
 		}
 
 		// deletes row from table, updates indexes
 		// - rows: table rows to delete
-		function remove(rows)
+		// - options: [indexName]
+		function remove(rows, options)
 		{
 			for (var idx in rows)
-				update(rows[idx], null);
+				update(rows[idx], null, options);
 		}
 
 		// deletes the tables contents
@@ -772,42 +805,56 @@ jOrder = (function()
 				// look for a suitable index
 				index = _index(fields);
 			}
-			if (!index)
-				throw "Can't order by unindexed fields: '" + fields.join(',') + "'.";
 			if (jOrder.text == index.type())
 				throw "Can't order by free-text index: '" + fields.join(',') + "'.";
 			
 			// assess sorting order
-			var flat = index.flat();
 			var order = index.order(options);
 			if (!order)
 			{
 				// sorting on the fly
 				jOrder.warning("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
-				order = jOrder.keys(flat).sort(function(a, b)
+				return jOrder.copyTable(_data).sort(function(a, b)
 				{
-					return a > b ? 1 : a < b ? -1 : 0;
+					return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 				});
 			}
 
-			// assembling ordered set
-			var rowIds = [];
-			if (jOrder.asc == direction)
-				for (var idx = 0; idx < order.length; idx++)
+			function rowIds()
+			{
+				var result = [];
+				if (jOrder.asc == direction)
 				{
-					if (!(order[idx].rowId in _data))
-						order.splice(idx, 1);
-					rowIds.push(order[idx].rowId);
+					for (var idx = 0; idx < order.length; idx++)
+					{
+						if (!(order[idx].rowId in _data))
+						{
+							index.compact();
+							order = index.order(options);
+							delete result;
+							return rowIds();
+						}
+						result.push(order[idx].rowId);
+					}
+					return result;
 				}
-			else
+
 				for (var idx = order.length - 1; idx >= 0; idx--)
 				{
 					if (!(order[idx].rowId in _data))
-						order.splice(idx, 1);
-					rowIds.push(order[idx].rowId);
+					{
+						index.compact();
+						order = index.order(options);
+						delete result;
+						return rowIds();
+					}
+					result.push(order[idx].rowId);
 				}
-
-			return select(rowIds, { renumber: true });
+				return result;
+			}
+			
+			// returning ordered rows
+			return select(rowIds(), { renumber: true });
 		}
 
 		// filters table rows using the passed selector function
