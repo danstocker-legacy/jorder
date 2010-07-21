@@ -25,7 +25,8 @@ var categories =
 	'freetext_search1000': "Free text search (rows with 'name' field starting with \"con\")",
 	'sorting77': "Sorting by 'ID'",
 	'sorting1000': "Sorting by 'name'",
-	'aggregate77': "Grouping by 'GroupID'"
+	'aggregate77': "Grouping by 'GroupID'",
+	'array': "Concatenating an array to itself multiple times"
 }
 
 // function that registers a benchmark function on the page
@@ -87,9 +88,9 @@ $(function()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			var hits = table_unindexed.filter(function(row)
-                {
-                    return row.GroupID == 107 || row.GroupID == 185;
-                });
+				{
+					return row.GroupID == 107 || row.GroupID == 185;
+				});
 	});
 	
 	// Exact search on 1000 rows
@@ -116,9 +117,9 @@ $(function()
 	{
 		for (var i = 0; i < benchmark_cycles; i++)
 			var hits = table1000_unindexed.filter(function(row)
-                {
-                    return row.id == 107 || row.id == 115;
-                });
+				{
+					return row.id == 107 || row.id == 115;
+				});
 	});
 
 	// Range search on 77 rows
@@ -220,7 +221,7 @@ $(function()
 				return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
 			});
 	});
-
+	
 	// Sorting on 1000 rows
 
 	register_benchmark('large', 'sorting1000', "jOrder.table.where() using ordered index", function()
@@ -258,6 +259,31 @@ $(function()
 			var summed = table_indexed.aggregate('group', init, iterate);
 	});
 	
+	// General
+
+	register_benchmark('general', 'array', "Using Array.push()", function()
+	{
+		var result = [];
+		for (var i = 0; i < benchmark_cycles; i++)
+			for (var idx in jorder_benchmark_data77)
+				result.push(jorder_benchmark_data77[idx]);
+	});
+	
+	register_benchmark('general', 'array', "Using Array.concat()", function()
+	{
+		var result = [];
+		for (var i = 0; i < benchmark_cycles; i++)
+			result = result.concat(jorder_benchmark_data77);
+	});
+
+	register_benchmark('general', 'array', "Using Array.splice()", function()
+	{
+		var result = [];
+		for (var i = 0; i < benchmark_cycles; i++)
+			for (var idx in jorder_benchmark_data77)
+				result.splice(result.length - 1, 0, jorder_benchmark_data77[idx]);
+	});
+
 	jOrder.logging = false;
 });
 
