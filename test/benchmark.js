@@ -50,15 +50,54 @@ function register_benchmark(table, category, description, callback)
 	{
 		benchmark_cycles = $('#count').val();
 		var start = new Date();
-		callback();
+		var result = callback();
 		var end = new Date();
 		timecell.text(String(end - start) + " ms");
+
+		$('#result').css('top', tbody.offset().top);		
+		build_table($('#result'), result);
 	});
 	tr.append('<td>' + description + '</td>');
 	var td_button = $('<td></td>');
 	tr.append(td_button);
 	td_button.append(button);
 	tr.append(timecell);
+}
+
+// ad hoc table builder
+function build_table(dest, data)
+{
+	dest.empty();
+	
+	// head
+	var colgroup = $('<colgroup />');
+	dest.append(colgroup);
+	var thead = $('<thead><tr></tr></thead>');
+	dest.append(thead);
+	for (idx in data)
+	{
+		for (key in data[idx])
+		{
+			colgroup.append('<col />');
+			thead.append('<th>' + key + '</th>');
+		}
+		break;
+	}
+	
+	// body
+	var tbody = $('<tbody></tbody>');
+	dest.append(tbody);
+	for (idx in data)
+	{
+		var tr = $('<tr />');
+		tbody.append(tr);
+		for (key in data[idx])
+		{
+			var td = $('<td />');
+			tr.append(td);
+			td.append(data[idx][key]);
+		}
+	}
 }
 
 // registering benchmarks on document ready
@@ -68,92 +107,116 @@ $(function()
 	
 	register_benchmark('small', 'exact_search77', "jOrder.table.where() with index specified", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { indexName: 'group', renumber: true });
+			hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { indexName: 'group', renumber: true });
+		return hits;
 	});
 	
 	register_benchmark('small', 'exact_search77', "jOrder.table.where() with no index specified", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+			hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+		return hits;
 	});
 
 	register_benchmark('small', 'exact_search77', "jOrder.table.where() using no index at all", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_unindexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+			hits = table_unindexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+		return hits;
 	});
 
 	register_benchmark('small', 'exact_search77', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_unindexed.filter(function(row)
+			hits = table_unindexed.filter(function(row)
 				{
 					return row.GroupID == 107 || row.GroupID == 185;
 				});
+		return hits;
 	});
 	
 	// Exact search on 1000 rows
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where() with index specified", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }], { indexName: 'id' });
+			hits = table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }], { indexName: 'id' });
+		return hits;
 	});
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where() with no index specified", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }]);
+			hits = table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }]);
+		return hits;
 	});
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where() using no index at all", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_unindexed.where([{ 'id': 107 }, { 'id': 115 }]);
+			hits = table1000_unindexed.where([{ 'id': 107 }, { 'id': 115 }]);
+		return hits;
 	});
 
 	register_benchmark('large', 'exact_search1000', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_unindexed.filter(function(row)
+			hits = table1000_unindexed.filter(function(row)
 				{
 					return row.id == 107 || row.id == 115;
 				});
+		return hits;
 	});
 
 	// Range search on 77 rows
 	
 	register_benchmark('small', 'range_search77', "jOrder.table.where() using index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+			hits = table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+		return hits;
 	});
 
 	register_benchmark('small', 'range_search77', "jOrder.table.where() not using index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_unindexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+			hits = table_unindexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+		return hits;
 	});
 	
 	register_benchmark('small', 'range_search77', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table_unindexed.filter(function(row)
+			hits = table_unindexed.filter(function(row)
 				{
 					return row.Total >= 11 && row.Total <= 15;
 				});
+		return hits;
 	});
 	
 	// Range search on 1000 rows
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where() using index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
+			hits = table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
+		return hits;
 	});
 
-	register_benchmark('large', 'range_search1000', "jOrder.table.where() using index, limited to 20 hits", function()
+	register_benchmark('large', 'range_search1000', "jOrder.table.where() using index, hits #20 to #40", function()
 	{
 		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
@@ -161,82 +224,108 @@ $(function()
 			{
 				mode: jOrder.range,
 				renumber: true,
-				offset: 0,
+				offset: 20,
 				limit: 20
 			});
-		return hits.length;
+		return hits;
 	});
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where() not using index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_unindexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
+			hits = table1000_unindexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
+		return hits;
 	});
 	
 	register_benchmark('large', 'range_search1000', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_unindexed.filter(function(row)
+			hits = table1000_unindexed.filter(function(row)
 				{
 					return row.id >= 203 && row.id <= 315;
 				});
+		return hits;
 	});
 
 	// Freetext search on 1000 rows
 	
 	register_benchmark('large', 'freetext_search1000', "jOrder.table.where() using index (specified)", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext' });
+			hits = table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext' });
+		return hits;
 	});
 
 	register_benchmark('large', 'freetext_search1000', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var hits = table1000_unindexed.filter(function(row)
+			hits = table1000_unindexed.filter(function(row)
 				{
-					return -1 < row.name.indexOf('con');
+					return null != row.name.match(/\bcon/);
 				});
+		return hits;
 	});
 	
 	// Sorting on 77 rows
 	
-	register_benchmark('small', 'sorting77', "jOrder.table.where() using ordered index", function()
+	register_benchmark('small', 'sorting77', "jOrder.table.orderby() using ordered index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
+			hits = table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
+		return hits;
 	});
 
-	register_benchmark('small', 'sorting77', "jOrder.table.where() using unordered index", function()
+	register_benchmark('small', 'sorting77', "jOrder.table.orderby() using unordered index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id_nosort' });
+			hits = table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id_nosort' });
+		return hits;
 	});
 
 	register_benchmark('small', 'sorting77', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			jOrder.copyTable(table_indexed.flat()).sort(function(a, b)
+			hits = jOrder.copyTable(table_indexed.flat()).sort(function(a, b)
 			{
 				return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
 			});
+		return hits;
 	});
 	
 	// Sorting on 1000 rows
 
-	register_benchmark('large', 'sorting1000', "jOrder.table.where() using ordered index", function()
+	register_benchmark('large', 'sorting1000', "jOrder.table.orderby() using ordered index", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name' });
+			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name' });
+		return [{length: hits.length}];
+	});	
+	
+	register_benchmark('large', 'sorting1000', "jOrder.table.orderby() using ordered index; hits #20 to #40", function()
+	{
+		var hits;
+		for (var i = 0; i < benchmark_cycles; i++)
+			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 20, limit: 20 });
+		return hits;
 	});	
 	
 	register_benchmark('large', 'sorting1000', "Reference: row by row iteration", function()
 	{
+		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			jOrder.copyTable(table1000_indexed.flat()).sort(function(a, b)
+			hits = jOrder.copyTable(table1000_indexed.flat()).sort(function(a, b)
 			{
 				return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
 			});
+		return [{length: hits.length}];
 	});
 
 	// Grouping
@@ -254,9 +343,11 @@ $(function()
 			aggregated.Total += next.Total;
 			return aggregated;
 		}
-	
+
+		var summed;
 		for (var i = 0; i < benchmark_cycles; i++)
-			var summed = table_indexed.aggregate('group', init, iterate);
+			summed = table_indexed.aggregate('group', init, iterate);
+		return summed;
 	});
 	
 	// General
@@ -267,6 +358,7 @@ $(function()
 		for (var i = 0; i < benchmark_cycles; i++)
 			for (var idx in jorder_benchmark_data77)
 				result.push(jorder_benchmark_data77[idx]);
+		return [{length: result.length}];
 	});
 	
 	register_benchmark('general', 'array', "Using Array.concat()", function()
@@ -274,6 +366,7 @@ $(function()
 		var result = [];
 		for (var i = 0; i < benchmark_cycles; i++)
 			result = result.concat(jorder_benchmark_data77);
+		return [{length: result.length}];
 	});
 
 	register_benchmark('general', 'array', "Using Array.splice()", function()
@@ -282,6 +375,7 @@ $(function()
 		for (var i = 0; i < benchmark_cycles; i++)
 			for (var idx in jorder_benchmark_data77)
 				result.splice(result.length - 1, 0, jorder_benchmark_data77[idx]);
+		return [{length: result.length}];
 	});
 
 	jOrder.logging = false;
