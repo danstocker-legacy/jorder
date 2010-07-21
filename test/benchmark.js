@@ -309,11 +309,21 @@ $(function()
 		return [{length: hits.length}];
 	});	
 	
-	register_benchmark('large', 'sorting1000', "jOrder.table.orderby() using ordered index; hits #20 to #40", function()
+	register_benchmark('large', 'sorting1000', "jOrder.table.orderby() using ordered index; hits #0 to #20", function()
 	{
 		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 20, limit: 20 });
+			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
+		return hits;
+	});	
+	
+	register_benchmark('large', 'sorting1000', "jOrder.table.orderby(); ordered; removed id=345; hits #0 to #20", function()
+	{
+		table1000_indexed.remove([{ id: 345 }]);
+		table1000_indexed.insert([{ id: 2000, name: "A big apple" }]);
+		var hits;
+		for (var i = 0; i < benchmark_cycles; i++)
+			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
 		return hits;
 	});	
 	
