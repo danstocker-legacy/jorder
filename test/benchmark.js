@@ -317,10 +317,9 @@ $(function()
 		return hits;
 	});	
 	
-	register_benchmark('large', 'sorting1000', "jOrder.table.orderby(); ordered; removed id=345; hits #0 to #20", function()
+	register_benchmark('large', 'sorting1000', "Same as previous but row id=345 removed first", function()
 	{
 		table1000_indexed.remove([{ id: 345 }]);
-		table1000_indexed.insert([{ id: 2000, name: "A big apple" }]);
 		var hits;
 		for (var i = 0; i < benchmark_cycles; i++)
 			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
