@@ -4,7 +4,8 @@ var table_indexed = jOrder(jorder_benchmark_data77)
 	.index('id_nosort', ['ID'])
 	.index('group', ['GroupID'], { ordered: true, grouped: true, type: jOrder.number })
 	.index('total', ['Total'], { ordered: true, grouped: true, type: jOrder.number })
-	.index('date', ['StartDate'], { ordered: true, grouped: true });
+	.index('date', ['StartDate'], { ordered: true, grouped: true })
+	.index('signature', ['Total', 'Currency'], { ordered: true, grouped: true });
 var table_unindexed = jOrder(jorder_benchmark_data77);
 
 // table with 1000 rows and 2 columns
@@ -19,6 +20,7 @@ var benchmark_cycles = 10;
 var categories =
 {
 	'exact_search77': "Searching for exact matches ('GroupID' being either 107 or 185)",
+	'composite_search77': "Searching for exact matches (where 'Total' = 8 and 'Currency' = 'USD')",
 	'range_search77': "Range search ('Total' between 11 and 15)",
 	'exact_search1000': "Searching for exact matches ('id' being either 107 or 115)",
 	'range_search1000': "Range search ('id' between 203 and 315)",
@@ -137,6 +139,16 @@ $(function()
 				{
 					return row.GroupID == 107 || row.GroupID == 185;
 				});
+		return hits;
+	});
+
+	// Exact search on composite index search
+	
+	register_benchmark('small', 'composite_search77', "jOrder.table.where() with no index specified", function()
+	{
+		var hits;
+		for (var i = 0; i < benchmark_cycles; i++)
+			hits = table_indexed.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
 		return hits;
 	});
 	
