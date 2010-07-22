@@ -274,6 +274,9 @@ jOrder = (function()
 			if (!_options.ordered)
 				throw "Attempted to compact an unordered index: '" + signature() + "'.";
 
+			// tracing calls to this method as it is expensive
+			jOrder.log("Compacting index '" + signature() + "'.")
+			
 			// remove orphan entries
 			for (idx in _order)
 				if (!(_order[idx].rowId in _flat))
@@ -820,20 +823,24 @@ jOrder = (function()
 				});
 			}
 
+			// gathers row ids, compacts index if necessary
 			function rowIds()
 			{
+				function restart()
+				{
+					index.compact();
+					order = index.order(options);
+					delete result;
+					return rowIds();
+				}
+				
 				var result = [];
 				if (jOrder.asc == direction)
 				{
 					for (var idx = 0; idx < order.length; idx++)
 					{
 						if (!(order[idx].rowId in _data))
-						{
-							index.compact();
-							order = index.order(options);
-							delete result;
-							return rowIds();
-						}
+							return restart();
 						result.push(order[idx].rowId);
 					}
 					return result;
@@ -842,12 +849,7 @@ jOrder = (function()
 				for (var idx = order.length - 1; idx >= 0; idx--)
 				{
 					if (!(order[idx].rowId in _data))
-					{
-						index.compact();
-						order = index.order(options);
-						delete result;
-						return rowIds();
-					}
+						return restart();
 					result.push(order[idx].rowId);
 				}
 				return result;
