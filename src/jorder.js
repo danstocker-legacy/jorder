@@ -284,12 +284,17 @@ jOrder = (function()
 		}
 		
 		// generates or validates a signature for the index
-		// - sig: signature to validate
-		function signature(fields)
+		// - row: row that we want to validate against the index
+		function signature(row)
 		{
-			if (fields)
-				return escape(fields.join('_')) == signature();
-			return escape(_fields.join('_'));
+			if (!row)
+				return escape(_fields.join('_'));
+			
+			// validation: all fields of the index must be present in the test row
+			for (idx in _fields)
+				if (!(_fields[idx] in row))
+					return false;
+			return true;
 		}
 
 		// returns the original rowids associated with the index
@@ -661,7 +666,6 @@ jOrder = (function()
 
 			// obtain index
 			var index = null;
-			var fields;
 			if (options.indexName)
 			{
 				// use specified index
@@ -672,8 +676,7 @@ jOrder = (function()
 			else
 			{
 				// look for a suitable index
-				fields = jOrder.keys(conditions[0]);
-				index = _index(fields);
+				index = _index(conditions[0]);
 			}
 
 			// index found, return matching row by index
@@ -698,7 +701,7 @@ jOrder = (function()
 			}
 
 			// no index found, search iteratively
-			jOrder.warning("No matching index for fields: '" + fields.join(',') + "'.");
+			jOrder.warning("No matching index for fields: '" + jOrder.keys(conditions[0]).join(',') + "'.");
 			
 			// range search
 			if (options.mode == jOrder.range)
@@ -953,19 +956,13 @@ jOrder = (function()
 		// helper functions
 
 		// looks up an index according to the given fields
-		// - fields: array of fields that match an index
-		function _index(fields)
+		// - row: sample row that's supposed to match the index
+		function _index(row)
 		{
-			var index = null;
 			for (var idx in _indexes)
-			{
-				if (_indexes[idx].signature(fields))
-				{
-					index = _indexes[idx];
-					break;
-				}
-			}
-			return index;
+				if (_indexes[idx].signature(row))
+					return _indexes[idx];
+			return null;
 		}
 	}
 
