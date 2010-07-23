@@ -13,7 +13,7 @@ jOrder = (function()
 	}
 
 	// constants
-	jOrder.version = '1.0.0.7';
+	jOrder.version = '1.0.0.8';
 	jOrder.name = "jOrder";
 	// sorting
 	jOrder.asc = 1;
@@ -107,8 +107,18 @@ jOrder = (function()
 	}
 
 	// retrieves the keys of an object
-	jOrder.keys = function(object)
+	jOrder.keys = function(object, values)
 	{
+		// construct an object if value is given
+		if (values)
+		{
+			var result = {};
+			for (var idx in object)
+				result[object[idx]] = values[idx];
+			return result;
+		}
+		
+		// get the object's keys otherwise
 		var result = [];
 		for (var key in object)
 			result.push(key);
@@ -809,7 +819,7 @@ jOrder = (function()
 			else
 			{
 				// look for a suitable index
-				index = _index(fields);
+				index = _index(jOrder.keys(fields, []));
 			}
 			if (jOrder.text == index.type())
 				throw "Can't order by free-text index: '" + fields.join(',') + "'.";
