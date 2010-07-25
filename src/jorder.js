@@ -193,7 +193,18 @@ jOrder = (function()
 				if (_options.ordered)
 				{
 					// number variable type must be preserved for sorting purposes
-					_order.push({ key: (jOrder.number == _options.type ? row[_fields[0]] : key), rowId: rowId });
+					switch (_options.type)
+					{
+					default:
+						_order.push({ key: key, rowId: rowId });
+						break;
+					case jOrder.number:
+						_order.push({ key: row[_fields[0]], rowId: rowId });
+						break;
+					case jOrder.text:
+						_order.push({ key: key.toLowerCase(), rowId: rowId });
+						break;						
+					}
 					if (!(false === reorder))
 						_reorder();
 				}
@@ -401,13 +412,17 @@ jOrder = (function()
 			if (!options)
 				options = {};
 			
+			// text index conditions must be in lowercase
+			var lower = bounds.lower ? (jOrder.text == _options.type ? bounds.lower.toLowerCase() : bounds.lower) : null;
+			var upper = bounds.upper ? (jOrder.text == _options.type ? bounds.upper.toLowerCase() : bounds.upper) : null;
+			
 			// get range
 			var start =
-				(bounds.lower ? bsearch(bounds.lower, jOrder.start) : 0) +
+				(lower ? bsearch(lower, jOrder.start) : 0) +
 				(options.offset ? options.offset : 0);
 			var end =
 				options.limit ? ((start + options.limit) < _order.length ? start + options.limit - 1 : _order.length - 1) :
-				bounds.upper ? bsearch(bounds.upper, jOrder.end) : _order.length - 1;
+				upper ? bsearch(upper, jOrder.end) : _order.length - 1;
 
 			// the result may have duplicate values
 			var result = [];
@@ -976,6 +991,20 @@ jOrder = (function()
 		}
 	}
 
+	// jOrder.grid
+	// basic HTML grid based
+	// - _target: target dom element
+	// - _table: source jOrder.table
+	function grid(_target, _table)
+	{
+		var _page = null;
+		var _itemsperpage = null;
+		
+		function show()
+		{
+		}
+	}
+	
 	return jOrder;
 })();
 
