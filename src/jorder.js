@@ -486,7 +486,7 @@ jOrder = (function()
 		}
 	}
 
-	// jQuery.table
+	// jOrder.table
 	// database-like table object
 	// - data: json table the table object is based on
 	jOrder.table = function(data)
@@ -907,7 +907,7 @@ jOrder = (function()
 		{
 			jOrder.warning("jOrder.table.count() iterates over the table (length: " + _data.length + ").");
 
-			return jQuery.keys(_data).length;
+			return jOrder.keys(_data).length;
 		}
 
 		// returns a copy of the flat contents of the table
