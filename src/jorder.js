@@ -991,20 +991,6 @@ jOrder = (function()
 		}
 	}
 
-	// jOrder.grid
-	// basic HTML grid based
-	// - _target: target dom element
-	// - _table: source jOrder.table
-	function grid(_target, _table)
-	{
-		var _page = null;
-		var _itemsperpage = null;
-		
-		function show()
-		{
-		}
-	}
-	
 	return jOrder;
 })();
 
