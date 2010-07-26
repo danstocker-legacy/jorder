@@ -16,7 +16,7 @@ var table1000_indexed = jOrder(jorder_benchmark_data1000)
 var table1000_unindexed = jOrder(jorder_benchmark_data1000);
 
 // env variables
-var benchmark_cycles = 10;
+var cycles = 10;
 var categories =
 {
 	'exact_search77': "Searching for exact matches ('GroupID' being either 107 or 185)",
@@ -34,8 +34,11 @@ var categories =
 }
 
 // function that registers a benchmark function on the page
-function register_benchmark(table, category, description, callback, isreference)
+function register_benchmark(table, category, description, callback, options)
 {
+	if (!options)
+		options = {};
+	
 	// adding tbody
 	var tbody = $('#' + table + ' > tbody.' + category);
 	if (!tbody.length)
@@ -48,7 +51,7 @@ function register_benchmark(table, category, description, callback, isreference)
 	// adding row for benchmark
 	var tr = $('<tr />');
 	tbody.append(tr);
-	if (isreference)
+	if (options.isreference)
 		tr.addClass('reference');
 	var button = $('<input type="button" value="&#8594;" />');
 	tr.append('<td>' + description + '</td>');
@@ -69,17 +72,35 @@ function register_benchmark(table, category, description, callback, isreference)
 	}
 	
 	button.click(function()
-	{
-		benchmark_cycles = $('#count').val();
+	{		
+		var cycles = $('#count').val();
+		var timeout = $('#timeout').val();
+		var percentage = 0;
+		
+		var result;
 		var start = new Date();
-		var result = callback();
+		for (var i = 0; i < cycles && !percentage; i++)
+		{
+			result = callback();
+			if (timeout < new Date() - start)
+				percentage = Math.floor(100 * i / cycles);
+		}
 		var end = new Date();
+		
+		if (percentage)
+		{
+			timecell.text("timeout (" + percentage + "%)");
+			arrowspan.hide();
+			$('#result').empty();		
+			return;
+		}
+		
 		timecell.text(String(end - start) + " ms");
 		arrowcell.append(arrowspan);
 		arrowspan.show();
 
 		$('#result').css('top', tbody.offset().top);		
-		build_table($('#result'), result);
+		build_table($('#result'), options.lengthonly ? [{ length: result.length }] : result);
 	});
 }
 
@@ -126,284 +147,191 @@ $(function()
 	
 	register_benchmark('small', 'exact_search77', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
-		return hits;
+		return table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	});
 
-	register_benchmark('small', 'exact_search77', "jLinq.from().equals()*", function()
+	register_benchmark('small', 'exact_search77', "jLinq.from().equals()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data77).equals('GroupID', 107).or(185).select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data77).equals('GroupID', 107).or(185).select();
+	}, { isreference: true });
 
 	register_benchmark('small', 'exact_search77', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_unindexed.filter(function(row)
-				{
-					return row.GroupID == 107 || row.GroupID == 185;
-				});
-		return hits;
-	}, true);
+		return table_unindexed.filter(function(row)
+		{
+			return row.GroupID == 107 || row.GroupID == 185;
+		});
+	}, { isreference: true });
 
 	// Exact search on composite index search
 	
 	register_benchmark('small', 'composite_search77', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_indexed.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
-		return hits;
+		return table_indexed.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
 	});
 	
-	register_benchmark('small', 'composite_search77', "jLinq.from().equals()*", function()
+	register_benchmark('small', 'composite_search77', "jLinq.from().equals()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data77).equals('Currency', 'USD').and('Total', 8).select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data77).equals('Currency', 'USD').and('Total', 8).select();
+	}, { isreference: true });
 
 	register_benchmark('small', 'composite_search77', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_unindexed.filter(function(row)
-				{
-					return row.Currency == 'USD' && row.Total == 8;
-				});
-		return hits;
-	}, true);
+		return table_unindexed.filter(function(row)
+		{
+			return row.Currency == 'USD' && row.Total == 8;
+		});
+	}, { isreference: true });
 
 	// Exact search on 1000 rows
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }]);
-		return hits;
+		return table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }]);
 	});
 
-	register_benchmark('large', 'exact_search1000', "jLinq.from().equals()*", function()
+	register_benchmark('large', 'exact_search1000', "jLinq.from().equals()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).equals('id', 107).or(115).select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).equals('id', 107).or(115).select();
+	}, { isreference: true });
 
 	register_benchmark('large', 'exact_search1000', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_unindexed.filter(function(row)
-				{
-					return row.id == 107 || row.id == 115;
-				});
-		return hits;
-	}, true);
+		return table1000_unindexed.filter(function(row)
+		{
+			return row.id == 107 || row.id == 115;
+		});
+	}, { isreference: true });
 
 	// Range search on 77 rows
 	
 	register_benchmark('small', 'range_search77', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
-		return hits;
+		return table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
 	});
 
-	register_benchmark('small', 'range_search77', "jLinq.from().between()*", function()
+	register_benchmark('small', 'range_search77', "jLinq.from().between()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data77).between('Total', 11, 15).select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data77).between('Total', 11, 15).select();
+	}, { isreference: true });
 
 	register_benchmark('small', 'range_search77', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_unindexed.filter(function(row)
-				{
-					return row.Total >= 11 && row.Total <= 15;
-				});
-		return hits;
-	}, true);
+		return table_unindexed.filter(function(row)
+		{
+			return row.Total >= 11 && row.Total <= 15;
+		});
+	}, { isreference: true });
 	
 	// Range search on 1000 rows
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
-		return hits;
+		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
 	});
 
-	register_benchmark('large', 'range_search1000', "jLinq.from().between()*", function()
+	register_benchmark('large', 'range_search1000', "jLinq.from().between()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).select();
+	}, { isreference: true });
 
 	register_benchmark('large', 'range_search1000', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_unindexed.filter(function(row)
-				{
-					return row.id >= 203 && row.id <= 315;
-				});
-		return hits;
-	}, true);
+		return table1000_unindexed.filter(function(row)
+		{
+			return row.id >= 203 && row.id <= 315;
+		});
+	}, { isreference: true });
 
 	// Range search on 1000 rows with limit
 	
 	register_benchmark('large', 'range_search_page1000', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }],
-			{
-				mode: jOrder.range,
-				renumber: true,
-				offset: 20,
-				limit: 20
-			});
-		return hits;
+		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }],
+		{
+			mode: jOrder.range,
+			renumber: true,
+			offset: 20,
+			limit: 20
+		});
 	});
 
-	register_benchmark('large', 'range_search_page1000', "jLinq.from()between().skipTake()*", function()
+	register_benchmark('large', 'range_search_page1000', "jLinq.from()between().skipTake()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).skipTake(20, 20);
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).skipTake(20, 20);
+	}, { isreference: true });
 
 	// Freetext search on 1000 rows
 	
 	register_benchmark('large', 'freetext_search1000', "jOrder.table.where()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext' });
-		return hits;
+		return table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext' });
 	});
 
-	register_benchmark('large', 'freetext_search1000', "jLinq.from().match()*", function()
+	register_benchmark('large', 'freetext_search1000', "jLinq.from().match()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).match('name', '\\bcon').select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).match('name', '\\bcon').select();
+	}, { isreference: true });
 
 	register_benchmark('large', 'freetext_search1000', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_unindexed.filter(function(row)
-				{
-					return null != row.name.match(/\bcon/i);
-				});
-		return hits;
-	}, true);
+		return table1000_unindexed.filter(function(row)
+		{
+			return null != row.name.match(/\bcon/i);
+		});
+	}, { isreference: true });
 	
 	// Sorting on 77 rows
 	
 	register_benchmark('small', 'sorting77', "jOrder.table.orderby()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
-		return hits;
+		return table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	});
 
-	register_benchmark('small', 'sorting77', "jLinq.from().orderBy()*", function()
+	register_benchmark('small', 'sorting77', "jLinq.from().orderBy()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data77).orderBy('ID').select();
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data77).orderBy('ID').select();
+	}, { isreference: true });
 
 	register_benchmark('small', 'sorting77', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jOrder.copyTable(table_indexed.flat()).sort(function(a, b)
-			{
-				return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
-			});
-		return hits;
-	}, true);
+		return jOrder.copyTable(table_indexed.flat()).sort(function(a, b)
+		{
+			return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
+		});
+	}, { isreference: true });
 	
 	// Sorting on 1000 rows
 
 	register_benchmark('large', 'sorting1000', "jOrder.table.orderby()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name' });
-		return [{length: hits.length}];
-	});	
+		return table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name' });
+	}, { lengthonly: true });	
 	
-	register_benchmark('large', 'sorting1000', "jLinq.from().orderBy()*", function()
+	register_benchmark('large', 'sorting1000', "jLinq.from().orderBy()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).orderBy('name').select();
-		return [{length: hits.length}];
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).orderBy('name').select();
+	}, { isreference: true, lengthonly: true });
 
 	register_benchmark('large', 'sorting1000', "Row by row iteration", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jOrder.copyTable(table1000_indexed.flat()).sort(function(a, b)
-			{
-				return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
-			});
-		return [{length: hits.length}];
-	}, true);
+		return jOrder.copyTable(table1000_indexed.flat()).sort(function(a, b)
+		{
+			return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
+		});
+	}, { isreference: true, lengthonly: true });
 
 	// Sorting on 1000 rows, limited
 	
 	register_benchmark('large', 'sorting_page1000', "jOrder.table.orderby()", function()
 	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
-		return hits;
+		return table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
 	});	
 	
-	register_benchmark('large', 'sorting_page1000', "Same as previous but row id=345 removed first", function()
+	register_benchmark('large', 'sorting_page1000', "jLinq.from()orderBy().take()", function()
 	{
-		table1000_indexed.remove([{ id: 345 }]);
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
-		return hits;
-	});	
-	
-	register_benchmark('large', 'sorting_page1000', "jLinq.from()orderBy().take()*", function()
-	{
-		var hits;
-		for (var i = 0; i < benchmark_cycles; i++)
-			hits = jLinq.from(jorder_benchmark_data1000).orderBy('name').take(20);
-		return hits;
-	}, true);
+		return jLinq.from(jorder_benchmark_data1000).orderBy('name').take(20);
+	}, { isreference: true });
 
 	// Grouping
 	
@@ -422,39 +350,11 @@ $(function()
 		}
 
 		var summed;
-		for (var i = 0; i < benchmark_cycles; i++)
+		for (var i = 0; i < cycles; i++)
 			summed = table_indexed.aggregate('group', init, iterate);
 		return summed;
 	});
 	
-	// General
-
-	register_benchmark('general', 'array', "Using Array.push()", function()
-	{
-		var result = [];
-		for (var i = 0; i < benchmark_cycles; i++)
-			for (var idx in jorder_benchmark_data77)
-				result.push(jorder_benchmark_data77[idx]);
-		return [{length: result.length}];
-	});
-	
-	register_benchmark('general', 'array', "Using Array.concat()", function()
-	{
-		var result = [];
-		for (var i = 0; i < benchmark_cycles; i++)
-			result = result.concat(jorder_benchmark_data77);
-		return [{length: result.length}];
-	});
-
-	register_benchmark('general', 'array', "Using Array.splice()", function()
-	{
-		var result = [];
-		for (var i = 0; i < benchmark_cycles; i++)
-			for (var idx in jorder_benchmark_data77)
-				result.splice(result.length - 1, 0, jorder_benchmark_data77[idx]);
-		return [{length: result.length}];
-	});
-
 	jOrder.logging = false;
 });
 
