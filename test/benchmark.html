@@ -84,18 +84,26 @@
 		<li>A <a href="data77.js" target="new">small table</a> of 77 rows</li>
 		<li>A <a href="data1000.js" target="new">large table</a> of 1000 rows</li>
 	</ul>
-	<label for="count">Test cycles: </label>
-	<select id="count">
-		<option value="1">1</option>
-		<option value="10" selected="selected">10</option>
-		<option value="100">100</option>
-		<option value="1000">1000</option>
-	</select>
-	<label for="timeout">Timeout: </label>
-	<select id="timeout">
-		<option value="1000" selected="selected">1 sec</option>
-		<option value="5000">5 secs</option>
-	</select>
+	<div class="dropdowns">
+		<label for="count">Test cycles: </label>
+		<select id="count">
+			<option value="1">1</option>
+			<option value="10" selected="selected">10</option>
+			<option value="100">100</option>
+			<option value="1000">1000</option>
+		</select>
+		<label for="timeout">Timeout: </label>
+		<select id="timeout">
+			<option value="1000" selected="selected">1 sec</option>
+			<option value="5000">5 secs</option>
+		</select>
+	</div>
+	<div class="options">
+		<input id="units" type="checkbox" checked="checked" />
+		<label for="units">Units</label>
+		<input id="estimate" type="checkbox" checked="checked" />
+		<label for="estimate">Estimate on timeout</label>
+	</div>
 	<p>Reference tests are marked blue.</p>
 	<p><a href="http://www.hugoware.net/Projects/jLinq">jLinq</a> is a flexible array querying library for JavaScript created by Hugo Bonacci.</p>
 	<h2>Small table results</h2>

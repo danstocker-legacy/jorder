@@ -72,30 +72,39 @@ function register_benchmark(table, category, description, callback, options)
 	}
 	
 	button.click(function()
-	{		
+	{
+		var result;
+		var idx;
+
+		// parameters
 		var cycles = $('#count').val();
 		var timeout = $('#timeout').val();
-		var percentage = 0;
+		var unit = $('#units').attr('checked') ? " ms" : "";
+		var estimate = $('#estimate').attr('checked');
 		
-		var result;
+		// run benchmark n times
 		var start = new Date();
-		for (var i = 0; i < cycles && !percentage; i++)
+		for (idx = 0; idx < cycles; idx++)
 		{
 			result = callback();
 			if (timeout < new Date() - start)
-				percentage = Math.floor(100 * i / cycles);
+				break;
 		}
 		var end = new Date();
 		
-		if (percentage)
+		// handle timeout
+		if (idx < cycles)
 		{
-			timecell.text("timeout (" + percentage + "%)");
+			timecell.text(estimate ?
+				String(Math.floor(timeout * cycles / idx)) + unit :
+				"timeout (" + Math.floor(100 * idx / cycles) + "%)");
 			arrowspan.hide();
-			$('#result').empty();		
-			return;
+			$('#result').empty();
+				return;
 		}
 		
-		timecell.text(String(end - start) + " ms");
+		// display measured time & results
+		timecell.text(String(end - start) + unit);
 		arrowcell.append(arrowspan);
 		arrowspan.show();
 
