@@ -31,87 +31,7 @@ var categories =
 	'sorting_page1000': "Sorting by 'name' (first 20 hits)",
 	'aggregate77': "Grouping by 'GroupID'",
 	'array': "Concatenating an array to itself multiple times"
-}
-
-// function that registers a benchmark function on the page
-function register_benchmark(table, category, description, callback, options)
-{
-	if (!options)
-		options = {};
-	
-	// adding tbody
-	var tbody = $('#' + table + ' > tbody.' + category);
-	if (!tbody.length)
-	{
-		tbody = $('<tbody class="' + category + '"/>');
-		$('#' + table).append(tbody);
-		tbody.append('<tr><th colspan="3">' + categories[category] + '</th></tr>');
-	}
-	
-	// adding row for benchmark
-	var tr = $('<tr />');
-	tbody.append(tr);
-	if (options.isreference)
-		tr.addClass('reference');
-	var button = $('<input type="button" value="&#8594;" />');
-	tr.append('<td>' + description + '</td>');
-	var td_button = $('<td></td>');
-	tr.append(td_button);
-	td_button.append(button);
-	var timecell = $('<td />');
-	tr.append(timecell);
-	var arrowcell = $('<td class="arrow" />');
-	tr.append(arrowcell);
-	
-	var arrowspan = $('#arrow');
-	if (!arrowspan.length)
-	{
-		arrowspan = $('<span id="arrow">&#8594;</span>');
-		arrowspan.hide();
-		arrowcell.append(arrowspan);
-	}
-	
-	button.click(function()
-	{
-		var result;
-		var idx;
-
-		// parameters
-		var cycles = $('#count').val();
-		var timeout = $('#timeout').val();
-		var unit = $('#units').attr('checked') ? " ms" : "";
-		var estimate = $('#estimate').attr('checked');
-		
-		// run benchmark n times
-		var start = new Date();
-		for (idx = 0; idx < cycles; idx++)
-		{
-			result = callback();
-			if (timeout < new Date() - start)
-				break;
-		}
-		var end = new Date();
-		
-		// handle timeout
-		if (idx < cycles)
-		{
-			timecell.text(estimate ?
-				String(Math.floor(timeout * cycles / idx)) + unit :
-				"timeout (" + Math.floor(100 * idx / cycles) + "%)");
-			arrowspan.hide();
-			$('#result').empty();
-				return;
-		}
-		
-		// display measured time & results
-		timecell.text(String(end - start) + unit);
-		arrowcell.append(arrowspan);
-		arrowspan.show();
-
-		$('#result').css('top', tbody.offset().top);		
-		build_table($('#result'), options.lengthonly ? [{ length: result.length }] : result);
-	});
-}
+};
 
 // ad hoc table builder
 function build_table(dest, data)
@@ -147,6 +67,87 @@ function build_table(dest, data)
 			td.append(data[idx][key]);
 		}
 	}
+}
+
+// function that registers a benchmark function on the page
+function register_benchmark(table, category, description, callback, options)
+{
+	options = options || {};
+	
+	// adding tbody
+	var tbody = $('#' + table + ' > tbody.' + category);
+	if (!tbody.length)
+	{
+		tbody = $('<tbody class="' + category + '"/>');
+		$('#' + table).append(tbody);
+		tbody.append('<tr><th colspan="3">' + categories[category] + '</th></tr>');
+	}
+	
+	// adding row for benchmark
+	var tr = $('<tr />');
+	tbody.append(tr);
+	if (options.isreference){
+		tr.addClass('reference');
+	}
+	var button = $('<input type="button" value="&#8594;" />');
+	tr.append('<td>' + description + '</td>');
+	var td_button = $('<td></td>');
+	tr.append(td_button);
+	td_button.append(button);
+	var timecell = $('<td />');
+	tr.append(timecell);
+	var arrowcell = $('<td class="arrow" />');
+	tr.append(arrowcell);
+	
+	var arrowspan = $('#arrow');
+	if (!arrowspan.length)
+	{
+		arrowspan = $('<span id="arrow">&#8594;</span>');
+		arrowspan.hide();
+		arrowcell.append(arrowspan);
+	}
+	
+	button.click(function()
+	{
+		var result;
+		var idx;
+
+		// parameters
+		var cycles = $('#count').val();
+		var timeout = $('#timeout').val();
+		var unit = $('#units').attr('checked') ? " ms" : "";
+		var estimate = $('#estimate').attr('checked');
+		
+		// run benchmark n times
+		var start = new Date();
+		for (idx = 0; idx < cycles; idx++)
+		{
+			result = callback();
+			if (timeout < new Date() - start){
+				break;
+			}
+		}
+		var end = new Date();
+		
+		// handle timeout
+		if (idx < cycles)
+		{
+			timecell.text(estimate ?
+				String(Math.floor(timeout * cycles / idx)) + unit :
+				"timeout (" + Math.floor(100 * idx / cycles) + "%)");
+			arrowspan.hide();
+			$('#result').empty();
+				return;
+		}
+		
+		// display measured time & results
+		timecell.text(String(end - start) + unit);
+		arrowcell.append(arrowspan);
+		arrowspan.show();
+
+		$('#result').css('top', tbody.offset().top);		
+		build_table($('#result'), options.lengthonly ? [{ length: result.length }] : result);
+	});
 }
 
 // registering benchmarks on document ready
@@ -236,7 +237,7 @@ $(function()
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true });
+		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
 	});
 
 	register_benchmark('large', 'range_search1000', "jLinq.from().between()", function()
@@ -274,7 +275,7 @@ $(function()
 	
 	register_benchmark('large', 'freetext_search1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext' });
+		return table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000 });
 	});
 
 	register_benchmark('large', 'freetext_search1000', "jLinq.from().match()", function()
@@ -286,7 +287,7 @@ $(function()
 	{
 		return table1000_unindexed.filter(function(row)
 		{
-			return null != row.name.match(/\bcon/i);
+			return null !== row.name.match(/\bcon/i);
 		});
 	}, { isreference: true });
 	
@@ -359,8 +360,9 @@ $(function()
 		}
 
 		var summed;
-		for (var i = 0; i < cycles; i++)
+		for (var i = 0; i < cycles; i++){
 			summed = table_indexed.aggregate('group', init, iterate);
+		}
 		return summed;
 	});
 	
