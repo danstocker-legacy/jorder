@@ -279,7 +279,7 @@ var jOrder = (function(){
 				return escape(_fields.join('_'));
 			}
 			// validation: all fields of the index must be present in the test row
-			for (idx in _fields){
+			for (var idx = 0; idx < _fields.length; idx++){
 				if (!row.hasOwnProperty(_fields[idx])){
 					return false;
 				}
@@ -345,11 +345,11 @@ var jOrder = (function(){
 			var end = _order.length - 1;
 
 			// is value off the index
-			if (value < _order[start].key){
-				return start;
+			if (value < _order[0].key){
+				return type == jOrder.start ? 0 : - 1;
 			}
 			if (value > _order[end].key){
-				return end;
+				return type == jOrder.end ? end : _order.length;
 			}
 			// start search
 			var idx = _bsearch(value, start, end);
@@ -386,11 +386,11 @@ var jOrder = (function(){
 			options.limit = options.limit || 1;
 
 			// converting text conditions to lowercase
-			var lower = bounds.lower ? (jOrder.text == _options.type ? bounds.lower.toLowerCase() : bounds.lower) : null;
-			var upper = bounds.upper ? (jOrder.text == _options.type ? bounds.upper.toLowerCase() : bounds.upper) : null;
+			var lower = bounds.lower && jOrder.text == _options.type ? bounds.lower.toLowerCase() : bounds.lower;
+			var upper = bounds.upper && jOrder.text == _options.type ? bounds.upper.toLowerCase() : bounds.upper;
 
 			// obtaining start of range
-			var start = (lower ? this.bsearch(lower, jOrder.start) : 0) + options.offset;
+			var start = (lower !== null ? this.bsearch(lower, jOrder.start) : 0) + options.offset;
 
 			// obtaining end of range
 			// smallest of [range end, page end (limit), table length]
@@ -456,7 +456,7 @@ var jOrder = (function(){
 				return row[_fields[0]].split(' ');
 			}
 			var key = [];
-			for (var idx in _fields){
+			for (var idx = 0; idx < _fields.length; idx++){
 				if (!row.hasOwnProperty(_fields[idx])){
 					return null;
 				}
@@ -521,7 +521,7 @@ var jOrder = (function(){
 			// or take the first available unique one
 			var index, idx;
 			if (options.indexName){
-				index = _indexes[indexName];
+				index = _indexes[options.indexName];
 			}
 			else{
 				for (idx in _indexes){
