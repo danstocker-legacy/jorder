@@ -161,6 +161,9 @@ var jOrder = (function(){
 					// number variable type must be preserved for sorting purposes
 					switch (_options.type){
 						case jOrder.number:
+							if (isNaN(row[_fields[0]])){
+								throw "NaN attempted to be added to numeric index. Sanitize values before applying index.";
+							}
 							_order.push({ key: row[_fields[0]], rowId: rowId });
 							break;
 						case jOrder.text:
