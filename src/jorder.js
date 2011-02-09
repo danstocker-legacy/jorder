@@ -1,4 +1,4 @@
-﻿// jOrder on GitHub (source, wiki, donation):
+// jOrder on GitHub (source, wiki, donation):
 // http://github.com/danstocker/jorder
 //
 // jOrder blog:
@@ -465,15 +465,13 @@ var jOrder = (function() {
 		// reorders the index
 		// must use comparer, since _order contains objects, not strings
 		// sort() w/o comparer is a lot faster in certain browsers tho
-		function _reorder() {
-			_order.sort(_options.type == jOrder.number ?
-				function(a, b) {
-					return a.key - b.key;
-				} :
-				function(a, b) {
-					return a.key > b.key ? 1 : -1;
-				});
-		}
+		_reorder = _options.type == jOrder.number ?
+			function() {
+				_order.sort(function(a, b) {return a.key - b.key;});
+			} :
+			function() {
+				_order.sort(function(a, b) {return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;});
+			};
 
 		this.rebuild();
 	};
