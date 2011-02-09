@@ -11,7 +11,7 @@ var jOrder = (function() {
 	};
 
 	// constants
-	jOrder.version = '1.1.0.12';
+	jOrder.version = '1.1.0.13';
 	jOrder.name = "jOrder";
 	// sorting
 	jOrder.asc = 1;
@@ -150,8 +150,7 @@ var jOrder = (function() {
 			if (null === keys) {
 				throw "Can't add row to index. No field matches signature '" + this.signature() + "'";
 			}
-
-			for (idx in keys) {
+			for (var idx = 0; idx < keys.length; idx++) {
 				var key = keys[idx];
 
 				// extend (and re-calculate) order
@@ -201,7 +200,7 @@ var jOrder = (function() {
 		// - rowId: id of row to delete
 		this.remove = function(row, rowId) {
 			var keys = _keys(row);
-			for (idx in keys) {
+			for (var idx = 0; idx < keys.length; idx++) {
 				var key = keys[idx];
 
 				if (!_data.hasOwnProperty(key)) {
@@ -464,12 +463,18 @@ var jOrder = (function() {
 		}
 
 		// reorders the index
+		// must use comparer, since _order contains objects, not strings
+		// sort() w/o comparer is a lot faster in certain browsers tho
 		function _reorder() {
-			_order.sort(function(a, b) {
-				return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
-			});
+			_order.sort(_options.type == jOrder.number ?
+				function(a, b) {
+					return a.key - b.key;
+				} :
+				function(a, b) {
+					return a.key > b.key ? 1 : -1;
+				});
 		}
-		
+
 		this.rebuild();
 	};
 
