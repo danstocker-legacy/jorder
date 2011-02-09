@@ -524,34 +524,35 @@ var jOrder = (function() {
 				for (idx in _indexes) {
 					if (!_indexes[idx].grouped()) {
 						index = _indexes[idx];
+						break;
 					}
 				}
 			}
 
-			// obtain current rowId
-			var rowId = null;
+			// obtain old row id
+			var oldId = null;
 			if (before) {
 				if (!index) {
 					throw "Can't find suitable index for fields: '" + jOrder.keys(before).join(",") + "'.";
 				}
-				rowId = index.lookup([before])[0];
-				before = _data[rowId];
+				oldId = index.lookup([before])[0];
+				before = _data[oldId];
 			}
 
 			// are we inserting?
-			if (null === rowId) {
+			var newId = null;
+			if (null === oldId) {
 				if (!after) {
 					return;
 				}
 				// insert new value
-				rowId = _data.push(after) - 1;
+				newId = _data.push(after) - 1;
 			} else {
 				// delete old
-				delete _data[rowId];
-
-				// add new at the same row id
+				delete _data[oldId];
+				// add new
 				if (after) {
-					_data[rowId] = after;
+					newId = _data.push(after) - 1;
 				}
 			}
 
@@ -559,10 +560,10 @@ var jOrder = (function() {
 			for (idx in _indexes) {
 				index = _indexes[idx];
 				if (before) {
-					index.remove(before, rowId);
+					index.remove(before, oldId);
 				}
 				if (after) {
-					index.add(after, rowId);
+					index.add(after, newId);
 				}
 			}
 		};
