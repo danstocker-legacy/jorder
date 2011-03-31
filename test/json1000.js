@@ -1,8 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // 1000 record table for testing jOrder
 ////////////////////////////////////////////////////////////////////////////////
-jOrder.test = function (test) {
-	test.json1000 = [
+/*global jOrder */
+
+jOrder.testing = function (testing) {
+	testing.json1000 = [
 		{
 			"id": 1, 
 			"name": "PHP "
@@ -3006,6 +3008,6 @@ jOrder.test = function (test) {
 		}
 	];
 	
-	return test;
-}(jOrder.test || {});
+	return testing;
+}(jOrder.testing || {});
 

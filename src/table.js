@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder index object
 ////////////////////////////////////////////////////////////////////////////////
-/*jslint nomen:false, onevar:false*/
+/*jslint nomen:false, onevar:false, forin:true */
 
 var jOrder = function (jOrder) {
 	jOrder.apply = function (that, args) {
@@ -15,7 +15,7 @@ var jOrder = function (jOrder) {
 		options = options || { renumber: false };
 
 		// member variables
-		var _data = jOrder.copyTable(data, options.renumber);
+		var _data = jOrder.shallow(data, options.renumber);
 		var _indexes = {};
 
 		// set or get an index
@@ -43,6 +43,17 @@ var jOrder = function (jOrder) {
 			}
 		};
 
+		// looks up an index according to the given fields
+		// - row: sample row that's supposed to match the index
+		function _index(row) {
+			for (var idx in _indexes) {
+				if (_indexes[idx].signature(row)) {
+					return _indexes[idx];
+				}
+			}
+			return null;
+		}
+		
 		// updates, inserts or deletes one row in the table, modifies indexes
 		// - before: data row
 		// - after: changed data row
@@ -123,7 +134,7 @@ var jOrder = function (jOrder) {
 
 		// deletes the tables contents
 		this.clear = function () {
-			_data = jOrder.copyTable(data);
+			_data = jOrder.shallow(data);
 			_indexes = {};
 		};
 
@@ -278,7 +289,7 @@ var jOrder = function (jOrder) {
 					seed = _data[group[idx]];
 					break;
 				}
-				var aggregated = initCallback(jOrder.copyTable([seed])[0]);
+				var aggregated = initCallback(jOrder.shallow([seed])[0]);
 
 				// iterating through each row in group
 				for (idx in group) {
@@ -323,7 +334,7 @@ var jOrder = function (jOrder) {
 			if (!order) {
 				// sorting on the fly
 				jOrder.warning("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
-				return jOrder.copyTable(_data).sort(function (a, b) {
+				return jOrder.shallow(_data).sort(function (a, b) {
 					return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 				});
 			}
@@ -407,6 +418,7 @@ var jOrder = function (jOrder) {
 
 		// get the first row from table
 		this.first = function () {
+			var idx;
 			for (idx in _data) {
 				return _data[idx];
 			}
@@ -451,17 +463,6 @@ var jOrder = function (jOrder) {
 			}
 			return index.grouped();
 		};
-
-		// looks up an index according to the given fields
-		// - row: sample row that's supposed to match the index
-		function _index(row) {
-			for (var idx in _indexes) {
-				if (_indexes[idx].signature(row)) {
-					return _indexes[idx];
-				}
-			}
-			return null;
-		}
 	};
 	
 	return jOrder;

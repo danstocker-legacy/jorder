@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
-// jOrder constants
+// Logging
 ////////////////////////////////////////////////////////////////////////////////
-var jOrder = function (jOrder) {
+var jOrder = function (jOrder, window) {
 	// properties
 	jOrder.logging = true;
 
@@ -56,5 +56,6 @@ var jOrder = function (jOrder) {
 	};
 	
 	return jOrder;
-}(jOrder || {});
+}(jOrder || {},
+	window);
 

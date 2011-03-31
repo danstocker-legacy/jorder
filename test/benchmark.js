@@ -140,12 +140,12 @@ $(function()
 	
 	register_benchmark('small', 'exact_search77', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+		return jOrder.testing.table77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	});
 
 	register_benchmark('small', 'exact_search77', "Row by row iteration", function()
 	{
-		return jOrder.test.table77n.filter(function(row)
+		return jOrder.testing.table77n.filter(function(row)
 		{
 			return row.GroupID == 107 || row.GroupID == 185;
 		});
@@ -155,12 +155,12 @@ $(function()
 	
 	register_benchmark('small', 'composite_search77', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table77.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
+		return jOrder.testing.table77.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
 	});
 	
 	register_benchmark('small', 'composite_search77', "Row by row iteration", function()
 	{
-		return jOrder.test.table77n.filter(function(row)
+		return jOrder.testing.table77n.filter(function(row)
 		{
 			return row.Currency == 'USD' && row.Total == 8;
 		});
@@ -170,12 +170,12 @@ $(function()
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table1000.where([{ 'id': 107 }, { 'id': 115 }]);
+		return jOrder.testing.table1000.where([{ 'id': 107 }, { 'id': 115 }]);
 	});
 
 	register_benchmark('large', 'exact_search1000', "Row by row iteration", function()
 	{
-		return jOrder.test.table1000n.filter(function(row)
+		return jOrder.testing.table1000n.filter(function(row)
 		{
 			return row.id == 107 || row.id == 115;
 		});
@@ -185,12 +185,12 @@ $(function()
 	
 	register_benchmark('small', 'range_search77', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+		return jOrder.testing.table77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
 	});
 
 	register_benchmark('small', 'range_search77', "Row by row iteration", function()
 	{
-		return jOrder.test.table77n.filter(function(row)
+		return jOrder.testing.table77n.filter(function(row)
 		{
 			return row.Total >= 11 && row.Total <= 15;
 		});
@@ -200,12 +200,12 @@ $(function()
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table1000.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
+		return jOrder.testing.table1000.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
 	});
 
 	register_benchmark('large', 'range_search1000', "Row by row iteration", function()
 	{
-		return jOrder.test.table1000n.filter(function(row)
+		return jOrder.testing.table1000n.filter(function(row)
 		{
 			return row.id >= 203 && row.id <= 315;
 		});
@@ -215,7 +215,7 @@ $(function()
 	
 	register_benchmark('large', 'range_search_page1000', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table1000.where([{ 'id': { lower: 203, upper: 315 } }],
+		return jOrder.testing.table1000.where([{ 'id': { lower: 203, upper: 315 } }],
 		{
 			mode: jOrder.range,
 			renumber: true,
@@ -228,12 +228,12 @@ $(function()
 	
 	register_benchmark('large', 'freetext_search1000', "jOrder.table.where()", function()
 	{
-		return jOrder.test.table1000.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000 });
+		return jOrder.testing.table1000.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000 });
 	});
 
 	register_benchmark('large', 'freetext_search1000', "Row by row iteration", function()
 	{
-		return jOrder.test.table1000n.filter(function(row)
+		return jOrder.testing.table1000n.filter(function(row)
 		{
 			return null !== row.name.match(/\bcon/i);
 		});
@@ -243,12 +243,12 @@ $(function()
 	
 	register_benchmark('small', 'sorting77', "jOrder.table.orderby()", function()
 	{
-		return jOrder.test.table77.orderby(['ID'], jOrder.asc, { indexName: 'id' });
+		return jOrder.testing.table77.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	});
 
 	register_benchmark('small', 'sorting77', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(jOrder.test.table77.flat()).sort(function(a, b)
+		return jOrder.copyTable(jOrder.testing.table77.flat()).sort(function(a, b)
 		{
 			return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
 		});
@@ -258,12 +258,12 @@ $(function()
 
 	register_benchmark('large', 'sorting1000', "jOrder.table.orderby()", function()
 	{
-		return jOrder.test.table1000.orderby(['name'], jOrder.asc, { indexName: 'name' });
+		return jOrder.testing.table1000.orderby(['name'], jOrder.asc, { indexName: 'name' });
 	}, { lengthonly: true });	
 	
 	register_benchmark('large', 'sorting1000', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(jOrder.test.table1000.flat()).sort(function(a, b)
+		return jOrder.copyTable(jOrder.testing.table1000.flat()).sort(function(a, b)
 		{
 			return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
 		});
@@ -273,7 +273,7 @@ $(function()
 	
 	register_benchmark('large', 'sorting_page1000', "jOrder.table.orderby()", function()
 	{
-		return jOrder.test.table1000.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
+		return jOrder.testing.table1000.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
 	});	
 	
 	// Grouping
@@ -294,7 +294,7 @@ $(function()
 
 		var summed;
 		for (var i = 0; i < cycles; i++){
-			summed = jOrder.test.table77.aggregate('group', init, iterate);
+			summed = jOrder.testing.table77.aggregate('group', init, iterate);
 		}
 		return summed;
 	});

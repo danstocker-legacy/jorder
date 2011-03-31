@@ -1,8 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // 77 record table for testing jOrder
 ////////////////////////////////////////////////////////////////////////////////
-jOrder.test = function (test) {
-	test.json77 = [
+/*global jOrder */
+
+jOrder.testing = function (testing) {
+	testing.json77 = [
 		{
 			"ID": 1,
 			"Currency": "USD",
@@ -1007,6 +1009,6 @@ jOrder.test = function (test) {
 		}
 	];
 	
-	return test;
-}(jOrder.test || {});
+	return testing;
+}(jOrder.testing || {});
 
