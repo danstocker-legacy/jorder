@@ -1,88 +1,92 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>jOrder benchmark page</title>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
-    <script type="text/javascript" src="http://github.com/hugoware/jLinq/raw/master/jLinq.js" ></script>
-	<script type="text/javascript" src="../src/jorder.js"></script>
-    <script type="text/javascript" src="data77.js"></script>
-    <script type="text/javascript" src="data1000.js"></script>
-    <script type="text/javascript" src="benchmark.js"></script>
-    <style rel="css">
-    	body
-    	{
-			font-family: arial, sans;
-			font-size: 12px;
-    	}
-    
-    	table
-		{
-			margin: 8px 0 0 0;
-			width: 500px;
-			border-collapse: collapse;
-		}
-		
-		table col.desc
-		{
-			width: 60%;
-		}
-		
-		table col.time
-		{
-			width: 20%;
-		}
-		
-		table col.button,
-		table col.arrow
-		{
-			width: 10%;
-		}
-		
-		table tr.reference
-		{
-			color: #3A6EA5;
-		}
-		
-		table th,
-		table td
-		{
-			padding: 4px;
-			vertical-align: baseline;
-			border: 1px solid #ddd;
-		}
-		
-		table td.arrow
-		{
-			border: none;
-		}
-		
-		table th
-		{
-			text-align: left;
-			font-weight: bold
-		}
-		
-		#result
-		{
-			position: absolute;
-			top: 0;
-			left: 500px;
-			margin: 0;
-		}
-		
-		#arrow
-		{
-			font-size: 18px;
-			font-weight: bold;
-		}
+	<title>jOrder benchmark page</title>
+	<script src="jquery/jquery-1.5.1.min.js"></script>
+	<script src="../src/const.js"></script>
+	<script src="../src/common.js"></script>
+	<script src="../src/logging.js"></script>
+	<script src="../src/index.js"></script>
+	<script src="../src/table.js"></script>
+	<script src="json77.js"></script>
+	<script src="json1000.js"></script>
+	<script src="tables.js"></script>
+	<script src="benchmark.js"></script>
+	<style rel="css">
+	body
+	{
+	font-family: arial, sans;
+	font-size: 12px;
+	}
+	
+	table
+	{
+	margin: 8px 0 0 0;
+	width: 500px;
+	border-collapse: collapse;
+	}
+	
+	table col.desc
+	{
+	width: 60%;
+	}
+	
+	table col.time
+	{
+	width: 20%;
+	}
+	
+	table col.button,
+	table col.arrow
+	{
+	width: 10%;
+	}
+	
+	table tr.reference
+	{
+	color: #3A6EA5;
+	}
+	
+	table th,
+	table td
+	{
+	padding: 4px;
+	vertical-align: baseline;
+	border: 1px solid #ddd;
+	}
+	
+	table td.arrow
+	{
+	border: none;
+	}
+	
+	table th
+	{
+	text-align: left;
+	font-weight: bold;
+	}
+	
+	#result
+	{
+	position: absolute;
+	top: 0;
+	left: 500px;
+	margin: 0;
+	}
+	
+	#arrow
+	{
+	font-size: 18px;
+	font-weight: bold;
+	}
 	</style>
-</head>
-<body>
+	</head>
+	<body>
 	<h1>jOrder benchmarks</h1>
 	<p>Benchmarks are performed on these two datasets:</p>
 	<ul>
-		<li>A <a href="data77.js" target="new">small table</a> of 77 rows</li>
-		<li>A <a href="data1000.js" target="new">large table</a> of 1000 rows</li>
+		<li>A <a href="json77.js" target="new">small table</a> of 77 rows</li>
+		<li>A <a href="json1000.js" target="new">large table</a> of 1000 rows</li>
 	</ul>
 	<div class="dropdowns">
 		<label for="count">Test cycles: </label>
@@ -126,5 +130,5 @@
 	</table>
 	<table id="result">
 	</table>
-</body>
+	</body>
 </html>

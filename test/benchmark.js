@@ -1,20 +1,3 @@
-// table with 77 rows and several columns
-var table_indexed = jOrder(jorder_benchmark_data77)
-	.index('id', ['ID'], { ordered: true, type: jOrder.number })
-	.index('id_nosort', ['ID'])
-	.index('group', ['GroupID'], { ordered: true, grouped: true, type: jOrder.number })
-	.index('total', ['Total'], { ordered: true, grouped: true, type: jOrder.number })
-	.index('date', ['StartDate'], { ordered: true, grouped: true })
-	.index('signature', ['Total', 'Currency'], { ordered: true, grouped: true });
-var table_unindexed = jOrder(jorder_benchmark_data77);
-
-// table with 1000 rows and 2 columns
-var table1000_indexed = jOrder(jorder_benchmark_data1000)
-	.index('id', ['id'], { ordered: true, type: jOrder.number })
-	.index('name', ['name'], { ordered: true, grouped: true })
-	.index('fulltext', ['name'], { ordered: true, grouped: true, type: jOrder.text });
-var table1000_unindexed = jOrder(jorder_benchmark_data1000);
-
 // env variables
 var cycles = 10;
 var categories =
@@ -157,17 +140,12 @@ $(function()
 	
 	register_benchmark('small', 'exact_search77', "jOrder.table.where()", function()
 	{
-		return table_indexed.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
+		return jOrder.test.table77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	});
-
-	register_benchmark('small', 'exact_search77', "jLinq.from().equals()", function()
-	{
-		return jLinq.from(jorder_benchmark_data77).equals('GroupID', 107).or(185).select();
-	}, { isreference: true });
 
 	register_benchmark('small', 'exact_search77', "Row by row iteration", function()
 	{
-		return table_unindexed.filter(function(row)
+		return jOrder.test.table77n.filter(function(row)
 		{
 			return row.GroupID == 107 || row.GroupID == 185;
 		});
@@ -177,17 +155,12 @@ $(function()
 	
 	register_benchmark('small', 'composite_search77', "jOrder.table.where()", function()
 	{
-		return table_indexed.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
+		return jOrder.test.table77.where([{ 'Currency': 'USD', 'Total': 8 }], { renumber: true });
 	});
 	
-	register_benchmark('small', 'composite_search77', "jLinq.from().equals()", function()
-	{
-		return jLinq.from(jorder_benchmark_data77).equals('Currency', 'USD').and('Total', 8).select();
-	}, { isreference: true });
-
 	register_benchmark('small', 'composite_search77', "Row by row iteration", function()
 	{
-		return table_unindexed.filter(function(row)
+		return jOrder.test.table77n.filter(function(row)
 		{
 			return row.Currency == 'USD' && row.Total == 8;
 		});
@@ -197,17 +170,12 @@ $(function()
 
 	register_benchmark('large', 'exact_search1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'id': 107 }, { 'id': 115 }]);
+		return jOrder.test.table1000.where([{ 'id': 107 }, { 'id': 115 }]);
 	});
-
-	register_benchmark('large', 'exact_search1000', "jLinq.from().equals()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).equals('id', 107).or(115).select();
-	}, { isreference: true });
 
 	register_benchmark('large', 'exact_search1000', "Row by row iteration", function()
 	{
-		return table1000_unindexed.filter(function(row)
+		return jOrder.test.table1000n.filter(function(row)
 		{
 			return row.id == 107 || row.id == 115;
 		});
@@ -217,17 +185,12 @@ $(function()
 	
 	register_benchmark('small', 'range_search77', "jOrder.table.where()", function()
 	{
-		return table_indexed.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
+		return jOrder.test.table77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range });
 	});
-
-	register_benchmark('small', 'range_search77', "jLinq.from().between()", function()
-	{
-		return jLinq.from(jorder_benchmark_data77).between('Total', 11, 15).select();
-	}, { isreference: true });
 
 	register_benchmark('small', 'range_search77', "Row by row iteration", function()
 	{
-		return table_unindexed.filter(function(row)
+		return jOrder.test.table77n.filter(function(row)
 		{
 			return row.Total >= 11 && row.Total <= 15;
 		});
@@ -237,17 +200,12 @@ $(function()
 
 	register_benchmark('large', 'range_search1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
+		return jOrder.test.table1000.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
 	});
-
-	register_benchmark('large', 'range_search1000', "jLinq.from().between()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).select();
-	}, { isreference: true });
 
 	register_benchmark('large', 'range_search1000', "Row by row iteration", function()
 	{
-		return table1000_unindexed.filter(function(row)
+		return jOrder.test.table1000n.filter(function(row)
 		{
 			return row.id >= 203 && row.id <= 315;
 		});
@@ -257,7 +215,7 @@ $(function()
 	
 	register_benchmark('large', 'range_search_page1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'id': { lower: 203, upper: 315 } }],
+		return jOrder.test.table1000.where([{ 'id': { lower: 203, upper: 315 } }],
 		{
 			mode: jOrder.range,
 			renumber: true,
@@ -266,26 +224,16 @@ $(function()
 		});
 	});
 
-	register_benchmark('large', 'range_search_page1000', "jLinq.from()between().skipTake()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).between('id', 203, 315).skipTake(20, 20);
-	}, { isreference: true });
-
 	// Freetext search on 1000 rows
 	
 	register_benchmark('large', 'freetext_search1000', "jOrder.table.where()", function()
 	{
-		return table1000_indexed.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000 });
+		return jOrder.test.table1000.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000 });
 	});
-
-	register_benchmark('large', 'freetext_search1000', "jLinq.from().match()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).match('name', '\\bcon').select();
-	}, { isreference: true });
 
 	register_benchmark('large', 'freetext_search1000', "Row by row iteration", function()
 	{
-		return table1000_unindexed.filter(function(row)
+		return jOrder.test.table1000n.filter(function(row)
 		{
 			return null !== row.name.match(/\bcon/i);
 		});
@@ -295,17 +243,12 @@ $(function()
 	
 	register_benchmark('small', 'sorting77', "jOrder.table.orderby()", function()
 	{
-		return table_indexed.orderby(['ID'], jOrder.asc, { indexName: 'id' });
+		return jOrder.test.table77.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	});
-
-	register_benchmark('small', 'sorting77', "jLinq.from().orderBy()", function()
-	{
-		return jLinq.from(jorder_benchmark_data77).orderBy('ID').select();
-	}, { isreference: true });
 
 	register_benchmark('small', 'sorting77', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(table_indexed.flat()).sort(function(a, b)
+		return jOrder.copyTable(jOrder.test.table77.flat()).sort(function(a, b)
 		{
 			return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
 		});
@@ -315,17 +258,12 @@ $(function()
 
 	register_benchmark('large', 'sorting1000', "jOrder.table.orderby()", function()
 	{
-		return table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name' });
+		return jOrder.test.table1000.orderby(['name'], jOrder.asc, { indexName: 'name' });
 	}, { lengthonly: true });	
 	
-	register_benchmark('large', 'sorting1000', "jLinq.from().orderBy()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).orderBy('name').select();
-	}, { isreference: true, lengthonly: true });
-
 	register_benchmark('large', 'sorting1000', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(table1000_indexed.flat()).sort(function(a, b)
+		return jOrder.copyTable(jOrder.test.table1000.flat()).sort(function(a, b)
 		{
 			return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
 		});
@@ -335,14 +273,9 @@ $(function()
 	
 	register_benchmark('large', 'sorting_page1000', "jOrder.table.orderby()", function()
 	{
-		return table1000_indexed.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
+		return jOrder.test.table1000.orderby(['name'], jOrder.asc, { indexName: 'name', offset: 0, limit: 20 });
 	});	
 	
-	register_benchmark('large', 'sorting_page1000', "jLinq.from()orderBy().take()", function()
-	{
-		return jLinq.from(jorder_benchmark_data1000).orderBy('name').take(20);
-	}, { isreference: true });
-
 	// Grouping
 	
 	register_benchmark('small', 'aggregate77', "Summing on field 'Total'", function()
@@ -361,7 +294,7 @@ $(function()
 
 		var summed;
 		for (var i = 0; i < cycles; i++){
-			summed = table_indexed.aggregate('group', init, iterate);
+			summed = jOrder.test.table77.aggregate('group', init, iterate);
 		}
 		return summed;
 	});
