@@ -248,7 +248,7 @@ $(function()
 
 	register_benchmark('small', 'sorting77', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(jOrder.testing.table77.flat()).sort(function(a, b)
+		return jOrder.shallow(jOrder.testing.table77.flat()).sort(function(a, b)
 		{
 			return a.ID > b.ID ? 1 : a.ID < b.ID ? -1 : 0;
 		});
@@ -263,7 +263,7 @@ $(function()
 	
 	register_benchmark('large', 'sorting1000', "Row by row iteration", function()
 	{
-		return jOrder.copyTable(jOrder.testing.table1000.flat()).sort(function(a, b)
+		return jOrder.shallow(jOrder.testing.table1000.flat()).sort(function(a, b)
 		{
 			return a.name > b.name ? 1 : a.name < b.name ? -1 : 0;
 		});
