@@ -32,7 +32,7 @@ var jOrder = function (jOrder) {
 			if (null !== _indexes[name]) {
 				delete _indexes[name];
 			}
-			_indexes[name] = new jOrder.index(_data, fields, options);
+			_indexes[name] = jOrder.index(_data, fields, options);
 			return this;
 		};
 
