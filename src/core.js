@@ -6,7 +6,7 @@ var jOrder = function (json, options) {
 	return jOrder.init(json, options);
 };
 
-jOrder.core = function (core, logging) {
+jOrder.core = function (core) {
 	var self = {
 		// delegates all of a module's methods to the jOrder object
 		delegate: function (module) {
@@ -22,7 +22,6 @@ jOrder.core = function (core, logging) {
 		// makes a shallow copy of the passed JSON
 		// optionally renumbered
 		shallow: function (json, renumber) {
-			logging.log("Making shallow copy of JSON (length: " + json.length + ").");
 			var result = [],
 					i;
 			if (renumber) {
@@ -81,6 +80,5 @@ jOrder.core = function (core, logging) {
 	};
 
 	return self.delegate(self);
-}(jOrder.core || {},
-	{log: function () {}});
+}(jOrder.core || {});
 

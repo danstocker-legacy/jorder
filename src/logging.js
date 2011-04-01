@@ -1,61 +1,43 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Logging
 ////////////////////////////////////////////////////////////////////////////////
-var jOrder = function (jOrder, window) {
-	// properties
-	jOrder.logging = true;
+/*global jOrder, window, Sys */
 
-	// general logging function
-	jOrder.log = function (message, level) {
-		if (!jOrder.logging) {
-			return;
-		}
+jOrder.logging = function (jOrder, window) {
+	// utility functions
+	var self,
+			log;
 
-		var log, warn, error;
-		if (window.console) {
-			log = function (msg) {
-				window.console.log(msg);
-			};
-			warn = function (msg) {
-				window.console.warn(msg);
-			};
-			error = function (msg) {
-				window.console.error(msg);
-			};
-		} else if (typeof Sys !== 'undefined') {
-			log = warn = error = function (msg) {
+	if (!window.console) {
+		log = Sys && Sys.Debug ?
+			// using Sys.Debug
+			function (msg) {
 				Sys.Debug.trace(msg);
-			};
-		} else {
-			log = function () {};
-			warn = error = function (msg) {
-				window.alert(msg);
-			};
+			} :
+			// no logging
+			function () {};
+
+		window.console = {
+			log: log,
+			warn: log,
+			error: log
+		};
+	}
+	
+	// properties
+	self = {
+		// logs to console
+		log: function (msg) {
+			window.console.log(msg);
+		},
+		// issues a warning
+		warning: function (msg) {
+			window.console.warn(msg);
 		}
-
-		(function (prefix) {
-			switch (level) {
-			case 1:
-				return warn(prefix + message);
-			case 2:
-				return error(prefix + message);
-			default:
-				return log(prefix + message);
-			}
-		})(jOrder.name + ": ");
-	};
-
-	// issues a warning
-	jOrder.warning = function (message) {
-		return jOrder.log(message, 1);
-	};
-
-	// issues an error
-	jOrder.error = function (message) {
-		return jOrder.log(message, 2);
+		// use throw instead of console.error()
 	};
 	
-	return jOrder;
-}(jOrder || {},
+	return jOrder.delegate(self);
+}(jOrder,
 	window);
 
