@@ -8,12 +8,12 @@ var jOrder = function (json, options) {
 
 jOrder.core = function (core) {
 	var self = {
-		// delegates all of a module's methods to the jOrder object
+		// delegates all of a module's properties to the jOrder object
 		delegate: function (module) {
-			var method;
-			for (method in module) {
-				if (typeof module[method] === 'function') {
-					jOrder[method] = module[method];
+			var property;
+			for (property in module) {
+				if (module.hasOwnProperty(property)) {
+					jOrder[property] = module[property];
 				}
 			}
 			return module;
