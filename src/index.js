@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder index object
 ////////////////////////////////////////////////////////////////////////////////
-/*jslint forin:true */
 /*global jOrder, escape */
 
 // generates a lookup index on the specified table for the given set of fields
@@ -13,6 +12,7 @@
 //	 - type: jOrder.string, jOrder.number, jOrder.text
 jOrder.index = function (constants, logging) {
 	return function (json, fields, options) {
+		// check presence
 		if (typeof fields === 'undefined' || !fields.length) {
 			throw "No field(s) specified";
 		}
@@ -20,6 +20,16 @@ jOrder.index = function (constants, logging) {
 		// default options		
 		options = options || {};
 	
+		// check consistency
+		if (fields.length > 1) {
+			switch (options.type) {
+			case constants.text:
+				throw "Can't create a text index on more than one field.";
+			case constants.number:
+				throw "Can't create a number index on more than one field.";
+			}
+		}
+
 		// private values
 		var flat = {},
 				order = [],
@@ -46,23 +56,46 @@ jOrder.index = function (constants, logging) {
 		
 		self = {
 			options: options,
-			
-			// constructs a key based on values of a row
-			// - row: data row that serves as basis for the index key
+
+			// generates or validates a signature based on index
+			// - row: row to be validated against index
+			signature: function (row) {
+				// returning signature
+				if (!row) {
+					return escape(fields.join('_'));
+				}
+				// validating row
+				// all fields of the index must be present in the row
+				var i;
+				for (i = 0; i < fields.length; i++) {
+					if (!row.hasOwnProperty(fields[i])) {
+						// fail early
+						return false;
+					}
+				}
+				return true;
+			},
+				
+			// extracts one or more key values associated with a row
+			// according to index definition
+			// - row: data row to extract keys from
 			keys: function (row) {
+				// extracting multiple keys from array type
 				if (constants.array === self.options.type) {
 					return row[fields[0]];
 				}
+				// extracting multiple keys from text type
 				if (constants.text === self.options.type) {
 					return row[fields[0]].split(' ');
 				}
+				// extracting one (composite) key from any other type
 				var key = [],
-						idx;
-				for (idx = 0; idx < fields.length; idx++) {
-					if (!row.hasOwnProperty(fields[idx])) {
-						return null;
+						i;
+				for (i = 0; i < fields.length; i++) {
+					if (!row.hasOwnProperty(fields[i])) {
+						return [];
 					}
-					key.push(row[fields[idx]]);
+					key.push(row[fields[i]]);
 				}
 				return [escape(key.join('_'))];
 			},
@@ -169,33 +202,27 @@ jOrder.index = function (constants, logging) {
 				}
 			},
 	
-			// rebuilds the index
+			// rebuilds index based on original json and options
 			rebuild: function () {
-				// check parameter consistency
-				if (fields.length > 1) {
-					switch (self.options.type) {
-					case constants.text:
-						throw "Can't create a text index on more than one field.";
-					case constants.number:
-						throw "Can't create a number index on more than one field.";
-					}
-				}
-	
-				// clear index
+				// clearing index
 				flat = {};
 				order = [];
 	
-				// generate index
+				// generating index
 				logging.log("Building index of length: " + json.length + ", signature '" + self.signature() + "'.");
-				for (var rowId in json) {
-					self.add(json[rowId], rowId, false);
+				var i, row;
+				for (i = 0; i < json.length; i++) {
+					// skipping 'holes' in array
+					if (!(row = json[i])) {
+						continue;
+					}
+					self.add(row, i, false);
 				}
-				if (!self.options.ordered) {
-					return;
+
+				// generating order for ordered index				
+				if (self.options.ordered) {
+					self.reorder();
 				}
-				
-				// generate order
-				self.reorder();
 			},
 	
 			// compacts the order by eliminating orphan entries
@@ -215,41 +242,24 @@ jOrder.index = function (constants, logging) {
 				}
 			},
 	
-			// generates or validates a signature for the index
-			// - row: row that we want to validate against the index
-			signature: function (row) {
-				if (!row) {
-					return escape(fields.join('_'));
-				}
-				// validation: all fields of the index must be present in the test row
-				for (var idx = 0; idx < fields.length; idx++) {
-					if (!row.hasOwnProperty(fields[idx])) {
-						return false;
-					}
-				}
-				return true;
-			},
-	
-			// returns the original rowids associated with the index
-			// - rows: data rows that serve as basis for the index key
+			// returns original rowids for rows according to index
+			// - rows: sparse array of data rows to look up
 			lookup: function (rows) {
 				var result = [],
-						idx, key, rowIds,
-						jdx;
-				for (idx in rows) {
-					key = self.keys(rows[idx])[0];
-					if (!flat.hasOwnProperty(key)) {
-						continue;
-					}
-	
-					// index element is either an array or a number
-					rowIds = flat[key];
-					if ('object' === typeof rowIds) {
-						for (jdx in rowIds.items) {
-							result.push(rowIds.items[jdx]);
+						i, key, ids,
+						j;
+				for (i in rows) {
+					if (flat.hasOwnProperty(key = self.keys(rows[i])[0])) {
+						// taking associated row ids from internal index structure
+						ids = flat[key].items || flat[key];
+						// ids is either a number or array of numbers
+						if (typeof ids.length !== 'undefined') {
+							for (j = 0; j < ids.length; j++) {
+								result.push(ids[j]);
+							}
+						} else {
+							result.push(ids);
 						}
-					} else {
-						result.push(rowIds);
 					}
 				}
 				return result;
