@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, module, test, equals */
 
-jOrder.testing = function (testing, jOrder) {
+jOrder.testing = function (testing) {
 	// Data integrity tests
 	testing.data = function () {
 		module("Integrity");
@@ -16,6 +16,5 @@ jOrder.testing = function (testing, jOrder) {
 	}();
 	
 	return testing;
-}(jOrder.testing || {},
-	jOrder);
+}(jOrder.testing || {});
 
