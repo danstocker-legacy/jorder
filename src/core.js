@@ -3,10 +3,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var jOrder = function (json, options) {
-	return jOrder.init(json, options);
+	return jOrder.table(json, options);
 };
 
-jOrder.core = function (core) {
+jOrder.core = function () {
 	var self = {
 		// delegates all of a module's properties to the jOrder object
 		delegate: function (module) {
@@ -80,5 +80,5 @@ jOrder.core = function (core) {
 	};
 
 	return self.delegate(self);
-}(jOrder.core || {});
+}();
 

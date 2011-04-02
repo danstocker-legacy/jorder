@@ -31,7 +31,7 @@ jOrder.logging = function (jOrder, window) {
 			window.console.log(msg);
 		},
 		// issues a warning
-		warning: function (msg) {
+		warn: function (msg) {
 			window.console.warn(msg);
 		}
 		// use throw instead of console.error()
