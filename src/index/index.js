@@ -8,8 +8,8 @@
 // - fields: array of strings representing table fields
 // - options: grouped, sorted, data type
 //	 - grouped: bool
-//	 - sorted: bool
-//	 - type: jOrder.string, jOrder.number, jOrder.text
+//	 - ordered: bool
+//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
 //	 - build: bool
 jOrder.index = function (constants, logging) {
 	return function (json, fields, options) {
