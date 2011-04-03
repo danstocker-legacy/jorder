@@ -18,6 +18,8 @@ jOrder.testing = function (testing, jOrder) {
 			raises(function () {
 				jOrder.index(testing.json77, ['Currency', 'StatusStr'], {type: jOrder.text});
 			}, "Full-text index with multiple fields raises exception");
+
+			deepEqual(jOrder.index(testing.json77, ['ID'], {build: false}).flat(), {}, "Building index on initialization can be turned off");
 		});
 
 		var
@@ -43,6 +45,7 @@ jOrder.testing = function (testing, jOrder) {
 		// test indexes
 		string = jOrder.index(jsonX, ['author']),
 		string_multi = jOrder.index(jsonX, ['author', 'volumes']),
+		number = jOrder.index(jsonX, ['volumes'], {type: jOrder.number, grouped: true}),
 		array = jOrder.index(jsonX, ['data'], {type: jOrder.array, grouped: true}),
 		text = jOrder.index(jsonX, ['title'], {type: jOrder.text, grouped: true});
 		
@@ -75,6 +78,58 @@ jOrder.testing = function (testing, jOrder) {
 			deepEqual(string_multi.lookup([{'author': 'Tolkien', 'volumes': 3}]), [0], "Looking up single row on COMPOSITE index");
 			deepEqual(array.lookup([{'data': 1}]), [1, 2], "Lookup in ARRAY type field may return multiple hits");
 			deepEqual(text.lookup([{'title': 'the'}]), [0, 1], "Lookup in TEXT type field may return multiple hits");
+		});
+		
+		test("Index building exceptions", function () {
+			raises(function () {
+				jOrder.index(jsonX, ['author'])
+					.add({'foo': 'bar'}, 0, false);
+			}, "Adding unmatching field raises exception");
+			raises(function () {
+				jOrder.index(jsonX, ['author'])
+					.add({'author': 'Tolkien'}, 0, false)
+					.add({'author': 'Tolkien'}, 1, false);
+			}, "Adding same value to an unique index again raises exception");
+		});
+		
+		test("Building index", function () {
+			var expected,
+			string_unbuilt = jOrder.index(jsonX, ['author'], {build: false}),
+			number_unbuilt = jOrder.index(jsonX, ['volumes'], {type: jOrder.number, grouped: true, build: false}),
+			array_unbuilt = jOrder.index(jsonX, ['data'], {type: jOrder.array, grouped: true, build: false}),
+			text_unbuilt = jOrder.index(jsonX, ['title'], {type: jOrder.text, grouped: true, build: false});
+
+			// unique index (string type)
+			expected = {
+				'Tolkien': 0
+			};
+			string_unbuilt.add(jsonX[0], 0, false);
+			deepEqual(string_unbuilt.flat(), expected, "Adding value to UNIQUE index");
+			
+			// grouped index (numeric tyoe)
+			expected = {
+				'1': {items: {1: 1, 2: 2}, count: 2}
+			};
+			number_unbuilt.add(jsonX[1], 1, false);
+			number_unbuilt.add(jsonX[2], 2, false);
+			deepEqual(number_unbuilt.flat(), expected, "Adding value to GROUPED index");
+			
+			// grouped index (array type)
+			expected = {
+				'99': {items: {'2': 2}, count: 1},
+				'1': {items: {'2': 2}, count: 1}			
+			};
+			array_unbuilt.add(jsonX[2], 2, false);
+			deepEqual(array_unbuilt.flat(), expected, "Adding value to grouped index of ARRAY type");
+
+			// grouped index (array type)
+			expected = {
+				'Winnie': {items: {'1': 1}, count: 1},
+				'the': {items: {'1': 1}, count: 1},
+				'Pooh': {items: {'1': 1}, count: 1}
+			};
+			text_unbuilt.add(jsonX[1], 1, false);
+			deepEqual(text_unbuilt.flat(), expected, "Adding value to grouped index of TEXT type");
 		});
 	}();
 	
