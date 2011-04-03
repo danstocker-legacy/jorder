@@ -70,9 +70,11 @@ jOrder.testing = function (testing, jOrder) {
 			var rows = [];
 			rows[0] = {'author': 'Asimov'};
 			rows[3] = {'author': 'Milne'};
+			deepEqual(string.lookup([{'author': 'INVALID'}]), [], "Lookup of ABSENT data yields empty set");
 			deepEqual(string.lookup(rows), [2, 1], "Looking up sparse set on single field index");
-			deepEqual(string_multi.lookup([{'author': 'Tolkien', 'volumes': 3}]), [0], "Looking up single row on composite index");
-			deepEqual(string.lookup([{'author': 'INVALID'}]), [], "Lookup of absent data yields empty set");
+			deepEqual(string_multi.lookup([{'author': 'Tolkien', 'volumes': 3}]), [0], "Looking up single row on COMPOSITE index");
+			deepEqual(array.lookup([{'data': 1}]), [1, 2], "Lookup in ARRAY type field may return multiple hits");
+			deepEqual(text.lookup([{'title': 'the'}]), [0, 1], "Lookup in TEXT type field may return multiple hits");
 		});
 	}();
 	
