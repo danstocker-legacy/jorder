@@ -76,6 +76,23 @@ jOrder.index = function (constants, logging) {
 				return true;
 			},
 				
+			// extracts key associated with a row according to index definition
+			// for lookup purposes
+			// - row: data row to extract keys from
+			key: function (row) {
+				// extracting one (composite) key from any other type
+				var key = [],
+						i, field;
+				for (i = 0; i < fields.length; i++) {
+					field = fields[i];
+					if (!row.hasOwnProperty(field)) {
+						return undefined;
+					}
+					key.push(row[field]);
+				}
+				return escape(key.join('_'));
+			},
+
 			// extracts one or more key values associated with a row
 			// according to index definition
 			// - row: data row to extract keys from
@@ -89,15 +106,8 @@ jOrder.index = function (constants, logging) {
 					return row[fields[0]].split(' ');
 				}
 				// extracting one (composite) key from any other type
-				var key = [],
-						i;
-				for (i = 0; i < fields.length; i++) {
-					if (!row.hasOwnProperty(fields[i])) {
-						return [];
-					}
-					key.push(row[fields[i]]);
-				}
-				return [escape(key.join('_'))];
+				var key = self.key(row);
+				return key ? [key] : [];
 			},
 
 			// reorders the index
@@ -246,16 +256,18 @@ jOrder.index = function (constants, logging) {
 			// - rows: sparse array of data rows to look up
 			lookup: function (rows) {
 				var result = [],
-						i, key, ids,
+						i, key, ids,	// 'ids' is a sparse array, since 'rows' is
 						j;
 				for (i in rows) {
-					if (flat.hasOwnProperty(key = self.keys(rows[i])[0])) {
+					if (flat.hasOwnProperty(key = self.key(rows[i]))) {
 						// taking associated row ids from internal index structure
 						ids = flat[key].items || flat[key];
 						// ids is either a number or array of numbers
 						if (typeof ids.length !== 'undefined') {
-							for (j = 0; j < ids.length; j++) {
-								result.push(ids[j]);
+							for (j in ids) {
+								if (ids.hasOwnProperty(j)) {
+									result.push(ids[j]);
+								}
 							}
 						} else {
 							result.push(ids);
