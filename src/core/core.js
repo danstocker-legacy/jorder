@@ -9,11 +9,17 @@ var jOrder = function (json, options) {
 jOrder.core = function () {
 	var self = {
 		// delegates all of a module's properties to the jOrder object
-		delegate: function (module) {
+		delegate: function (module, host, properties) {
+			host = host || jOrder;
 			var property;
 			for (property in module) {
-				if (module.hasOwnProperty(property)) {
-					jOrder[property] = module[property];
+				if (
+					// strict condition when no explicite property list given
+					!properties && module.hasOwnProperty(property) ||
+					// loose condition when explicite property list is present
+					properties.hasOwnProperty(property) && (property in module)
+				) {
+					host[property] = module[property];
 				}
 			}
 			return module;
