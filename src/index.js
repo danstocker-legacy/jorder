@@ -10,6 +10,7 @@
 //	 - grouped: bool
 //	 - sorted: bool
 //	 - type: jOrder.string, jOrder.number, jOrder.text
+//	 - build: bool
 jOrder.index = function (constants, logging) {
 	return function (json, fields, options) {
 		// check presence
@@ -132,7 +133,7 @@ jOrder.index = function (constants, logging) {
 				// obtain keys associated with the row
 				var keys = self.keys(row),
 						idx, key;
-				if (null === keys) {
+				if (!keys.length) {
 					throw "Can't add row to index. No field matches signature '" + self.signature() + "'";
 				}
 				for (idx = 0; idx < keys.length; idx++) {
@@ -156,7 +157,7 @@ jOrder.index = function (constants, logging) {
 							order.push({ key: key, rowId: rowId });
 							break;
 						}
-						if (!(false === reorder)) {
+						if (reorder !== false) {
 							self.reorder();
 						}
 					}
@@ -165,7 +166,7 @@ jOrder.index = function (constants, logging) {
 					if (self.options.grouped) {
 						// grouped index
 						if (!flat.hasOwnProperty(key)) {
-							flat[key] = { items: [], count: 0 };
+							flat[key] = { items: {}, count: 0 };
 						}
 						if (!(rowId in flat[key].items)) {
 							flat[key].count++;
@@ -179,6 +180,8 @@ jOrder.index = function (constants, logging) {
 						flat[key] = rowId;
 					}
 				}
+				
+				return self;
 			},
 	
 			// removes a key from the index
@@ -261,16 +264,17 @@ jOrder.index = function (constants, logging) {
 				for (i in rows) {
 					if (flat.hasOwnProperty(key = self.key(rows[i]))) {
 						// taking associated row ids from internal index structure
-						ids = flat[key].items || flat[key];
-						// ids is either a number or array of numbers
-						if (typeof ids.length !== 'undefined') {
+						ids = flat[key].items;
+						if (ids) {
+							// for grouped index
 							for (j in ids) {
 								if (ids.hasOwnProperty(j)) {
 									result.push(ids[j]);
 								}
 							}
 						} else {
-							result.push(ids);
+							// for unique index
+							result.push(flat[key]);
 						}
 					}
 				}
@@ -396,7 +400,9 @@ jOrder.index = function (constants, logging) {
 			}
 		};
 	
-		self.rebuild();
+		if (self.options.build !== false) {
+			self.rebuild();
+		}
 		
 		return self;
 	};
