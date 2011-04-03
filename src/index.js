@@ -132,14 +132,15 @@ jOrder.index = function (constants, logging) {
 			add: function (row, rowId, reorder) {
 				// obtain keys associated with the row
 				var keys = self.keys(row),
-						idx, key;
+						i, key, ids;
 				if (!keys.length) {
 					throw "Can't add row to index. No field matches signature '" + self.signature() + "'";
 				}
-				for (idx = 0; idx < keys.length; idx++) {
-					key = keys[idx];
+				// adding index value for each key in row
+				for (i = 0; i < keys.length; i++) {
+					key = keys[i];
 	
-					// extend (and re-calculate) order
+					// extending order (and re-calculating if necessary)
 					if (self.options.ordered) {
 						// number variable type must be preserved for sorting purposes
 						switch (self.options.type) {
@@ -162,16 +163,22 @@ jOrder.index = function (constants, logging) {
 						}
 					}
 	
-					// add row id to index
+					// adding row id to index
 					if (self.options.grouped) {
 						// grouped index
 						if (!flat.hasOwnProperty(key)) {
-							flat[key] = { items: {}, count: 0 };
+							// initializing index key
+							ids = { items: {}, count: 1 };
+							ids.items[rowId] = rowId;
+							flat[key] = ids;
+						} else {
+							// incrementing index key
+							ids = flat[key];
+							if (!ids.items.hasOwnProperty(rowId)) {
+								ids.count++;
+								ids.items[rowId] = rowId;
+							}
 						}
-						if (!(rowId in flat[key].items)) {
-							flat[key].count++;
-						}
-						flat[key].items[rowId] = rowId;
 					} else {
 						// non-grouped index
 						if (flat.hasOwnProperty(key)) {
