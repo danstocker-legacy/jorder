@@ -118,6 +118,7 @@ jOrder.index = function (core, constants, logging) {
 		if (options.ordered) {
 			core.delegate(order, self, {
 				'compact': true,
+				'bsearch': true,
 				'range': true,
 				'order': true
 			});
