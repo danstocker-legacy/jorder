@@ -59,7 +59,7 @@ jOrder.lookup = function (constants, logging) {
 		// - keys: keys to delete from index
 		// - rowId: id of row to delete
 		self.remove = function (keys, rowId) {
-			var idx, key;
+			var idx, key, ids;
 			for (idx = 0; idx < keys.length; idx++) {
 				key = keys[idx];
 
@@ -67,7 +67,7 @@ jOrder.lookup = function (constants, logging) {
 					throw "Can't remove row. Row '" + key + "' doesn't match signature '" + self.signature() + "'.";
 				}
 
-				// non-group index
+				// removing key from unique index altogether
 				if (!self.options.grouped) {
 					delete flat[key];
 					return;
@@ -77,11 +77,19 @@ jOrder.lookup = function (constants, logging) {
 					throw "Must pass rowId when deleting from group index.";
 				}
 				
-				// group index
-				if (flat[key].items && rowId in flat[key].items) {
-					flat[key].count--;
+				// decreasing count on selected key
+				ids = flat[key];
+				if (ids.items && ids.items.hasOwnProperty(rowId)) {
+					ids.count--;
 				}
-				delete flat[key].items[rowId];
+				if (!ids.count) {
+					// deleting key altogether
+					// when there are no more items in key
+					delete flat[key];
+				} else {
+					// removing item associated with row
+					delete ids.items[rowId];
+				}
 			}
 		};
 
