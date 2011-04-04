@@ -6,7 +6,6 @@
 jOrder.constants = function (core) {
 	return core.delegate({
 		// version
-		version: '1.1.0.14',
 		name: "jOrder",
 		
 		// sorting directions
