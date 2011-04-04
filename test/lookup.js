@@ -40,45 +40,91 @@ jOrder.testing = function (testing, jOrder) {
 			}, "Adding same value to an unique index again raises exception");
 		});
 		
-		test("Building lookup", function () {
-			var expected,
+		test("Modifying lookup", function () {
+			var expected;
 
-			string_unbuilt = jOrder.index(testing.jsonX, ['author'], {build: false}),
-			number_unbuilt = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, build: false}),
-			array_unbuilt = jOrder.index(testing.jsonX, ['data'], {type: jOrder.array, grouped: true, build: false}),
-			text_unbuilt = jOrder.index(testing.jsonX, ['title'], {type: jOrder.text, grouped: true, build: false});
-
+			//////////////////////////////
 			// unique index (string type)
+
 			expected = {
 				'Tolkien': 0
 			};
-			string_unbuilt.add(testing.jsonX[0], 0, false);
-			deepEqual(string_unbuilt.flat(), expected, "Adding value to UNIQUE index");
+
+			// addition
+			string
+				.unbuild()
+				.add(testing.jsonX[0], 0, false);
+			deepEqual(string.flat(), expected, "Adding value to UNIQUE index");
+
+			// removal
+			string
+				.rebuild()
+				.remove(testing.jsonX[2], 2)
+				.remove(testing.jsonX[1], 1);
+			deepEqual(string.flat(), expected, "Removing values from UNIQUE index");				
 			
-			// grouped index (numeric tyoe)
+			//////////////////////////////
+			// grouped index (numeric type)
+
 			expected = {
 				'1': {items: {1: 1, 2: 2}, count: 2}
 			};
-			number_unbuilt.add(testing.jsonX[1], 1, false);
-			number_unbuilt.add(testing.jsonX[2], 2, false);
-			deepEqual(number_unbuilt.flat(), expected, "Adding value to GROUPED index");
+
+			// addition
+			number
+				.unbuild()
+				.add(testing.jsonX[1], 1, false)
+				.add(testing.jsonX[2], 2, false);
+			deepEqual(number.flat(), expected, "Adding values to GROUPED index");
+
+			// removal
+			number
+				.rebuild()
+				.remove(testing.jsonX[0], 0);
+			deepEqual(number.flat(), expected, "Removing value from GROUPED index");
 			
+			//////////////////////////////
 			// grouped index (array type)
+			
 			expected = {
 				'99': {items: {'2': 2}, count: 1},
 				'1': {items: {'2': 2}, count: 1}			
 			};
-			array_unbuilt.add(testing.jsonX[2], 2, false);
-			deepEqual(array_unbuilt.flat(), expected, "Adding value to grouped index of ARRAY type");
+			
+			// addition
+			array
+				.unbuild()
+				.add(testing.jsonX[2], 2, false);
+			deepEqual(array.flat(), expected, "Adding value to grouped index of ARRAY type");
+			
+			// removal
+			array
+				.rebuild()
+				.remove(testing.jsonX[0], 0)
+				.remove(testing.jsonX[1], 1);
+			deepEqual(array.flat(), expected, "Removing values from grouped index of ARRAY type");			
 
-			// grouped index (array type)
+			//////////////////////////////
+			// grouped index (text type)
+			
 			expected = {
 				'Winnie': {items: {'1': 1}, count: 1},
 				'the': {items: {'1': 1}, count: 1},
 				'Pooh': {items: {'1': 1}, count: 1}
 			};
-			text_unbuilt.add(testing.jsonX[1], 1, false);
-			deepEqual(text_unbuilt.flat(), expected, "Adding value to grouped index of TEXT type");
+			
+			// addition
+			text
+				.unbuild()
+				.add(testing.jsonX[1], 1, false);
+			deepEqual(text.flat(), expected, "Adding value to grouped index of TEXT type");
+			
+			// removal
+			text
+				.rebuild()
+				.remove(testing.jsonX[0], 0)
+				.remove(testing.jsonX[2], 2);
+			deepEqual(text.flat(), expected, "Removing values from grouped index of TEXT type");
 		});
 	}();
 	
