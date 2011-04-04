@@ -57,14 +57,21 @@ jOrder.index = function (core, constants, logging) {
 				return self;
 			},
 	
-			// rebuilds index based on original json and options
-			rebuild: function () {
-				// clearing index
+			// clears index
+			unbuild: function () {
 				lookup.clear();
 				if (options.ordered) {
 					order.clear();
 				}
-	
+				
+				return self;
+			},
+			
+			// rebuilds index based on original json and options
+			rebuild: function () {
+				// clearing index
+				self.unbuild();
+				
 				// generating index
 				logging.log("Building index of length: " + json.length + ", signature '" + lookup.signature() + "'.");
 				var i, row;
@@ -80,6 +87,8 @@ jOrder.index = function (core, constants, logging) {
 				if (options.ordered) {
 					order.reorder();
 				}
+				
+				return self;
 			},
 	
 			// tells whether the index id grouped
@@ -99,6 +108,7 @@ jOrder.index = function (core, constants, logging) {
 		};
 	
 		// delegating methods from lookup and order
+		// NOTE: delegated methods MUST NOT return reference to self!
 		core.delegate(lookup, self, {
 			'lookup': true,
 			'flat': true,
