@@ -70,17 +70,21 @@ jOrder.signature = function (constants, logging) {
 			// according to index definition
 			// - row: data row to extract keys from
 			keys: function (row) {
-				// extracting multiple keys from array type
-				if (constants.array === self.options.type) {
+				switch (self.options.type) {
+				case constants.number:
+					// extracting first field
+					return [row[fields[0]]];
+				case constants.array:
+					// returning first field as is (already array)
 					return row[fields[0]];
+				case constants.text:
+					// extracting multiple keys by splitting along spaces
+					return row[fields[0]].split(/\s+/g);
+				default:
+					// extracting one (composite) key from any other type
+					var key = self.key(row);
+					return key ? [key] : [];
 				}
-				// extracting multiple keys from text type
-				if (constants.text === self.options.type) {
-					return row[fields[0]].split(' ');
-				}
-				// extracting one (composite) key from any other type
-				var key = self.key(row);
-				return key ? [key] : [];
 			}
 		};
 
