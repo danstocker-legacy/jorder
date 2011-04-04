@@ -73,7 +73,7 @@ jOrder.lookup = function (constants, logging) {
 					return;
 				}
 
-				if (null === rowId) {
+				if (typeof rowId === 'undefined') {
 					throw "Must pass rowId when deleting from group index.";
 				}
 				
