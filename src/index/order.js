@@ -18,7 +18,6 @@ jOrder.order = function (constants, logging) {
 		// clears internal buffers
 		self.clear = function () {
 			order = [];
-			return self;
 		};
 				
 		// internal function for bsearch
@@ -85,7 +84,6 @@ jOrder.order = function (constants, logging) {
 					self.reorder();
 				}
 			}
-			return self;
 		};
 
 		// compacts the order by eliminating orphan entries
@@ -103,7 +101,6 @@ jOrder.order = function (constants, logging) {
 					order.splice(idx, 1);
 				}
 			}
-			return self;
 		};
 
 		// binary search on ordered list

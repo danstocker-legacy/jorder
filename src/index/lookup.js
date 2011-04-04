@@ -19,7 +19,6 @@ jOrder.lookup = function (constants, logging) {
 		// clears internal buffers
 		self.clear = function () {
 			flat = {};
-			return self;
 		};
 				
 		// sets a lookup value for a given data row
@@ -54,7 +53,6 @@ jOrder.lookup = function (constants, logging) {
 					flat[key] = rowId;
 				}
 			}
-			return self;
 		};
 
 		// removes a key from the index
