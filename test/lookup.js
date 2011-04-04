@@ -30,11 +30,11 @@ jOrder.testing = function (testing, jOrder) {
 		
 		test("Index building exceptions", function () {
 			raises(function () {
-				jOrder.lookup(testing.jsonX, ['author'])
+				jOrder.index(testing.jsonX, ['author'])
 					.add({'foo': 'bar'}, 0, false);
 			}, "Adding unmatching field raises exception");
 			raises(function () {
-				jOrder.lookup(testing.jsonX, ['author'])
+				jOrder.index(testing.jsonX, ['author'])
 					.add({'author': 'Tolkien'}, 0, false)
 					.add({'author': 'Tolkien'}, 1, false);
 			}, "Adding same value to an unique index again raises exception");
@@ -43,10 +43,10 @@ jOrder.testing = function (testing, jOrder) {
 		test("Building lookup", function () {
 			var expected,
 
-			string_unbuilt = jOrder.lookup(testing.jsonX, ['author'], {build: false}),
-			number_unbuilt = jOrder.lookup(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, build: false}),
-			array_unbuilt = jOrder.lookup(testing.jsonX, ['data'], {type: jOrder.array, grouped: true, build: false}),
-			text_unbuilt = jOrder.lookup(testing.jsonX, ['title'], {type: jOrder.text, grouped: true, build: false});
+			string_unbuilt = jOrder.index(testing.jsonX, ['author'], {build: false}),
+			number_unbuilt = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, build: false}),
+			array_unbuilt = jOrder.index(testing.jsonX, ['data'], {type: jOrder.array, grouped: true, build: false}),
+			text_unbuilt = jOrder.index(testing.jsonX, ['title'], {type: jOrder.text, grouped: true, build: false});
 
 			// unique index (string type)
 			expected = {
