@@ -17,7 +17,7 @@ jOrder.index = function (core, constants, logging) {
 		
 		// private values
 		var lookup = jOrder.lookup(json, fields, options),
-				order = jOrder.order(json, fields, options),
+				order = options.ordered ? jOrder.order(json, fields, options) : {},
 				
 		self = {
 			// sets a lookup value for a given data row
@@ -25,12 +25,18 @@ jOrder.index = function (core, constants, logging) {
 			// - rowId: index of the row in the original (flat) table
 			// - reorder: whether to re-calcuate order after addition
 			add: function (row, rowId, reorder) {
+				// obtaining keys associated with the row
+				var keys = self.keys(row);
+				if (!keys.length) {
+					throw "Can't add row to index. No field matches signature '" + self.signature() + "'";
+				}
+
 				// adding entry to lookup index
-				lookup.add(row, rowId);
+				lookup.add(keys, rowId);
 				
 				// adding entry to order
 				if (options.ordered) {
-					order.add(row, rowId, reorder);
+					order.add(keys, row, rowId, reorder);
 				}
 				
 				return self;
@@ -40,7 +46,13 @@ jOrder.index = function (core, constants, logging) {
 			// - row: row to delete
 			// - rowId: id of row to delete
 			remove: function (row, rowId) {
-				lookup.remove(row, rowId);
+				// obtaining keys associated with the row
+				var keys = self.keys(row);
+				if (!keys.length) {
+					throw "Can't remove row from index. No field matches signature '" + self.signature() + "'";
+				}
+
+				lookup.remove(keys, rowId);
 				
 				return self;
 			},
@@ -49,7 +61,9 @@ jOrder.index = function (core, constants, logging) {
 			rebuild: function () {
 				// clearing index
 				lookup.clear();
-				order.clear();
+				if (options.ordered) {
+					order.clear();
+				}
 	
 				// generating index
 				logging.log("Building index of length: " + json.length + ", signature '" + lookup.signature() + "'.");
@@ -88,13 +102,16 @@ jOrder.index = function (core, constants, logging) {
 		core.delegate(lookup, self, {
 			'lookup': true,
 			'flat': true,
-			'signature': true
+			'signature': true,
+			'keys': true
 		});
-		core.delegate(order, self, {
-			'compact': true,
-			'range': true,
-			'order': true
-		});
+		if (options.ordered) {
+			core.delegate(order, self, {
+				'compact': true,
+				'range': true,
+				'order': true
+			});
+		}
 		
 		// building index (w/ opting out)
 		if (options.build !== false) {

@@ -19,22 +19,17 @@ jOrder.lookup = function (constants, logging) {
 		// clears internal buffers
 		self.clear = function () {
 			flat = {};
+			return self;
 		};
 				
 		// sets a lookup value for a given data row
-		// - row: data row that serves as basis for the index key
+		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
-		self.add = function (row, rowId) {
-			// obtain keys associated with the row
-			var keys = self.keys(row),
-					i, key, ids;
-			if (!keys.length) {
-				throw "Can't add row to index. No field matches signature '" + self.signature() + "'";
-			}
+		self.add = function (keys, rowId) {
 			// adding index value for each key in row
+			var i, key, ids;
 			for (i = 0; i < keys.length; i++) {
 				key = keys[i];
-
 				// adding row id to index
 				if (self.options.grouped) {
 					// grouped index
@@ -59,16 +54,14 @@ jOrder.lookup = function (constants, logging) {
 					flat[key] = rowId;
 				}
 			}
-			
 			return self;
 		};
 
 		// removes a key from the index
-		// - row: row to delete
+		// - keys: keys to delete from index
 		// - rowId: id of row to delete
-		self.remove = function (row, rowId) {
-			var keys = self.keys(row),
-					idx, key;
+		self.remove = function (keys, rowId) {
+			var idx, key;
 			for (idx = 0; idx < keys.length; idx++) {
 				key = keys[idx];
 

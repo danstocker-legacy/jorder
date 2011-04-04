@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, escape */
 
-// generates a lookup index on the specified table for the given set of fields
+// generates a lookup order on the specified table for the given set of fields
 // - json: array of uniform objects
 // - fields: array of strings representing table fields
 // - options: grouped, sorted, data type
@@ -18,6 +18,7 @@ jOrder.order = function (constants, logging) {
 		// clears internal buffers
 		self.clear = function () {
 			order = [];
+			return self;
 		};
 				
 		// internal function for bsearch
@@ -54,28 +55,23 @@ jOrder.order = function (constants, logging) {
 		};
 
 		// sets a lookup value for a given data row
+		// - keys: keys to add to index, extracted from row
 		// - row: data row that serves as basis for the index key
 		// - rowId: index of the row in the original (flat) table
 		// - reorder: whether to re-calcuate order after addition
-		self.add = function (row, rowId, reorder) {
-			// obtain keys associated with the row
-			var keys = self.keys(row),
-					i, key, ids;
-			if (!keys.length) {
-				throw "Can't add row to index. No field matches signature '" + self.signature() + "'";
-			}
+		self.add = function (keys, row, rowId, reorder) {
 			// adding index value for each key in row
+			var i, key, ids;
 			for (i = 0; i < keys.length; i++) {
 				key = keys[i];
-
 				// extending order (and re-calculating if necessary)
 				// number variable type must be preserved for sorting purposes
 				switch (self.options.type) {
 				case constants.number:
-					if (isNaN(row[fields[0]])) {
+					if (isNaN(key)) {
 						throw "NaN attempted to be added to numeric index. Sanitize values before applying index.";
 					}
-					order.push({ key: row[fields[0]], rowId: rowId });
+					order.push({ key: key, rowId: rowId });
 					break;
 				case constants.text:
 				case constants.array:
@@ -89,7 +85,6 @@ jOrder.order = function (constants, logging) {
 					self.reorder();
 				}
 			}
-			
 			return self;
 		};
 
@@ -108,6 +103,7 @@ jOrder.order = function (constants, logging) {
 					order.splice(idx, 1);
 				}
 			}
+			return self;
 		};
 
 		// binary search on ordered list
@@ -207,7 +203,7 @@ jOrder.order = function (constants, logging) {
 				return order.slice(options.offset, Math.min(options.offset + options.limit, order.length));
 			}
 		};
-	
+
 		return self;
 	};
 }(jOrder.constants,
