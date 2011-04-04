@@ -28,16 +28,25 @@ jOrder.testing = function (testing, jOrder) {
 			deepEqual(text.lookup([{'title': 'the'}]), [0, 1], "Lookup in TEXT type field may return multiple hits");
 		});
 		
-		test("Index building exceptions", function () {
+		test("Addition exceptions", function () {
 			raises(function () {
 				jOrder.index(testing.jsonX, ['author'])
 					.add({'foo': 'bar'}, 0, false);
-			}, "Adding unmatching field raises exception");
+			}, "Adding unmatched field raises exception");
 			raises(function () {
 				jOrder.index(testing.jsonX, ['author'])
 					.add({'author': 'Tolkien'}, 0, false)
 					.add({'author': 'Tolkien'}, 1, false);
 			}, "Adding same value to an unique index again raises exception");
+		});
+		
+		test("Removal exceptions", function () {
+			raises(function () {
+				number.remove(testing.jsonX[1]);
+			}, "Deleting from grouped index without specifying row ID raises exception");
+			raises(function () {
+				string.remove({'foo': 'bar'}, 0);
+			}, "Removing unmatched field raises exception");
 		});
 		
 		test("Modifying lookup", function () {
