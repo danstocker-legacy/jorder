@@ -10,24 +10,24 @@ jOrder.testing = function (testing, jOrder) {
 		
 		test("Initialization", function () {
 			raises(function () {
-				jOrder.signature();
+				jOrder.index(testing.jsonX);
 			}, "Creating index with no fields raises exception");
 			raises(function () {
-				jOrder.signature(['Total', 'Amount'], {type: jOrder.number});
+				jOrder.index(testing.jsonX, ['Total', 'Amount'], {type: jOrder.number});
 			}, "Numeric index with multiple fields raises exception");
 			raises(function () {
-				jOrder.signature(['Currency', 'StatusStr'], {type: jOrder.text});
+				jOrder.index(testing.jsonX, ['Currency', 'StatusStr'], {type: jOrder.text});
 			}, "Full-text index with multiple fields raises exception");
 		});
 
 		var
 		
 		// signatures
-		string = jOrder.signature(['author']),
-		string_multi = jOrder.signature(['author', 'volumes']),
-		number = jOrder.signature(['volumes'], {type: jOrder.number, grouped: true}),
-		array = jOrder.signature(['data'], {type: jOrder.array, grouped: true}),
-		text = jOrder.signature(['title'], {type: jOrder.text, grouped: true});
+		string = jOrder.index(testing.jsonX, ['author']),
+		string_multi = jOrder.index(testing.jsonX, ['author', 'volumes']),
+		number = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true}),
+		array = jOrder.index(testing.jsonX, ['data'], {type: jOrder.array, grouped: true}),
+		text = jOrder.index(testing.jsonX, ['title'], {type: jOrder.text, grouped: true});
 		
 		test("Signature extraction", function () {
 			equal(string.signature(), 'author', "Extracting signature from single field index");
