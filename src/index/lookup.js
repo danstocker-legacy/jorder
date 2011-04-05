@@ -59,9 +59,9 @@ jOrder.lookup = function (constants, logging) {
 		// - keys: keys to delete from index
 		// - rowId: id of row to delete
 		self.remove = function (keys, rowId) {
-			var idx, key, ids;
-			for (idx = 0; idx < keys.length; idx++) {
-				key = keys[idx];
+			var i, key, ids;
+			for (i = 0; i < keys.length; i++) {
+				key = keys[i];
 
 				if (!flat.hasOwnProperty(key)) {
 					throw "Can't remove row. Row '" + key + "' doesn't match signature '" + self.signature() + "'.";
