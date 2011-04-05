@@ -1,5 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 // B-search based order lookup for jOrder
+//
+// Terminology:
+// - Tight Array: Array with no gaps
+// - Dense Array: Array with a few, small gaps
+// - Sparse Array: Array with gaps overweighing data
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, escape */
 
@@ -45,16 +50,16 @@ jOrder.order = function (constants, logging) {
 			}
 			// returning hit if scope shrunk to 1 item
 			// (usual exit-point)
-			if (end - start === 1) {
+			if (end - start <= 1) {
 				return start;
 			}
 			// pin-pointing middle item and deciding which half to take
 			// of two items, it'll take the smaller
 			var middle = start + Math.floor((end - start) / 2);
-			if (order[middle].key > value) {
-				return bsearch(value, start, middle);
-			} else {
+			if (order[middle].key < value) {
 				return bsearch(value, middle, end);
+			} else {
+				return bsearch(value, start, middle);
 			}
 		}
 		
@@ -62,44 +67,49 @@ jOrder.order = function (constants, logging) {
 		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
 		// - reorder: whether to re-calcuate order after addition
-		self.add = function (keys, rowId, reorder) {
+		self.add = function (keys, rowId) {
 			// adding index value for each key in row
-			var i, key;
+			var i, key, id;
 			for (i = 0; i < keys.length; i++) {
 				key = keys[i];
-				// extending order (and re-calculating if necessary)
+				id = order.length > 0 ? self.bsearch(key, constants.start) : 0;
+				// adding key to order at suitable index
 				// number variable type must be preserved for sorting purposes
 				switch (self.options.type) {
 				case constants.number:
 					if (isNaN(key)) {
 						throw "NaN attempted to be added to numeric index. Sanitize values before applying index.";
 					}
-					order.push({ key: key, rowId: rowId });
+					order.splice(id, 0, { key: key, rowId: rowId });
 					break;
 				case constants.text:
 				case constants.array:
-					order.push({ key: key.toLowerCase(), rowId: rowId });
+					order.splice(id, 0, { key: key.toLowerCase(), rowId: rowId });
 					break;
 				default:
-					order.push({ key: key, rowId: rowId });
+					order.splice(id, 0, { key: key, rowId: rowId });
 					break;
-				}
-				if (reorder !== false) {
-					self.reorder();
 				}
 			}
 		};
 
 		// removes rows from order preserving index integrity
+		// slow for repetitious indexes, use only when necessary
 		// - keys: keys identifying the rows to remove
 		// - rowId: index of row to be removed
 		self.remove = function (keys, rowId) {
-			var i, key;
+			var i, id;
 			for (i = 0; i < keys.length; i++) {
-				// finding id of key within order in log(n) steps
-				key = bsearch(keys[i], 0, order.length - 1);
+				// finding a matching id in log(n) steps
+				id = self.bsearch(keys[i], constants.start);
+				// finding suitable id when there are more: hit must match rowId
+				// this iteration can be slow on highly redundant data
+				// in that case, instead of calling order.remove() every time
+				while (order[id].rowId !== rowId) {
+					id++;
+				}
 				// removing key from order
-				order.splice(key, 1);
+				order.splice(id, 1);
 			}
 		};
 		
@@ -108,7 +118,7 @@ jOrder.order = function (constants, logging) {
 			// tracing calls to this method as it is expensive
 			logging.log("Compacting index '" + self.signature() + "'.");
 
-			// remove orphan entries
+			// removing orphan entries
 			var i;
 			for (i = order.length - 1; i >= 0; i--) {
 				if (!order[i]) {
@@ -119,15 +129,21 @@ jOrder.order = function (constants, logging) {
 
 		// binary search on ordered list
 		// returns the position or preceeding position of the searched value
+		// order is expected to be a tight array
 		// - value: value we're lookung for
 		// - type: constants.start or constants.end
 		self.bsearch = function (value, type) {
-			// default range
+			// returning "not found" when order is empty
+			if (!order.length) {
+				return -1;
+			}
+			
+			// default range equals full length
 			var start = 0,
 					end = order.length - 1,
-					idx;
+					id;
 
-			// is value off the index
+			// determining whether value is off-index
 			if (value < order[0].key) {
 				// returning first index if value is start type
 				// -1 otherwise
@@ -139,19 +155,19 @@ jOrder.order = function (constants, logging) {
 			}
 			
 			// start search
-			idx = bsearch(value, start, end);
+			id = bsearch(value, start, end);
 
 			// return the found index on exact hit
-			if (order[idx].key === value) {
-				return idx;
+			if (order[id].key === value) {
+				return id;
 			}
 			// return the next index if we're looking for a range start
 			// returned index doesn't have to be valid
 			// if the value & type combination spot an off-index position
 			if (type === constants.start) {
-				return idx + 1;
+				return id + 1;
 			}
-			return idx;
+			return id;
 		};
 
 		// returns a list of rowIds matching the given bounds
