@@ -34,6 +34,30 @@ jOrder.order = function (constants, logging) {
 			});
 		};
 
+		// internal function for bsearch
+		// - value: searched value
+		// - start: starting index in the order
+		// - end: ending index in the order
+		function bsearch(value, start, end) {
+			// returning first item on exact hit
+			if (order[start].key === value) {
+				return start;
+			}
+			// returning hit if scope shrunk to 1 item
+			// (usual exit-point)
+			if (end - start === 1) {
+				return start;
+			}
+			// pin-pointing middle item and deciding which half to take
+			// of two items, it'll take the smaller
+			var middle = start + Math.floor((end - start) / 2);
+			if (order[middle].key > value) {
+				return bsearch(value, start, middle);
+			} else {
+				return bsearch(value, middle, end);
+			}
+		}
+		
 		// sets a lookup value for a given data row
 		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
@@ -93,30 +117,6 @@ jOrder.order = function (constants, logging) {
 			}
 		};
 
-		// internal function for bsearch
-		// - value: searched value
-		// - start: starting index in the order
-		// - end: ending index in the order
-		function bsearch(value, start, end) {
-			// returning first item on exact hit
-			if (order[start].key === value) {
-				return start;
-			}
-			// returning hit if scope shrunk to 1 item
-			// (usual exit-point)
-			if (end - start === 1) {
-				return start;
-			}
-			// pin-pointing middle item and deciding which half to take
-			// of two items, it'll take the smaller
-			var middle = start + Math.floor((end - start) / 2);
-			if (order[middle].key > value) {
-				return bsearch(value, start, middle);
-			} else {
-				return bsearch(value, middle, end);
-			}
-		}
-		
 		// binary search on ordered list
 		// returns the position or preceeding position of the searched value
 		// - value: value we're lookung for
