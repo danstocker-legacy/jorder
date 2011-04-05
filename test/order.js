@@ -18,6 +18,14 @@ jOrder.testing = function (testing, constants, jOrder) {
 		//text = jOrder.index(testing.jsonX, ['title'], {type: jOrder.text, grouped: true});
 		
 		test("Binary search", function () {
+			// searching in empty order
+			equal(string
+				.unbuild()
+				.bsearch("Mil", constants.start), -1, "Searching in empty index, yields NOT FOUND");
+			
+			// building erased index
+			string.rebuild();
+
 			// author:"Milne" is at index 1
 			equal(string.bsearch("Mil", constants.start), 1, "Looking up 'Milne' as start of interval (inclusive)");
 			equal(string.bsearch("Mil", constants.end), 0, "Looking up 'Milne' as end of interval (exclusive)");
@@ -37,6 +45,22 @@ jOrder.testing = function (testing, constants, jOrder) {
 			equal(string.bsearch("Tol", constants.end), 1, "Last item 'Tolkien' is OK as interval end");
 		});
 		
+		test("Bsearch edge cases", function () {
+			// heavily redundant data
+			var grouped = jOrder.index([
+				{val: 1},
+				{val: 5},
+				{val: 5},
+				{val: 5},
+				{val: 5},
+				{val: 5},
+				{val: 9}
+			], ['val'], {grouped: true, ordered: true, type: jOrder.number});
+			
+			// bsearch should find the first suitable item (lowest index)
+			equal(grouped.bsearch(5, constants.start), 1, "Bsearch returns the lowest suitable item id");
+		});
+		
 		test("Modifying order", function () {
 			var expected;
 			
@@ -49,7 +73,7 @@ jOrder.testing = function (testing, constants, jOrder) {
 			];
 			string
 				.unbuild()
-				.add(testing.jsonX[0], 0, false);
+				.add(testing.jsonX[0], 0);
 			deepEqual(string.order(), expected, "Adding FIRST item to UNIQUE order");
 
 			// second element
@@ -58,9 +82,8 @@ jOrder.testing = function (testing, constants, jOrder) {
 				{key: 'Tolkien', rowId: 0}
 			];
 			string
-				.add(testing.jsonX[1], 1, false)
-				.reorder();
-			deepEqual(string.order(), expected, "Adding SECOND item to UNIQUE order, then REORDERing");
+				.add(testing.jsonX[1], 1);
+			deepEqual(string.order(), expected, "Adding SECOND item to UNIQUE order");
 
 			//////////////////////////////
 			// grouped index (numeric type)
@@ -71,7 +94,7 @@ jOrder.testing = function (testing, constants, jOrder) {
 			];
 			number
 				.unbuild()
-				.add(testing.jsonX[1], 1, false);
+				.add(testing.jsonX[1], 1);
 			deepEqual(number.order(), expected, "Adding FIRST item to GROUPED order");
 			
 			// second element
@@ -80,20 +103,18 @@ jOrder.testing = function (testing, constants, jOrder) {
 				{key: 3, rowId: 0}
 			];
 			number
-				.add(testing.jsonX[0], 0, false)
-				.reorder();
-			deepEqual(number.order(), expected, "Adding SECOND item to GROUPED order, then REORDERing");
+				.add(testing.jsonX[0], 0);
+			deepEqual(number.order(), expected, "Adding SECOND item to GROUPED order");
 
 			// third element
 			expected = [
-				{key: 1, rowId: 1},
 				{key: 1, rowId: 2},
+				{key: 1, rowId: 1},
 				{key: 3, rowId: 0}
 			];
 			number
-				.add(testing.jsonX[2], 2, false)
-				.reorder();
-			deepEqual(number.order(), expected, "Adding THIRD item to GROUPED order, then REORDERing");
+				.add(testing.jsonX[2], 2);
+			deepEqual(number.order(), expected, "Adding THIRD item to GROUPED order");
 			
 			// removing first element
 			expected = [
@@ -102,7 +123,7 @@ jOrder.testing = function (testing, constants, jOrder) {
 			];
 			number
 				.remove(testing.jsonX[1], 1);
-			deepEqual(number.order(), expected, "Removing FIRST item from GROUPED order, then REORDERing");
+			deepEqual(number.order(), expected, "Removing FIRST item from GROUPED order");
 		});
 	}();
 	
