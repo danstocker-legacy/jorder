@@ -17,7 +17,7 @@ jOrder.index = function (core, constants, logging) {
 		
 		// private values
 		var lookup = jOrder.lookup(json, fields, options),
-				order = options.ordered ? jOrder.order(json, fields, options) : {},
+				order = options.ordered ? jOrder.order(json, fields, options) : null,
 				
 		self = {
 			// sets a lookup value for a given data row
@@ -35,8 +35,8 @@ jOrder.index = function (core, constants, logging) {
 				lookup.add(keys, rowId);
 				
 				// adding entry to order
-				if (options.ordered) {
-					order.add(keys, row, rowId, reorder);
+				if (order) {
+					order.add(keys, rowId, reorder);
 				}
 				
 				return self;
@@ -52,7 +52,13 @@ jOrder.index = function (core, constants, logging) {
 					throw "Can't remove row from index. No field matches signature '" + self.signature() + "'";
 				}
 
+				// removing entry from lookup ondex
 				lookup.remove(keys, rowId);
+				
+				// removing entry from order
+				if (order) {
+					order.remove(keys, rowId);
+				}
 				
 				return self;
 			},
@@ -60,7 +66,7 @@ jOrder.index = function (core, constants, logging) {
 			// clears index
 			unbuild: function () {
 				lookup.clear();
-				if (options.ordered) {
+				if (order) {
 					order.clear();
 				}
 				
@@ -84,7 +90,7 @@ jOrder.index = function (core, constants, logging) {
 				}
 
 				// generating order for ordered index				
-				if (options.ordered) {
+				if (order) {
 					order.reorder();
 				}
 				
@@ -98,7 +104,7 @@ jOrder.index = function (core, constants, logging) {
 	
 			// tells whether the index is ordered
 			ordered: function () {
-				return options.ordered;
+				return order;
 			},
 	
 			// returns index type
@@ -115,8 +121,9 @@ jOrder.index = function (core, constants, logging) {
 			'signature': true,
 			'keys': true
 		});
-		if (options.ordered) {
+		if (order) {
 			core.delegate(order, self, {
+				'reorder': true,
 				'compact': true,
 				'bsearch': true,
 				'range': true,

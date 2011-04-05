@@ -36,12 +36,11 @@ jOrder.order = function (constants, logging) {
 
 		// sets a lookup value for a given data row
 		// - keys: keys to add to index, extracted from row
-		// - row: data row that serves as basis for the index key
 		// - rowId: index of the row in the original (flat) table
 		// - reorder: whether to re-calcuate order after addition
-		self.add = function (keys, row, rowId, reorder) {
+		self.add = function (keys, rowId, reorder) {
 			// adding index value for each key in row
-			var i, key, ids;
+			var i, key;
 			for (i = 0; i < keys.length; i++) {
 				key = keys[i];
 				// extending order (and re-calculating if necessary)
@@ -67,15 +66,29 @@ jOrder.order = function (constants, logging) {
 			}
 		};
 
+		// removes rows from order preserving index integrity
+		// - keys: keys identifying the rows to remove
+		// - rowId: index of row to be removed
+		self.remove = function (keys, rowId) {
+			var i, key;
+			for (i = 0; i < keys.length; i++) {
+				// finding id of key within order in log(n) steps
+				key = bsearch(keys[i], 0, order.length - 1);
+				// removing key from order
+				order.splice(key, 1);
+			}
+		};
+		
 		// compacts the order by eliminating orphan entries
 		self.compact = function () {
 			// tracing calls to this method as it is expensive
 			logging.log("Compacting index '" + self.signature() + "'.");
 
 			// remove orphan entries
-			for (var idx in order) {
-				if (!(order[idx].rowId in json)) {
-					order.splice(idx, 1);
+			var i;
+			for (i = order.length - 1; i >= 0; i--) {
+				if (!order[i]) {
+					order.splice(i, 1);
 				}
 			}
 		};
