@@ -13,7 +13,9 @@
 //	 - build: bool
 jOrder.index = function (core, constants, logging) {
 	return function (json, fields, options) {
+		// default options
 		options = options || {};
+		options.type = options.type || constants.string;
 		
 		// private values
 		var lookup = jOrder.lookup(json, fields, options),
@@ -87,11 +89,6 @@ jOrder.index = function (core, constants, logging) {
 						continue;
 					}
 					self.add(row, i, false);
-				}
-
-				// generating order for ordered index				
-				if (order) {
-					order.reorder();
 				}
 				
 				return self;

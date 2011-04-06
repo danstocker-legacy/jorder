@@ -39,27 +39,47 @@ jOrder.order = function (constants, logging) {
 			});
 		};
 
+		// tests an actual key value against expected
+		function equal(actual, expected) {
+			switch (self.options.type) {
+			case constants.string:
+			case constants.text:
+				return actual.match(new RegExp('^' + expected));
+			default:
+			case constants.number:
+				return actual === expected;
+			}
+		}
+		
 		// internal function for bsearch
-		// - value: searched value
+		// - key: search term key
 		// - start: starting index in the order
 		// - end: ending index in the order
-		function bsearch(value, start, end) {
+		function bsearch(key, start, end, rowId) {
+			var hasId = typeof rowId !== 'undefined',
+					middle, median,
+					first = order[start];
+			
 			// returning first item on exact hit
-			if (order[start].key === value) {
-				return start;
+			if (hasId && first.rowId === rowId ||
+				!hasId && equal(first.key, key)) {
+				return {pos: start, exact: true};
 			}
+
 			// returning hit if scope shrunk to 1 item
 			// (usual exit-point)
 			if (end - start <= 1) {
-				return start;
+				return {pos: start, exact: false};
 			}
 			// pin-pointing middle item and deciding which half to take
 			// of two items, it'll take the smaller
-			var middle = start + Math.floor((end - start) / 2);
-			if (order[middle].key < value) {
-				return bsearch(value, middle, end);
+			middle = start + Math.floor((end - start) / 2);
+			median = order[middle];
+			if (median.key < key ||
+					hasId && median.key === key && median.rowId < rowId) {
+				return bsearch(key, middle, end, rowId);
 			} else {
-				return bsearch(value, start, middle);
+				return bsearch(key, start, middle, rowId);
 			}
 		}
 		
@@ -69,10 +89,10 @@ jOrder.order = function (constants, logging) {
 		// - reorder: whether to re-calcuate order after addition
 		self.add = function (keys, rowId) {
 			// adding index value for each key in row
-			var i, key, id;
+			var i, key, pos;
 			for (i = 0; i < keys.length; i++) {
 				key = keys[i];
-				id = order.length > 0 ? self.bsearch(key, constants.start) : 0;
+				pos = order.length > 0 ? self.bsearch(key, constants.start, rowId) : 0;
 				// adding key to order at suitable index
 				// number variable type must be preserved for sorting purposes
 				switch (self.options.type) {
@@ -80,14 +100,14 @@ jOrder.order = function (constants, logging) {
 					if (isNaN(key)) {
 						throw "NaN attempted to be added to numeric index. Sanitize values before applying index.";
 					}
-					order.splice(id, 0, { key: key, rowId: rowId });
+					order.splice(pos, 0, { key: key, rowId: rowId });
 					break;
 				case constants.text:
 				case constants.array:
-					order.splice(id, 0, { key: key.toLowerCase(), rowId: rowId });
+					order.splice(pos, 0, { key: key.toLowerCase(), rowId: rowId });
 					break;
 				default:
-					order.splice(id, 0, { key: key, rowId: rowId });
+					order.splice(pos, 0, { key: key, rowId: rowId });
 					break;
 				}
 			}
@@ -98,18 +118,12 @@ jOrder.order = function (constants, logging) {
 		// - keys: keys identifying the rows to remove
 		// - rowId: index of row to be removed
 		self.remove = function (keys, rowId) {
-			var i, id;
+			var i, pos;
 			for (i = 0; i < keys.length; i++) {
 				// finding a matching id in log(n) steps
-				id = self.bsearch(keys[i], constants.start);
-				// finding suitable id when there are more: hit must match rowId
-				// this iteration can be slow on highly redundant data
-				// in that case, instead of calling order.remove() every time
-				while (order[id].rowId !== rowId) {
-					id++;
-				}
+				pos = self.bsearch(keys[i], constants.start, rowId);
 				// removing key from order
-				order.splice(id, 1);
+				order.splice(pos, 1);
 			}
 		};
 		
@@ -132,7 +146,7 @@ jOrder.order = function (constants, logging) {
 		// order is expected to be a tight array
 		// - value: value we're lookung for
 		// - type: constants.start or constants.end
-		self.bsearch = function (value, type) {
+		self.bsearch = function (key, type, rowId) {
 			// returning "not found" when order is empty
 			if (!order.length) {
 				return -1;
@@ -140,34 +154,35 @@ jOrder.order = function (constants, logging) {
 			
 			// default range equals full length
 			var start = 0,
+					first = order[0],
 					end = order.length - 1,
-					id;
+					last = order[end],
+					hasId = typeof rowId !== 'undefined',
+					hit, pos;
 
-			// determining whether value is off-index
-			if (value < order[0].key) {
-				// returning first index if value is start type
+			// determining whether key is off-index
+			if (key < first.key || hasId && equal(first.key, key) && rowId < first.rowId) {
+				// returning first index if key is start type
 				// -1 otherwise
-				return type === constants.start ? 0 : - 1;
-			} else if (value > order[end].key) {
-				// returning last index if value is end type
+				return type === constants.start ? start : - 1;
+			} else if (key > last.key || hasId && equal(last.key, key) && rowId > last.rowId) {
+				// returning last index if key is end type
 				// last+1 otherwise
 				return type === constants.end ? end : order.length;
 			}
 			
 			// start search
-			id = bsearch(value, start, end);
-
-			// return the found index on exact hit
-			if (order[id].key === value) {
-				return id;
-			}
-			// return the next index if we're looking for a range start
 			// returned index doesn't have to be valid
-			// if the value & type combination spot an off-index position
-			if (type === constants.start) {
-				return id + 1;
+			// if the key & type combination spot an off-index position
+			hit = bsearch(key, start, end, rowId);			
+			if (hit.exact) {
+				// exact hit returns the pos as start position
+				pos = type === constants.start ? hit.pos : hit.pos - 1;
+			} else {
+				// non-exact hit returns the pos preceding a possible match
+				pos = type === constants.start ? hit.pos + 1 : hit.pos;
 			}
-			return id;
+			return pos;
 		};
 
 		// returns a list of rowIds matching the given bounds
@@ -191,11 +206,11 @@ jOrder.order = function (constants, logging) {
 			lower = bounds.lower && constants.text === self.options.type ? bounds.lower.toLowerCase() : bounds.lower,
 			upper = bounds.upper && constants.text === self.options.type ? bounds.upper.toLowerCase() : bounds.upper,
 			// obtaining start of range
-			start = (lower !== null ? self.bsearch(escape(lower), constants.start) : 0) + options.offset,
+			start = (lower !== null ? self.bsearch(escape(lower), constants.start) : 0).pos + options.offset,
 			// obtaining end of range
 			// smallest of [range end, page end (limit), table length]
 			end = Math.min(
-				upper ? self.bsearch(escape(upper), constants.end) : order.length - 1,
+				upper ? self.bsearch(escape(upper), constants.end).pos : order.length - 1,
 				start + options.limit - 1),
 			// constructing result set
 			// also eliminating duplicate entres
