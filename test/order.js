@@ -147,6 +147,86 @@ jOrder.testing = function (testing, constants, jOrder) {
 				.remove(testing.jsonX[1], 1);
 			deepEqual(number.order(), expected, "Removing FIRST item from GROUPED order");
 		});
+		
+		test("Retrieval", function () {
+			// empty order
+			string.unbuild();
+			deepEqual(string.order(), [], "Empty index");
+				
+			// reference by default
+			string.rebuild();
+			equal(string.order(), string.order(), "Reference to index on no arguments");
+			
+			var expected;
+			
+			//////////////////////////////
+			// full forward order
+						
+			expected = [
+				{
+					"key": "Asimov",
+					"rowId": 2
+				},
+				{
+					"key": "Milne",
+					"rowId": 1
+				},
+				{
+					"key": "Tolkien",
+					"rowId": 0
+				}
+			];
+			deepEqual(string.order(jOrder.asc, {offset: 0, limit: 3}), expected, "Copy of full forward order");
+			
+			//////////////////////////////
+			// full reverse order
+						
+			expected = [
+				{
+					"key": "Tolkien",
+					"rowId": 0
+				},
+				{
+					"key": "Milne",
+					"rowId": 1
+				},
+				{
+					"key": "Asimov",
+					"rowId": 2
+				}
+			];
+			deepEqual(string.order(jOrder.desc, {offset: 0, limit: 3}), expected, "Copy of full reverse order");
+			
+			//////////////////////////////
+			// forward fractional order
+						
+			expected = [
+				{
+					"key": "Milne",
+					"rowId": 1
+				},
+				{
+					"key": "Tolkien",
+					"rowId": 0
+				}
+			];
+			deepEqual(string.order(jOrder.asc, {offset: 1, limit: 2}), expected, "Copy of forward fractional order");
+
+			//////////////////////////////
+			// reverse fractional order
+						
+			expected = [
+				{
+					"key": "Milne",
+					"rowId": 1
+				},
+				{
+					"key": "Asimov",
+					"rowId": 2
+				}
+			];
+			deepEqual(string.order(jOrder.desc, {offset: 1, limit: 2}), expected, "Copy of reverse fractional order");
+		});
 	}();
 	
 	return testing;
