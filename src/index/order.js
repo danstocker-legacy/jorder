@@ -51,38 +51,6 @@ jOrder.order = function (constants, logging) {
 			}
 		}
 		
-		// internal function for bsearch
-		// - key: search term key
-		// - start: starting index in the order
-		// - end: ending index in the order
-		function bsearch(key, start, end, rowId) {
-			var hasId = typeof rowId !== 'undefined',
-					middle, median,
-					first = order[start];
-			
-			// returning first item on exact hit
-			if (hasId && first.rowId === rowId ||
-				!hasId && equal(first.key, key)) {
-				return {pos: start, exact: true};
-			}
-
-			// returning hit if scope shrunk to 1 item
-			// (usual exit-point)
-			if (end - start <= 1) {
-				return {pos: start, exact: false};
-			}
-			// pin-pointing middle item and deciding which half to take
-			// of two items, it'll take the smaller
-			middle = start + Math.floor((end - start) / 2);
-			median = order[middle];
-			if (median.key < key ||
-					hasId && median.key === key && median.rowId < rowId) {
-				return bsearch(key, middle, end, rowId);
-			} else {
-				return bsearch(key, start, middle, rowId);
-			}
-		}
-		
 		// sets a lookup value for a given data row
 		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
@@ -141,6 +109,38 @@ jOrder.order = function (constants, logging) {
 			}
 		};
 
+		// internal function for bsearch
+		// - key: search term key
+		// - start: starting index in the order
+		// - end: ending index in the order
+		function bsearch(key, start, end, rowId) {
+			var hasId = typeof rowId !== 'undefined',
+					middle, median,
+					first = order[start];
+			
+			// returning first item on exact hit
+			if (hasId && first.rowId === rowId ||
+				!hasId && equal(first.key, key)) {
+				return {pos: start, exact: true};
+			}
+
+			// returning hit if scope shrunk to 1 item
+			// (usual exit-point)
+			if (end - start <= 1) {
+				return {pos: start, exact: false};
+			}
+			// pin-pointing middle item and deciding which half to take
+			// of two items, it'll take the smaller
+			middle = start + Math.floor((end - start) / 2);
+			median = order[middle];
+			if (median.key < key ||
+					hasId && median.key === key && median.rowId < rowId) {
+				return bsearch(key, middle, end, rowId);
+			} else {
+				return bsearch(key, start, middle, rowId);
+			}
+		}
+		
 		// binary search on ordered list
 		// returns the position or preceeding position of the searched value
 		// order is expected to be a tight array
