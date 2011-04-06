@@ -224,18 +224,31 @@ jOrder.order = function (constants, logging) {
 		};
 
 		// returns a copy of the index order
-		// - direction
+		// without options, returns reference to order object -> faster
+		// - dir: either jOrder.asc or jOrder.desc
 		// - options
 		//	 - offset
 		//	 - limit
-		self.order = function (direction, options) {
-			if (!options || !options.offset && !options.limit) {
-				return order.length ? order : null;
+		self.order = function (dir, options) {
+			// returning early on empty index
+			if (!order.length) {
+				return order;
 			}
-			options.offset = options.offset || 0;
-			options.limit = options.limit || 1;
 
-			switch (direction) {
+			// default args
+			dir = dir || constants.asc;
+			options = options || {};
+			options.offset = options.offset || 0;
+			options.limit = options.limit || 0;
+			
+			// returning ref for ascending, full order
+			if (dir === constants.asc && !options.offset && !options.limit) {
+				return order;
+			}
+
+			// taking slice of order
+			options.limit = options.limit || 1;
+			switch (dir) {
 			case constants.desc:
 				return order.slice(Math.max(0, order.length - options.offset - options.limit), order.length - options.offset).reverse();
 			default:
