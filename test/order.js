@@ -44,21 +44,43 @@ jOrder.testing = function (testing, constants, jOrder) {
 			equal(string.bsearch("Tol", constants.start), 2, "Last item 'Tolkien' is OK as interval start (interval length = 1)");
 			equal(string.bsearch("Tol", constants.end), 1, "Last item 'Tolkien' is OK as interval end");
 		});
-		
+
 		test("Bsearch edge cases", function () {
 			// heavily redundant data
-			var grouped = jOrder.index([
+			var json = [
+				{val: 5},
 				{val: 1},
 				{val: 5},
 				{val: 5},
+				{val: 9},
 				{val: 5},
-				{val: 5},
-				{val: 5},
-				{val: 9}
-			], ['val'], {grouped: true, ordered: true, type: jOrder.number});
+				{val: 5}
+			],
+			grouped = jOrder.index(json, ['val'], {grouped: true, ordered: true, type: jOrder.number}),
+			random_order = [5, 4, 0, 2, 6, 3, 1],
+			expected = [
+				{key: 1, rowId: 1},
+				{key: 5, rowId: 0},
+				{key: 5, rowId: 2},
+				{key: 5, rowId: 3},
+				{key: 5, rowId: 5},
+				{key: 5, rowId: 6},
+				{key: 9, rowId: 4}
+			],
+			i;
 			
-			// bsearch should find the first suitable item (lowest index)
-			equal(grouped.bsearch(5, constants.start), 1, "Bsearch returns the lowest suitable item id");
+			deepEqual(grouped.order(), expected, "Index is ordered by key, then rowId");
+
+			// locating items by key (and optionally rowId)
+			equal(grouped.bsearch(5, constants.start), 1, "Bsearch returns the lowest suitable item id by default");
+			equal(grouped.bsearch(5, constants.start, 5), 4, "Bsearch may locate a specific item within the index");
+			
+			// demonstrating that addition preserves integrity on both key and rowId
+			grouped.unbuild();
+			for (i = 0; i < 7; i++) {
+				grouped.add(json[random_order[i]], random_order[i]);
+			}
+			deepEqual(grouped.order(), expected, "Order of additions has no effect on final index");
 		});
 		
 		test("Modifying order", function () {
@@ -108,8 +130,8 @@ jOrder.testing = function (testing, constants, jOrder) {
 
 			// third element
 			expected = [
-				{key: 1, rowId: 2},
 				{key: 1, rowId: 1},
+				{key: 1, rowId: 2},
 				{key: 3, rowId: 0}
 			];
 			number
