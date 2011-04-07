@@ -14,6 +14,9 @@
 // - options: grouped, sorted, data type
 //	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
 jOrder.order = function (constants, logging) {
+	// constants
+	var DEFAULT_LIMIT = 100;
+	
 	return function (json, fields, options) {
 		// private values
 		var base = jOrder.signature(fields, options),
@@ -193,32 +196,46 @@ jOrder.order = function (constants, logging) {
 		//	 - offset
 		//	 - limit
 		self.range = function (bounds, options) {
-			if (typeof bounds !== 'object') {
-				throw "Invalid bounds passed to index.range().";
-			}
-			// assigning default options
+			// default bounds
+			bounds = bounds || {};
+			
+			// default options
 			options = options || {};
 			options.offset = options.offset || 0;
-			options.limit = options.limit || 1;
+			options.limit = options.limit || DEFAULT_LIMIT;
 
-			var
-			// converting text conditions to lowercase
-			lower = bounds.lower && constants.text === self.options.type ? bounds.lower.toLowerCase() : bounds.lower,
-			upper = bounds.upper && constants.text === self.options.type ? bounds.upper.toLowerCase() : bounds.upper,
+			var lower, upper,
+					start, end,
+					result = [],
+					i;
+			
+			// determining search bounds based on index type and arguments
+			switch (self.options.type) {
+			case constants.text:
+				lower = bounds.lower ? escape(bounds.lower.toLowerCase()) : bounds.lower;
+				upper = bounds.upper ? escape(bounds.upper.toLowerCase()) : bounds.upper;
+				break;
+			case constants.string:
+				lower = bounds.lower ? escape(bounds.lower) : bounds.lower;
+				upper = bounds.upper ? escape(bounds.upper) : bounds.upper;
+				break;
+			default:
+				lower = bounds.lower;
+				upper = bounds.upper;
+			}
+			
 			// obtaining start of range
-			start = (lower !== null ? self.bsearch(escape(lower), constants.start) : 0).pos + options.offset,
+			start = (typeof lower !== 'undefined' ? self.bsearch(lower, constants.start) : 0) + options.offset;
+
 			// obtaining end of range
 			// smallest of [range end, page end (limit), table length]
 			end = Math.min(
-				upper ? self.bsearch(escape(upper), constants.end).pos : order.length - 1,
-				start + options.limit - 1),
-			// constructing result set
-			// also eliminating duplicate entres
-			result = [],
-			idx;
+				typeof upper !== 'undefined' ? self.bsearch(upper, constants.end) : order.length - 1,
+				start + options.limit - 1);
 
-			for (idx = start; idx <= end; idx++) {
-				result.push(order[idx].rowId);
+			// collecting positions of actial data rows according to index
+			for (i = start; i <= end; i++) {
+				result.push(order[i].rowId);
 			}
 			return result;
 		};
@@ -247,7 +264,7 @@ jOrder.order = function (constants, logging) {
 			}
 
 			// taking slice of order
-			options.limit = options.limit || 1;
+			options.limit = options.limit || DEFAULT_LIMIT;
 			switch (dir) {
 			case constants.desc:
 				return order.slice(Math.max(0, order.length - options.offset - options.limit), order.length - options.offset).reverse();
