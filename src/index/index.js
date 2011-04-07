@@ -25,8 +25,8 @@ jOrder.index = function (core, constants, logging) {
 			// sets a lookup value for a given data row
 			// - row: data row that serves as basis for the index key
 			// - rowId: index of the row in the original (flat) table
-			// - reorder: whether to re-calcuate order after addition
-			add: function (row, rowId, reorder) {
+			// - lazy: lazy sorting - only consistent on all items added
+			add: function (row, rowId, lazy) {
 				// obtaining keys associated with the row
 				var keys = self.keys(row);
 				if (!keys.length) {
@@ -38,7 +38,7 @@ jOrder.index = function (core, constants, logging) {
 				
 				// adding entry to order
 				if (order) {
-					order.add(keys, rowId, reorder);
+					order.add(keys, rowId, lazy);
 				}
 				
 				return self;
@@ -76,7 +76,8 @@ jOrder.index = function (core, constants, logging) {
 			},
 			
 			// rebuilds index based on original json and options
-			rebuild: function () {
+			// - lazy: lazy sorting - only consistent on all items added
+			rebuild: function (lazy) {
 				// clearing index
 				self.unbuild();
 				
@@ -88,7 +89,11 @@ jOrder.index = function (core, constants, logging) {
 					if (!(row = json[i])) {
 						continue;
 					}
-					self.add(row, i, false);
+					self.add(row, i, lazy);
+				}
+				
+				if (order && lazy) {
+					order.reorder();
 				}
 				
 				return self;
@@ -130,7 +135,7 @@ jOrder.index = function (core, constants, logging) {
 		
 		// building index (w/ opting out)
 		if (options.build !== false) {
-			self.rebuild();
+			self.rebuild(true);
 		}
 		
 		return self;

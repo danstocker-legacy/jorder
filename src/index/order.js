@@ -31,14 +31,19 @@ jOrder.order = function (constants, logging) {
 		// reorders the index
 		// must use comparer, since order contains objects, not strings
 		// sort() w/o comparer is a lot faster in certain browsers tho
-		self.reorder = self.options.type === constants.number ?
-		function () {
+		self.reorder = function () {
 			order.sort(function (a, b) {
-				return a.key - b.key;
-			});
-		} : function () {
-			order.sort(function (a, b) {
-				return a.key > b.key ? 1 : a.key < b.key ? -1 : 0;
+				if (a.key > b.key) {
+					return 1;
+				} else if (a.key < b.key) {
+					return -1;
+				} else if (a.rowId > b.rowId) {
+					return 1;
+				} else if (a.rowId < b.rowId) {
+					return -1;
+				} else {
+					return 0;
+				}
 			});
 		};
 
@@ -58,28 +63,31 @@ jOrder.order = function (constants, logging) {
 		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
 		// - reorder: whether to re-calcuate order after addition
-		self.add = function (keys, rowId) {
+		self.add = function (keys, rowId, lazy) {
 			// adding index value for each key in row
-			var i, key, pos;
+			var i, key, pos, alt;
 			for (i = 0; i < keys.length; i++) {
+				// determining what key to store depending on index type
 				key = keys[i];
-				pos = order.length > 0 ? self.bsearch(key, constants.start, rowId) : 0;
-				// adding key to order at suitable index
-				// number variable type must be preserved for sorting purposes
 				switch (self.options.type) {
-				case constants.number:
-					if (isNaN(key)) {
-						throw "NaN attempted to be added to numeric index. Sanitize values before applying index.";
-					}
-					order.splice(pos, 0, { key: key, rowId: rowId });
-					break;
 				case constants.text:
 				case constants.array:
-					order.splice(pos, 0, { key: key.toLowerCase(), rowId: rowId });
+					alt = key.toLowerCase();
 					break;
 				default:
-					order.splice(pos, 0, { key: key, rowId: rowId });
+					alt = key;
 					break;
+				}
+				// adding key to index
+				if (lazy) {
+					// adding key to order at end
+					// index must be sorted before use
+					order.push({ key: alt, rowId: rowId });
+				} else {
+					// adding key to order at suitable index
+					// number variable type must be preserved for sorting purposes
+					pos = order.length > 0 ? self.bsearch(key, constants.start, rowId) : 0;
+					order.splice(pos, 0, { key: alt, rowId: rowId });
 				}
 			}
 		};
@@ -222,6 +230,7 @@ jOrder.order = function (constants, logging) {
 			default:
 				lower = bounds.lower;
 				upper = bounds.upper;
+				break;
 			}
 			
 			// obtaining start of range
