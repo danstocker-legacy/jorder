@@ -12,10 +12,7 @@ jOrder.testing = function (testing, constants, jOrder) {
 		
 		// test indexes
 		string = jOrder.index(testing.jsonX, ['author'], {ordered: true}),
-		//string_multi = jOrder.index(testing.jsonX, ['author', 'volumes']),
 		number = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, ordered: true});
-		//array = jOrder.index(testing.jsonX, ['data'], {type: jOrder.array, grouped: true}),
-		//text = jOrder.index(testing.jsonX, ['title'], {type: jOrder.text, grouped: true});
 		
 		test("Binary search", function () {
 			// searching in empty order
@@ -43,6 +40,11 @@ jOrder.testing = function (testing, constants, jOrder) {
 			equal(string.bsearch("Asim", constants.end), -1, "First item 'Asimov' is unsuitable as end of inerval");
 			equal(string.bsearch("Tol", constants.start), 2, "Last item 'Tolkien' is OK as interval start (interval length = 1)");
 			equal(string.bsearch("Tol", constants.end), 1, "Last item 'Tolkien' is OK as interval end");
+			
+			equal(number.bsearch(1, constants.start), 0, "Exact result as start in grouped numeric index");
+			equal(number.bsearch(1, constants.end), -1, "Exact result as end in grouped numeric index");
+			equal(number.bsearch(1.5, constants.start), 2, "In between result as start in grouped numeric index");
+			equal(number.bsearch(1.5, constants.end), 1, "In between result as end in grouped numeric index");
 		});
 
 		test("Bsearch edge cases", function () {
@@ -226,6 +228,25 @@ jOrder.testing = function (testing, constants, jOrder) {
 				}
 			];
 			deepEqual(string.order(jOrder.desc, {offset: 1, limit: 2}), expected, "Copy of reverse fractional order");
+		});
+		
+		test("Range search", function () {
+			var index1000 = jOrder.index(testing.json1000, ['id'], { ordered: true, type: constants.number });
+			equal(index1000.range().length, 100, "Default limit is 100");
+
+			// string type, unique
+			string.rebuild();
+			deepEqual(string.range({lower: 'Asi', upper: 'Tol'}, {limit: 1000}), [2, 1], "Higher limit returns all items in range");
+			deepEqual(string.range({lower: 'Asi', upper: 'Tolz'}, {limit: 1000}), [2, 1, 0], "Inclusive search returns upper bound, too");
+
+			deepEqual(string.range(), [2, 1, 0], "NO bounds specified");
+			deepEqual(string.range({lower: 'Mil'}), [1, 0], "Only LOWER bound specified");
+			deepEqual(string.range({upper: 'Milz'}), [2, 1], "Only UPPER bound specified");
+			
+			// number type
+			number.rebuild();
+			deepEqual(number.range({lower: 1, upper: 1.00001}, {limit: 1000}), [1, 2], "Grouped numeric range");
+			deepEqual(number.range({lower: 1, upper: 3.00001}, {limit: 1000}), [1, 2, 0], "Grouped numeric range");
 		});
 	}();
 	
