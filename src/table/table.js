@@ -4,10 +4,10 @@
 /*global jOrder */
 
 jOrder.table = function (core, constants, logging) {
-	// jOrder.table
-	// database-like table object
+	// indexed table object
 	// - data: json table the table object is based on
-	return function (data, options) {
+	// - options:
+	return function (json, options) {
 		options = options || { renumber: false };
 
 		// member variables
@@ -26,31 +26,37 @@ jOrder.table = function (core, constants, logging) {
 		}
 		
 		self = {
-			// set or get an index
+			// creates or gets an index
 			// - name: index name
 			// - fields: array of strings representing table fields
 			// - options: index options (groupability, sortability, type, etc.)
 			index: function (name, fields, options) {
+				// reindexing table on no args at all 
 				if (!name) {
-					this.reindex();
+					return self.reindex();
 				}
+				// looking up index when only name arg is given
 				if (!fields) {
 					return indexes[name];
 				}
-				if (null !== indexes[name]) {
+				// adding index to table (and optionally removing previous)
+				if (indexes.hasOwnProperty(name)) {
+					logging.warn("Overwriting existing index '" + name + "'");
 					delete indexes[name];
 				}
-				indexes[name] = jOrder.index(data, fields, options);
-				return this;
+				indexes[name] = jOrder.index(json, fields, options);
+				return self;
 			},
 	
-			// rebuilds indexes on table
+			// rebuilds all indexes on table
 			reindex: function () {
-				for (var name in indexes) {
-					if (indexes.hasOrnProperty(name)) {
+				var name;
+				for (name in indexes) {
+					if (indexes.hasOwnProperty(name)) {
 						indexes[name].rebuild();
 					}
 				}
+				return self;
 			},
 	
 			// updates, inserts or deletes one row in the table, modifies indexes
@@ -84,7 +90,7 @@ jOrder.table = function (core, constants, logging) {
 						throw "Can't find suitable index for fields: '" + core.keys(before).join(",") + "'.";
 					}
 					oldId = index.lookup([before])[0];
-					before = data[oldId];
+					before = json[oldId];
 				}
 	
 				// are we inserting?
@@ -94,13 +100,13 @@ jOrder.table = function (core, constants, logging) {
 						return;
 					}
 					// insert new value
-					newId = data.push(after) - 1;
+					newId = json.push(after) - 1;
 				} else {
 					// delete old
-					delete data[oldId];
+					delete json[oldId];
 					// add new
 					if (after) {
-						newId = data.push(after) - 1;
+						newId = json.push(after) - 1;
 					}
 				}
 	
@@ -126,6 +132,7 @@ jOrder.table = function (core, constants, logging) {
 				for (i = 0; i < rows.length; i++) {
 					this.update(null, rows[i], options);
 				}
+				return self;
 			},
 	
 			// deletes row from table, updates indexes
@@ -136,12 +143,14 @@ jOrder.table = function (core, constants, logging) {
 				for (i = 0; i < rows.length; i++) {
 					this.update(rows[i], null, options);
 				}
+				return self;
 			},
 	
-			// deletes the tables contents
+			// resets table to its original state
+			// except for field changes within the original json
 			clear: function () {
-				data = core.shallow(data);
 				indexes = {};
+				return self;
 			},
 	
 			// selects a set of rows using the specified row ids
@@ -157,12 +166,12 @@ jOrder.table = function (core, constants, logging) {
 	
 				if (options.renumber) {
 					for (i = 0; i < rowIds.length; i++) {
-						result.push(data[rowIds[i]]);
+						result.push(json[rowIds[i]]);
 					}
 				} else {
 					for (i = 0; i < rowIds.length; i++) {
 						rowId = rowIds[i];
-						result[rowId] = data[rowId];
+						result[rowId] = json[rowId];
 					}
 				}
 				return result;
@@ -291,7 +300,7 @@ jOrder.table = function (core, constants, logging) {
 				if (!(index = indexes[indexName]).grouped()) {
 					throw "Can't aggregate using a non-group index! Signature: '" + index.signature() + "'.";
 				}
-				logging.warn("jOrder.table.aggregate() iterates over the table (length: " + data.length + ").");
+				logging.warn("jOrder.table.aggregate() iterates over the table (length: " + json.length + ").");
 	
 				// cycling through groups according to index
 				groupIndex = index.flat();
@@ -302,7 +311,7 @@ jOrder.table = function (core, constants, logging) {
 						group = groupIndex[groupId].items;
 						for (rowId in group) {
 							if (group.hasOwnProperty(rowId)) {
-								seed = data[group[rowId]];
+								seed = json[group[rowId]];
 								break;
 							}
 						}
@@ -311,7 +320,7 @@ jOrder.table = function (core, constants, logging) {
 						// iterating through each row in group
 						for (rowId in group) {
 							if (group.hasOwnProperty(rowId)) {
-								aggregated = iterateCallback(aggregated, data[group[rowId]]);
+								aggregated = iterateCallback(aggregated, json[group[rowId]]);
 							}
 						}
 						// adding aggregated group to result
@@ -356,7 +365,7 @@ jOrder.table = function (core, constants, logging) {
 				if (!order) {
 					// sorting on the fly
 					logging.warn("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
-					return core.shallow(data).sort(function (a, b) {
+					return core.shallow(json).sort(function (a, b) {
 						return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 					});
 				}
@@ -374,7 +383,7 @@ jOrder.table = function (core, constants, logging) {
 	
 					for (i = 0; i < order.length; i++) {
 						// dealing with fragmented order
-						if (!(order[i].rowId in data)) {
+						if (!(order[i].rowId in json)) {
 							return restart();
 						}
 						result.push(order[i].rowId);
@@ -396,7 +405,7 @@ jOrder.table = function (core, constants, logging) {
 			//	 - limit
 			filter: function (selector, options) {
 				// issuing warning
-				logging.warn("Performing linear search on table (length: " + data.length + "). Consider using an index.");
+				logging.warn("Performing linear search on table (length: " + json.length + "). Consider using an index.");
 	
 				// applying default options
 				options = options || {};
@@ -408,10 +417,10 @@ jOrder.table = function (core, constants, logging) {
 	
 				if (options.renumber) {
 					counter = 0;
-					for (i in data) {
-						if (data.hasOwnProperty(i) && selector(row = data[i])) {
+					for (i in json) {
+						if (json.hasOwnProperty(i) && selector(row = json[i])) {
 							if (counter++ >= options.offset) {
-								result.push(data[i]);
+								result.push(json[i]);
 							}
 							if (options.limit && counter === options.offset + options.limit) {
 								break;
@@ -421,9 +430,9 @@ jOrder.table = function (core, constants, logging) {
 					return result;
 				}
 	
-				for (i in data) {
-					if (selector(data[i])) {
-						result[i] = data[i];
+				for (i in json) {
+					if (selector(json[i])) {
+						result[i] = json[i];
 					}
 				}
 				return result;
@@ -431,21 +440,21 @@ jOrder.table = function (core, constants, logging) {
 	
 			// counts the lements in the table
 			count: function () {
-				logging.warn("jOrder.table.count() iterates over the table (length: " + data.length + ").");
-				return core.keys(data).length;
+				logging.warn("jOrder.table.count() iterates over the table (length: " + json.length + ").");
+				return core.keys(json).length;
 			},
 	
 			// returns a copy of the flat contents of the table
 			flat: function () {
-				return data;
+				return json;
 			},
 	
 			// get the first row from table
 			first: function () {
-				var rowId;
-				for (rowId in data) {
-					if (data.hasOwnProperty(rowId)) {
-						return data[rowId];
+				var i;
+				for (i in json) {
+					if (json.hasOwnProperty(i)) {
+						return json[i];
 					}
 				}
 			},
@@ -461,16 +470,16 @@ jOrder.table = function (core, constants, logging) {
 				var result = [],
 						i;
 				if (options.renumber) {
-					for (i in data) {
-						if (data.hasOwnProperty(i)) {
-							result.push(data[i][field]);
+					for (i in json) {
+						if (json.hasOwnProperty(i)) {
+							result.push(json[i][field]);
 						}
 					}
 					return result;
 				}
-				for (i in data) {
-					if (data.hasOwnProperty(i)) {
-						result[i] = data[i][field];
+				for (i in json) {
+					if (json.hasOwnProperty(i)) {
+						result[i] = json[i][field];
 					}
 				}
 				return result;
