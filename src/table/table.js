@@ -93,8 +93,7 @@ jOrder.table = function (core, constants, logging) {
 			// updates, inserts or deletes one row in the table, modifies indexes
 			// - before: data row
 			// - after: changed data row
-			// - options:
-			//   - indexName
+			// - options: [indexName]
 			update: function (before, after, options) {
 				options = options || {};
 	
@@ -103,8 +102,7 @@ jOrder.table = function (core, constants, logging) {
 						oldId, newId,
 						name;
 	
-				// obtain old row id
-				oldId = null;
+				// obtaining old row
 				if (before) {
 					if (!index) {
 						throw "Can't find suitable index for fields: '" + core.keys(before).join(",") + "'.";
@@ -113,24 +111,24 @@ jOrder.table = function (core, constants, logging) {
 					before = json[oldId];
 				}
 	
-				// are we inserting?
-				newId = null;
-				if (null === oldId) {
+				// updating json
+				if (typeof oldId === 'undefined') {
+					// inserting new
 					if (!after) {
-						return;
+						logging.warn("Update called but nothing changed.");
+						return self;
 					}
-					// insert new value
 					newId = json.push(after) - 1;
 				} else {
-					// delete old
+					// deleting old
 					delete json[oldId];
-					// add new
+					// inserting new
 					if (after) {
 						newId = json.push(after) - 1;
 					}
 				}
 	
-				// update indexes
+				// updating indexes
 				for (name in indexes) {
 					if (indexes.hasOwnProperty(name)) {
 						index = indexes[name];
@@ -142,6 +140,7 @@ jOrder.table = function (core, constants, logging) {
 						}
 					}
 				}
+				return self;
 			},
 	
 			// inserts a row into the table, updates indexes
