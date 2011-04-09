@@ -101,12 +101,12 @@ jOrder.index = function (core, constants, logging) {
 	
 			// tells whether the index id grouped
 			grouped: function () {
-				return options.grouped;
+				return Boolean(options.grouped);
 			},
 	
 			// tells whether the index is ordered
 			ordered: function () {
-				return order !== null;
+				return Boolean(order);
 			},
 	
 			// returns index type
