@@ -1,7 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder index object
 ////////////////////////////////////////////////////////////////////////////////
-/*jslint nomen:false, onevar:false, forin:true */
 /*global jOrder */
 
 jOrder.table = function (core, constants, logging) {
@@ -12,16 +11,15 @@ jOrder.table = function (core, constants, logging) {
 		options = options || { renumber: false };
 
 		// member variables
-		var _data = core.shallow(data, options.renumber),
-				_indexes = {},
+		var indexes = {},
 				self;
 
 		// looks up an index according to the given fields
 		// - row: sample row that's supposed to match the index
-		function _index(row) {
-			for (var idx in _indexes) {
-				if (_indexes[idx].signature(row)) {
-					return _indexes[idx];
+		function findIndex(row) {
+			for (var name in indexes) {
+				if (indexes.hasOwnProperty(name) && indexes[name].signature(row)) {
+					return indexes[name];
 				}
 			}
 			return null;
@@ -37,19 +35,21 @@ jOrder.table = function (core, constants, logging) {
 					this.reindex();
 				}
 				if (!fields) {
-					return _indexes[name];
+					return indexes[name];
 				}
-				if (null !== _indexes[name]) {
-					delete _indexes[name];
+				if (null !== indexes[name]) {
+					delete indexes[name];
 				}
-				_indexes[name] = jOrder.index(_data, fields, options);
+				indexes[name] = jOrder.index(data, fields, options);
 				return this;
 			},
 	
 			// rebuilds indexes on table
 			reindex: function () {
-				for (var name in _indexes) {
-					_indexes[name].rebuild();
+				for (var name in indexes) {
+					if (indexes.hasOrnProperty(name)) {
+						indexes[name].rebuild();
+					}
 				}
 			},
 	
@@ -60,55 +60,60 @@ jOrder.table = function (core, constants, logging) {
 			update: function (before, after, options) {
 				options = options || {};
 	
+				var index, i,
+						oldId, newId,
+						name;
+	
 				// obtain index explicitely
 				// or take the first available unique one
-				var index, idx;
 				if (options.indexName) {
-					index = _indexes[options.indexName];
+					index = indexes[options.indexName];
 				} else {
-					for (idx in _indexes) {
-						if (!_indexes[idx].grouped()) {
-							index = _indexes[idx];
+					for (i in indexes) {
+						if (indexes.hasOwnProperty(i) && !indexes[i].grouped()) {
+							index = indexes[i];
 							break;
 						}
 					}
 				}
 	
 				// obtain old row id
-				var oldId = null;
+				oldId = null;
 				if (before) {
 					if (!index) {
 						throw "Can't find suitable index for fields: '" + core.keys(before).join(",") + "'.";
 					}
 					oldId = index.lookup([before])[0];
-					before = _data[oldId];
+					before = data[oldId];
 				}
 	
 				// are we inserting?
-				var newId = null;
+				newId = null;
 				if (null === oldId) {
 					if (!after) {
 						return;
 					}
 					// insert new value
-					newId = _data.push(after) - 1;
+					newId = data.push(after) - 1;
 				} else {
 					// delete old
-					delete _data[oldId];
+					delete data[oldId];
 					// add new
 					if (after) {
-						newId = _data.push(after) - 1;
+						newId = data.push(after) - 1;
 					}
 				}
 	
 				// update indexes
-				for (idx in _indexes) {
-					index = _indexes[idx];
-					if (before) {
-						index.remove(before, oldId);
-					}
-					if (after) {
-						index.add(after, newId);
+				for (name in indexes) {
+					if (indexes.hasOwnProperty(name)) {
+						index = indexes[name];
+						if (before) {
+							index.remove(before, oldId);
+						}
+						if (after) {
+							index.add(after, newId);
+						}
 					}
 				}
 			},
@@ -117,8 +122,9 @@ jOrder.table = function (core, constants, logging) {
 			// - rows: table rows to be inserted
 			// - options: [indexName]
 			insert: function (rows, options) {
-				for (var idx in rows) {
-					this.update(null, rows[idx], options);
+				var i;
+				for (i = 0; i < rows.length; i++) {
+					this.update(null, rows[i], options);
 				}
 			},
 	
@@ -126,15 +132,16 @@ jOrder.table = function (core, constants, logging) {
 			// - rows: table rows to delete
 			// - options: [indexName]
 			remove: function (rows, options) {
-				for (var idx in rows) {
-					this.update(rows[idx], null, options);
+				var i;
+				for (i = 0; i < rows.length; i++) {
+					this.update(rows[i], null, options);
 				}
 			},
 	
 			// deletes the tables contents
 			clear: function () {
-				_data = core.shallow(data);
-				_indexes = {};
+				data = core.shallow(data);
+				indexes = {};
 			},
 	
 			// selects a set of rows using the specified row ids
@@ -146,19 +153,17 @@ jOrder.table = function (core, constants, logging) {
 				options = options || {};
 	
 				var result = [],
-					idx, rowId;
+						i, rowId;
 	
 				if (options.renumber) {
-					for (idx in rowIds) {
-						rowId = rowIds[idx];
-						result.push(_data[rowId]);
+					for (i = 0; i < rowIds.length; i++) {
+						result.push(data[rowIds[i]]);
 					}
-					return result;
-				}
-	
-				for (idx in rowIds) {
-					rowId = rowIds[idx];
-					result[rowId] = _data[rowId];
+				} else {
+					for (i = 0; i < rowIds.length; i++) {
+						rowId = rowIds[i];
+						result[rowId] = data[rowId];
+					}
 				}
 				return result;
 			},
@@ -176,21 +181,24 @@ jOrder.table = function (core, constants, logging) {
 				// default options
 				options = options || {};
 	
-				// obtain index
-				var index = null;
+				var index,
+						rowIds,
+						lower, upper;
+				
+				// obtaining index
+				index = null;
 				if (options.indexName) {
-					// use specified index
-					if (!_indexes.hasOwnProperty(options.indexName)) {
+					// using specified index if there is one
+					if (!indexes.hasOwnProperty(options.indexName)) {
 						throw "Invalid index name: '" + options.indexName + "'.";
 					}
-					index = _indexes[options.indexName];
+					index = indexes[options.indexName];
 				} else {
-					// look for a suitable index
-					index = _index(conditions[0]);
+					// looking for a suitable index
+					index = findIndex(conditions[0]);
 				}
 	
-				// index found, return matching row by index
-				var rowIds, lower, upper;
+				// index found, returning matching row by index
 				if (index) {
 					switch (options.mode) {
 					case constants.range:
@@ -228,8 +236,8 @@ jOrder.table = function (core, constants, logging) {
 				// range search
 				if (options.mode === constants.range) {
 					return this.filter(function (row) {
-						var bounds = core.values(conditions[0])[0];
-						var field = core.keys(conditions[0])[0];
+						var bounds = core.values(conditions[0])[0],
+								field = core.keys(conditions[0])[0];
 						return bounds.lower <= row[field] && bounds.upper >= row[field];
 					}, options);
 				}
@@ -243,13 +251,18 @@ jOrder.table = function (core, constants, logging) {
 	
 				// exact match
 				return this.filter(function (row) {
-					var match = false;
-					for (var idx in conditions) {
-						var partial = true;
-						for (var field in conditions[idx]) {
-							partial &= (conditions[idx][field] === row[field]);
-							if (!partial) {
-								break;
+					var match = false,
+							partial, condition,
+							i, field;
+					for (i = 0; i < conditions.length; i++) {
+						partial = true;
+						condition = conditions[i];
+						for (field in condition) {
+							if (condition.hasOwnProperty(field)) {
+								partial &= (condition[field] === row[field]);
+								if (!partial) {
+									break;
+								}
 							}
 						}
 						match |= partial;
@@ -266,39 +279,47 @@ jOrder.table = function (core, constants, logging) {
 			// - initCallback: function that initializes the aggregated row
 			// - iterateCallback: function performing one step of iteration
 			aggregate: function (indexName, initCallback, iterateCallback) {
-				// check index
-				if (!_indexes.hasOwnProperty(indexName)) {
+				var result = [],
+						index,
+						groupIndex, groupId, group, seed, rowId, aggregated,
+						i;				
+
+				// checking index
+				if (!indexes.hasOwnProperty(indexName)) {
 					throw "Index '" + indexName + "' not found.";
 				}
-				var index = _indexes[indexName];
-				if (!index.grouped()) {
+				if (!(index = indexes[indexName]).grouped()) {
 					throw "Can't aggregate using a non-group index! Signature: '" + index.signature() + "'.";
 				}
-				logging.warn("jOrder.table.aggregate() iterates over the table (length: " + _data.length + ").");
+				logging.warn("jOrder.table.aggregate() iterates over the table (length: " + data.length + ").");
 	
 				// cycling through groups according to index
-				var groupIndex = index.flat(),
-					grouped = [],
-					idx;
-				for (var groupId in groupIndex) {
-					// initializing aggregated row (seed)
-					var group = groupIndex[groupId].items;
-					var seed;
-					for (idx in group) {
-						seed = _data[group[idx]];
-						break;
+				groupIndex = index.flat();
+				result = [];
+				for (groupId in groupIndex) {
+					if (groupIndex.hasOwnProperty(groupId)) {
+						// initializing aggregated row (seed)
+						group = groupIndex[groupId].items;
+						for (rowId in group) {
+							if (group.hasOwnProperty(rowId)) {
+								seed = data[group[rowId]];
+								break;
+							}
+						}
+						aggregated = initCallback(core.shallow([seed])[0]);
+		
+						// iterating through each row in group
+						for (rowId in group) {
+							if (group.hasOwnProperty(rowId)) {
+								aggregated = iterateCallback(aggregated, data[group[rowId]]);
+							}
+						}
+						// adding aggregated group to result
+						result[groupId] = aggregated;
 					}
-					var aggregated = initCallback(core.shallow([seed])[0]);
-	
-					// iterating through each row in group
-					for (idx in group) {
-						aggregated = iterateCallback(aggregated, _data[group[idx]]);
-					}
-					// adding aggregated group to result
-					grouped[groupId] = aggregated;
 				}
 	
-				return grouped;
+				return result;
 			},
 	
 			// sorts the contents of the table according to an index
@@ -313,46 +334,50 @@ jOrder.table = function (core, constants, logging) {
 				// default options
 				options = options || {};
 	
-				// obtain index
-				var index = null;
+				var index, order;
+				
+				// obtaining index
+				index = null;
 				if (options.indexName) {
 					// use specified index
-					if (!_indexes.hasOwnProperty(options.indexName)) {
+					if (!indexes.hasOwnProperty(options.indexName)) {
 						throw "Invalid index name.";
 					}
-					index = _indexes[options.indexName];
+					index = indexes[options.indexName];
 				} else {
 					// look for a suitable index
-					index = _index(core.join(fields, []));
+					index = findIndex(core.join(fields, []));
 				}
 				if (constants.text === index.type()) {
 					throw "Can't order by free-text index: '" + fields.join(',') + "'.";
 				}
 				// assess sorting order
-				var order = index.order(direction, options);
+				order = index.order(direction, options);
 				if (!order) {
 					// sorting on the fly
 					logging.warn("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
-					return core.shallow(_data).sort(function (a, b) {
+					return core.shallow(data).sort(function (a, b) {
 						return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 					});
 				}
 	
 				// gathers row ids, compacts index if necessary
 				function rowIds() {
+					var result = [],
+							i;
+					
 					function restart() {
 						index.compact();
 						order = index.order(direction, options);
 						return rowIds();
 					}
 	
-					var result = [];
-					for (var idx = 0; idx < order.length; idx++) {
+					for (i = 0; i < order.length; i++) {
 						// dealing with fragmented order
-						if (!(order[idx].rowId in _data)) {
+						if (!(order[i].rowId in data)) {
 							return restart();
 						}
-						result.push(order[idx].rowId);
+						result.push(order[i].rowId);
 					}
 					return result;
 				}
@@ -371,7 +396,7 @@ jOrder.table = function (core, constants, logging) {
 			//	 - limit
 			filter: function (selector, options) {
 				// issuing warning
-				logging.warn("Performing linear search on table (length: " + _data.length + "). Consider using an index.");
+				logging.warn("Performing linear search on table (length: " + data.length + "). Consider using an index.");
 	
 				// applying default options
 				options = options || {};
@@ -379,14 +404,14 @@ jOrder.table = function (core, constants, logging) {
 	
 				// initializing result
 				var result = [],
-					idx;
+						i, row, counter;
 	
 				if (options.renumber) {
-					var counter = 0;
-					for (idx in _data) {
-						if (selector(_data[idx])) {
+					counter = 0;
+					for (i in data) {
+						if (data.hasOwnProperty(i) && selector(row = data[i])) {
 							if (counter++ >= options.offset) {
-								result.push(_data[idx]);
+								result.push(data[i]);
 							}
 							if (options.limit && counter === options.offset + options.limit) {
 								break;
@@ -396,9 +421,9 @@ jOrder.table = function (core, constants, logging) {
 					return result;
 				}
 	
-				for (idx in _data) {
-					if (selector(_data[idx])) {
-						result[idx] = _data[idx];
+				for (i in data) {
+					if (selector(data[i])) {
+						result[i] = data[i];
 					}
 				}
 				return result;
@@ -406,20 +431,22 @@ jOrder.table = function (core, constants, logging) {
 	
 			// counts the lements in the table
 			count: function () {
-				logging.warn("jOrder.table.count() iterates over the table (length: " + _data.length + ").");
-				return core.keys(_data).length;
+				logging.warn("jOrder.table.count() iterates over the table (length: " + data.length + ").");
+				return core.keys(data).length;
 			},
 	
 			// returns a copy of the flat contents of the table
 			flat: function () {
-				return _data;
+				return data;
 			},
 	
 			// get the first row from table
 			first: function () {
-				var idx;
-				for (idx in _data) {
-					return _data[idx];
+				var rowId;
+				for (rowId in data) {
+					if (data.hasOwnProperty(rowId)) {
+						return data[rowId];
+					}
 				}
 			},
 	
@@ -432,22 +459,26 @@ jOrder.table = function (core, constants, logging) {
 				options = options || {};
 	
 				var result = [],
-					idx;
+						i;
 				if (options.renumber) {
-					for (idx in _data) {
-						result.push(_data[idx][field]);
+					for (i in data) {
+						if (data.hasOwnProperty(i)) {
+							result.push(data[i][field]);
+						}
 					}
 					return result;
 				}
-				for (idx in _data) {
-					result[idx] = _data[idx][field];
+				for (i in data) {
+					if (data.hasOwnProperty(i)) {
+						result[i] = data[i][field];
+					}
 				}
 				return result;
 			},
 	
 			// tells whether there's an ordered index on the given fields
 			ordered: function (fields) {
-				var index = _index(fields);
+				var index = findIndex(fields);
 				if (!index) {
 					return false;
 				}
@@ -456,7 +487,7 @@ jOrder.table = function (core, constants, logging) {
 	
 			// tells whether there's an ordered index on the given fields
 			grouped: function (fields) {
-				var index = _index(fields);
+				var index = findIndex(fields);
 				if (!index) {
 					return false;
 				}
