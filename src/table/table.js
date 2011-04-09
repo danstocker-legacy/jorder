@@ -4,6 +4,52 @@
 /*global jOrder */
 
 jOrder.table = function (core, constants, logging) {
+	var
+	
+	// selectors for table.filter()
+	selectors = {
+		// selects exact matches
+		// handles multiple conditions
+		exact: function (row, data) {
+			var match = false,
+					partial, condition,
+					i, field;
+			for (i = 0; i < data.conditions.length; i++) {
+				partial = true;
+				condition = data.conditions[i];
+				for (field in condition) {
+					if (condition.hasOwnProperty(field)) {
+						partial &= (condition[field] === row[field]);
+						if (!partial) {
+							break;
+						}
+					}
+				}
+				match |= partial;
+				if (match) {
+					break;
+				}
+			}
+			return match;
+		},
+		
+		// selectes start of word matches
+		// only first condition is processed
+		startof: function (row, data) {
+			var kv = core.split(data.conditions[0]);
+			return row[kv.keys[0]].indexOf(kv.values[0]) === 0;
+		},
+		
+		// selects range of values
+		// only first condition is processed
+		range: function (row, data) {
+			var kv = core.split(data.conditions[0]),
+					bounds = kv.values[0],
+					field = kv.keys[0];
+			return bounds.lower <= row[field] && bounds.upper > row[field];
+		}
+	};
+	
 	// indexed table object
 	// - data: json table the table object is based on
 	// - options:
@@ -149,7 +195,7 @@ jOrder.table = function (core, constants, logging) {
 			insert: function (rows, options) {
 				var i;
 				for (i = 0; i < rows.length; i++) {
-					this.update(null, rows[i], options);
+					self.update(null, rows[i], options);
 				}
 				return self;
 			},
@@ -160,7 +206,7 @@ jOrder.table = function (core, constants, logging) {
 			remove: function (rows, options) {
 				var i;
 				for (i = 0; i < rows.length; i++) {
-					this.update(rows[i], null, options);
+					self.update(rows[i], null, options);
 				}
 				return self;
 			},
@@ -191,7 +237,7 @@ jOrder.table = function (core, constants, logging) {
 				return result;
 			},
 	
-			// returns the first row as json table from the table ftting the conditions
+			// returns the first row as json table from the table fitting the conditions
 			// - conditions: list of field-value pairs defining the data we're looking for; can be null = no filtering
 			//	 (fields must be in the same exact order as in the index)
 			// - options:
@@ -205,23 +251,29 @@ jOrder.table = function (core, constants, logging) {
 				options = options || {};
 	
 				var index = self.findIndex(options.indexName, {row: conditions[0]}),
-						rowIds,
-						lower, upper;
+						rowIds, condition, range,
+						lower, upper,
+						selector;
 
 				// index found, returning matching row by index
 				if (index) {
+					// obtaining row IDs for result
 					switch (options.mode) {
 					case constants.range:
-						rowIds = !conditions ? {lower: null, upper: null} :
-							function (condition) {
-								return index.range({
-									lower: typeof condition === 'object' ? condition.lower : condition,
-									upper: typeof condition === 'object' ? condition.upper : condition
-								}, options);
-							}(core.values(conditions[0])[0]);
+						condition = conditions ? core.values(conditions[0])[0] : null;
+						if (condition) {
+							range = typeof condition === 'object' ? condition : {lower: condition, upper: condition};
+							rowIds = index.range({
+								lower: range.lower,
+								upper: range.upper
+							}, options);
+						} else {
+							rowIds = {lower: null, upper: null};
+						}
 						break;
 					case constants.startof:
-						lower = conditions ? core.values(conditions[0])[0] : null;
+						condition = conditions ? core.values(conditions[0])[0] : null;
+						lower = condition ? condition : null;
 						upper = lower ? lower + 'z' : null;
 						rowIds = index.range({ lower: lower, upper: upper }, options);
 						break;
@@ -234,54 +286,33 @@ jOrder.table = function (core, constants, logging) {
 						// when no conditions are set
 						rowIds = conditions ?
 							index.lookup(conditions) :
-							core.values(index.flat());
+							core.values(index.flat()); // what about grouped index?
 						break;
 					}
-					return this.select(rowIds, { renumber: options.renumber });
-				}
-	
-				// no index found, search iteratively
-				logging.warn("No matching index for fields: '" + core.keys(conditions[0]).join(',') + "'.");
-	
-				// range search
-				if (options.mode === constants.range) {
-					return this.filter(function (row) {
-						var bounds = core.values(conditions[0])[0],
-								field = core.keys(conditions[0])[0];
-						return bounds.lower <= row[field] && bounds.upper >= row[field];
-					}, options);
-				}
-	
-				// start-of partial match
-				if (options.mode === constants.startof) {
-					return this.filter(function (row) {
-						return row[core.keys(conditions[0])[0]].indexOf(core.values(conditions[0])[0]) === 0;
-					}, options);
-				}
-	
-				// exact match
-				return this.filter(function (row) {
-					var match = false,
-							partial, condition,
-							i, field;
-					for (i = 0; i < conditions.length; i++) {
-						partial = true;
-						condition = conditions[i];
-						for (field in condition) {
-							if (condition.hasOwnProperty(field)) {
-								partial &= (condition[field] === row[field]);
-								if (!partial) {
-									break;
-								}
-							}
-						}
-						match |= partial;
-						if (match) {
-							break;
-						}
+					
+					// building result set based on collected row IDs
+					return self.select(rowIds, { renumber: options.renumber });
+				} else {
+					// no index found, searching iteratively
+					logging.warn("No matching index for fields: '" + core.keys(conditions[0]).join(',') + "'.");
+					
+					// obtaining suitable selector
+					switch (options.mode) {
+					case constants.range:
+						selector = selectors.range;
+						break;
+					case constants.startof:
+						selector = selectors.startof;
+						break;
+					default:
+					case constants.exact:
+						selector = selectors.exact;
+						break;
 					}
-					return match;
-				}, options);
+					
+					// running iterative filter with found selector
+					return self.filter(selector, options, {conditions: conditions});
+				}
 			},
 	
 			// aggregates the table using a group index
@@ -383,7 +414,7 @@ jOrder.table = function (core, constants, logging) {
 				}
 	
 				// returning ordered rows
-				return this.select(rowIds(), { renumber: true });
+				return self.select(rowIds(), { renumber: true });
 			},
 	
 			// filters table rows using the passed selector function
@@ -394,7 +425,7 @@ jOrder.table = function (core, constants, logging) {
 			//	 - renumber: whether to preserve original row ids
 			//	 - offset
 			//	 - limit
-			filter: function (selector, options) {
+			filter: function (selector, options, data) {
 				// issuing warning
 				logging.warn("Performing linear search on table (length: " + json.length + "). Consider using an index.");
 	
@@ -409,7 +440,7 @@ jOrder.table = function (core, constants, logging) {
 				if (options.renumber) {
 					counter = 0;
 					for (i in json) {
-						if (json.hasOwnProperty(i) && selector(row = json[i])) {
+						if (json.hasOwnProperty(i) && selector(row = json[i], data)) {
 							if (counter++ >= options.offset) {
 								result.push(json[i]);
 							}
@@ -418,12 +449,11 @@ jOrder.table = function (core, constants, logging) {
 							}
 						}
 					}
-					return result;
-				}
-	
-				for (i in json) {
-					if (selector(json[i])) {
-						result[i] = json[i];
+				} else {
+					for (i in json) {
+						if (selector(json[i])) {
+							result[i] = json[i];
+						}
 					}
 				}
 				return result;
