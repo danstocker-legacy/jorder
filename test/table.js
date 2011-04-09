@@ -61,6 +61,19 @@ jOrder.testing = function (testing, jOrder) {
 				'volumes': 1
 			}], "Leaving original row IDs");
 		});
+		
+		test("Updating table", function () {
+			var count = testing.table77.index('id').count();
+			testing.table77.remove([{'ID': 5}]);
+			equal(testing.table77.index('id').count(), count - 1, "Removing an item decreases table size by 1");
+			equal(testing.table77.insert([{
+				"ID": 5,
+				"Currency": "USD",
+				"Total": 0,
+				"StartDate": "4\/8\/2010",
+				"GroupID": 1
+			}]).index('id').count(), count, "Adding an item increases table size by 1");
+		});
 	}();
 	
 	return testing;
