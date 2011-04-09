@@ -44,10 +44,11 @@ jOrder.testing = function (testing, core) {
 				'three': undefined,
 				'foo': 'bar'
 			},
-			
 			right = {
 				'test': 'hello'
-			};
+			},
+			leftA = ['a', 'b', 'c'],
+			rightA = [];
 			
 			deepEqual(core.keys(left), ['test', 'one', 'three', 'foo'], "Key extraction");
 			deepEqual(core.values(left), ['what', 'two', undefined, 'bar'], "Value extraction");
@@ -57,6 +58,11 @@ jOrder.testing = function (testing, core) {
 				'undefined': undefined,
 				'bar': undefined
 			}, "Object joining");
+			deepEqual(core.join(leftA, rightA), {
+				'a': undefined,
+				'b': undefined,
+				'c': undefined					
+			}, "Array joining");
 		});
 	}();
 
