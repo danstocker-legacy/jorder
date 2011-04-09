@@ -14,13 +14,15 @@ jOrder.lookup = function (constants, logging) {
 		// private values
 		var base = jOrder.signature(fields, options),
 				self = Object.create(base),
-				flat = {};
+				flat, count;
 
 		// clears internal buffers
 		self.clear = function () {
 			flat = {};
+			count = 0;
 		};
-				
+		self.clear();
+		
 		// sets a lookup value for a given data row
 		// - keys: keys to add to index, extracted from row
 		// - rowId: index of the row in the original (flat) table
@@ -37,12 +39,14 @@ jOrder.lookup = function (constants, logging) {
 						ids = { items: {}, count: 1 };
 						ids.items[rowId] = rowId;
 						flat[key] = ids;
+						count++;
 					} else {
 						// incrementing index key
 						ids = flat[key];
 						if (!ids.items.hasOwnProperty(rowId)) {
 							ids.count++;
 							ids.items[rowId] = rowId;
+							count++;
 						}
 					}
 				} else {
@@ -51,6 +55,7 @@ jOrder.lookup = function (constants, logging) {
 						throw "Can't add more than one row ID to the non-grouped index '" + self.signature() + "'. Consider using a group index instead.";
 					}
 					flat[key] = rowId;
+					count++;
 				}
 			}
 		};
@@ -70,6 +75,7 @@ jOrder.lookup = function (constants, logging) {
 				// removing key from unique index altogether
 				if (!self.options.grouped) {
 					delete flat[key];
+					count--;
 					return;
 				}
 
@@ -81,6 +87,7 @@ jOrder.lookup = function (constants, logging) {
 				ids = flat[key];
 				if (ids.items && ids.items.hasOwnProperty(rowId)) {
 					ids.count--;
+					count--;
 				}
 				if (!ids.count) {
 					// deleting key altogether
@@ -122,6 +129,24 @@ jOrder.lookup = function (constants, logging) {
 		// flat, json representation of the index data
 		self.flat = function () {
 			return flat;
+		};
+		
+		// returns key count for one key or whole index
+		// - key: key to count
+		self.count = function (key) {
+			if (typeof key === 'undefined') {
+				// total count on no key specified
+				return count;
+			} else if (!flat.hasOwnProperty(key)) {
+				// key is not present in lookup
+				return 0;
+			} else if (self.options.grouped) {
+				// key count on grouped index
+				return flat[key].count;
+			} else {
+				// unique index has only 1 of each key
+				return 1;
+			}
 		};
 	
 		return self;

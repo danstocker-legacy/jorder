@@ -120,6 +120,7 @@ jOrder.index = function (core, constants, logging) {
 		core.delegate(lookup, self, {
 			'lookup': true,
 			'flat': true,
+			'count': true,
 			'signature': true,
 			'keys': true
 		});

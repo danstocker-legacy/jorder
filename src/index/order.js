@@ -21,12 +21,13 @@ jOrder.order = function (constants, logging) {
 		// private values
 		var base = jOrder.signature(fields, options),
 				self = Object.create(base),
-				order = [];
+				order;
 		
 		// clears internal buffers
 		self.clear = function () {
 			order = [];
 		};
+		self.clear();
 				
 		// reorders the index
 		// must use comparer, since order contains objects, not strings
