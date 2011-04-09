@@ -72,6 +72,23 @@ jOrder.core = function () {
 			return result;
 		},
 		
+		// splits an object to keys and values
+		split: function (object) {
+			var keys = [],
+					values = [],
+					key;
+			for (key in object) {
+				if (object.hasOwnProperty(key)) {
+					keys.push(key);
+					values.push(object[key]);
+				}
+			}
+			return {
+				keys: keys,
+				values: values
+			};
+		},
+		
 		// joins two objects by their shared keys
 		join: function (left, right) {
 			var result = {},

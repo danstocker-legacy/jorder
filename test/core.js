@@ -52,6 +52,10 @@ jOrder.testing = function (testing, core) {
 			
 			deepEqual(core.keys(left), ['test', 'one', 'three', 'foo'], "Key extraction");
 			deepEqual(core.values(left), ['what', 'two', undefined, 'bar'], "Value extraction");
+			deepEqual(core.split(left), {
+				keys: ['test', 'one', 'three', 'foo'],
+				values: ['what', 'two', undefined, 'bar']
+			}, "Splitting object to keys and values");
 			deepEqual(core.join(left, right), {
 				'what': 'hello',
 				'two': undefined,
