@@ -12,6 +12,20 @@ jOrder.testing = function (testing, jOrder) {
 				tableX = jOrder.table(testing.jsonX);
 
 		test("Index operations", function () {
+			// checkIndex
+			notEqual(typeof testing.table77.checkIndex('total'), 'undefined', "Checking named index");
+			equal(testing.table77.checkIndex('foo'), false, "Checking invalid index");
+			
+			// findIndex
+			notEqual(typeof testing.table77.findIndex('total'), 'undefined', "Finding index by name");
+			equal(testing.table77.findIndex(null, {row: {'Total': 0, 'Currency': 0}}),
+				testing.table77.findIndex('signature'),
+				"Finding index by fields");
+			equal(testing.table77.findIndex(null, {grouped: true}),
+				testing.table77.findIndex('group'),
+				"Finding index by grouped state");
+
+			// adding and looking up
 			equal(typeof table77.index('test'), 'undefined', "There is no index on table by default");
 			notEqual(typeof table77.index('test', ['ID']).index('test'), 'undefined', "Adding index to table");
 			notEqual(table77.index('test').flat(), table77.reindex().index('test').flat(), "Re-indexing table changes indexes");
