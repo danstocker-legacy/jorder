@@ -106,7 +106,7 @@ jOrder.index = function (core, constants, logging) {
 	
 			// tells whether the index is ordered
 			ordered: function () {
-				return order;
+				return order !== null;
 			},
 	
 			// returns index type
