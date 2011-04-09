@@ -64,6 +64,8 @@ jOrder.testing = function (testing, jOrder) {
 				.unbuild()
 				.add(testing.jsonX[0], 0, false);
 			deepEqual(string.flat(), expected, "Adding value to UNIQUE index");
+			equal(string.count(), 1, "Counting items after addition");
+			equal(string.count('Tolkien'), 1, "Counting items for key 'Tolkien' after addition");
 
 			// removal
 			string
@@ -71,6 +73,7 @@ jOrder.testing = function (testing, jOrder) {
 				.remove(testing.jsonX[2], 2)
 				.remove(testing.jsonX[1], 1);
 			deepEqual(string.flat(), expected, "Removing values from UNIQUE index");				
+			equal(string.count(), 1, "Counting items after removal");
 			
 			//////////////////////////////
 			// grouped index (numeric type)
@@ -85,12 +88,15 @@ jOrder.testing = function (testing, jOrder) {
 				.add(testing.jsonX[1], 1, false)
 				.add(testing.jsonX[2], 2, false);
 			deepEqual(number.flat(), expected, "Adding values to GROUPED index");
+			equal(number.count(), 2, "Counting total items after addition");
+			equal(number.count(1), 2, "Counting items for key '1' after addition");
+			equal(number.count(2), 0, "Counting items for invalid key '2' after addition");
 
 			// removal
 			number
 				.rebuild()
 				.remove(testing.jsonX[0], 0);
-			deepEqual(number.flat(), expected, "Removing value from GROUPED index");
+			deepEqual(number.flat(), expected, "Removing invalid value from GROUPED index");
 			
 			//////////////////////////////
 			// grouped index (array type)
