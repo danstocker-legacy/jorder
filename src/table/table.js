@@ -59,6 +59,13 @@ jOrder.table = function (core, constants, logging) {
 				return self;
 			},
 	
+			// resets table to its original state
+			// except for field changes within the original json
+			clear: function () {
+				indexes = {};
+				return self;
+			},
+	
 			// updates, inserts or deletes one row in the table, modifies indexes
 			// - before: data row
 			// - after: changed data row
@@ -143,13 +150,6 @@ jOrder.table = function (core, constants, logging) {
 				for (i = 0; i < rows.length; i++) {
 					this.update(rows[i], null, options);
 				}
-				return self;
-			},
-	
-			// resets table to its original state
-			// except for field changes within the original json
-			clear: function () {
-				indexes = {};
 				return self;
 			},
 	
@@ -485,7 +485,7 @@ jOrder.table = function (core, constants, logging) {
 				return result;
 			},
 	
-			// tells whether there's an ordered index on the given fields
+			// tells whether there's an ordered index on the given combination of fields
 			ordered: function (fields) {
 				var index = findIndex(fields);
 				if (!index) {
@@ -494,7 +494,7 @@ jOrder.table = function (core, constants, logging) {
 				return index.ordered();
 			},
 	
-			// tells whether there's an ordered index on the given fields
+			// tells whether there's an ordered index on the given combination of fields
 			grouped: function (fields) {
 				var index = findIndex(fields);
 				if (!index) {

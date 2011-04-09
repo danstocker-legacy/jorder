@@ -14,6 +14,7 @@ jOrder.testing = function (testing, jOrder) {
 			equal(typeof table.index('test'), 'undefined', "There is no index on table by default");
 			notEqual(typeof table.index('test', ['ID']).index('test'), 'undefined', "Adding index to table");
 			notEqual(table.index('test').flat(), table.reindex().index('test').flat(), "Re-indexing table changes indexes");
+			equal(typeof table.clear().index('test'), 'undefined', 'Clearing table removes indexes');
 		});
 	}();
 	
