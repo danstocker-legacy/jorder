@@ -7,7 +7,7 @@
 // - fields: array of strings representing table fields
 // - options: grouped, sorted, data type
 //	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
-jOrder.signature = function (constants, logging) {
+jOrder.signature = function (constants, core, logging) {
 	return function (fields, options) {
 		// check presence
 		if (typeof fields === 'undefined' || !fields.length) {
@@ -32,18 +32,29 @@ jOrder.signature = function (constants, logging) {
 
 			// generates or validates a signature based on index
 			// - row: row to be validated against index
-			signature: function (row) {
+			// - strict: specifies checking direction (row -> index or index -> row)
+			signature: function (row, strict) {
 				// returning signature
 				if (!row) {
 					return escape(fields.join('_'));
 				}
 				// validating row
-				// all fields of the index must be present in the row
-				var i;
-				for (i = 0; i < fields.length; i++) {
-					if (!row.hasOwnProperty(fields[i])) {
-						// fail early
-						return false;
+				var i, lookup;
+				if (strict) {
+					// all fields of the roe must be present in the index
+					lookup = core.join(fields, []);
+					for (i in row) {
+						if (row.hasOwnProperty(i) && !lookup.hasOwnProperty(i)) {
+							return false;
+						}
+					}
+				} else {
+					// all fields of the index must be present in the row
+					for (i = 0; i < fields.length; i++) {
+						if (!row.hasOwnProperty(fields[i])) {
+							// fail early
+							return false;
+						}
 					}
 				}
 				return true;
@@ -91,4 +102,5 @@ jOrder.signature = function (constants, logging) {
 		return self;
 	};
 }(jOrder.constants,
+	jOrder.core,
 	jOrder.logging);
