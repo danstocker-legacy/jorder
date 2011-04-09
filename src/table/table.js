@@ -153,7 +153,8 @@ jOrder.table = function (core, constants, logging) {
 				return self;
 			},
 	
-			// selects a set of rows using the specified row ids
+			// selects specific rows from table preserving row ids or not
+			// return value is always array (tight or dense)
 			// - rowIds: specifies which rows to include in the result
 			// - options:
 			//	 - renumber: whether or not to preserve row ids
@@ -164,6 +165,7 @@ jOrder.table = function (core, constants, logging) {
 				var result = [],
 						i, rowId;
 	
+				// constructing result set
 				if (options.renumber) {
 					for (i = 0; i < rowIds.length; i++) {
 						result.push(json[rowIds[i]]);
