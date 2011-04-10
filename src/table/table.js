@@ -57,82 +57,26 @@ jOrder.table = function (core, constants, logging) {
 		options = options || { renumber: false };
 
 		// member variables
-		var indexes = {},
+		var indexes = jOrder.indexes(json),
 		
 		self = {
-			// checks whether index exists and returns that index
-			// - name: index name
-			checkIndex: function (name) {
-				if (!indexes.hasOwnProperty(name)) {
-					logging.warn("Invalid index name: '" + name + "'");
-					return false;
-				}
-				return indexes[name];
-			},
-					
-			// looks up an index according to the given fields
-			// - indexName: name of index to look up
-			// - options:
-			//   - row: sample row that's supposed to match the index
-			//   - grouped: whether the index in question should be
-			findIndex: function (indexName, options) {
-				options = options || {};
-				
-				// looking up by index
-				if (indexName) {
-					return self.checkIndex(indexName);
-				}
-				
-				var name, index;
-				for (name in indexes) {
-					if (indexes.hasOwnProperty(name)) {
-						index = indexes[name];
-						if ((typeof options.row === 'undefined' || index.signature(options.row, true)) &&
-							(typeof options.grouped === 'undefined' || index.grouped() === options.grouped)) {
-							return index;
-						}
-					}
-				}
-				return null;
-			},
-		
-			// creates or gets an index
-			// - name: index name
-			// - fields: array of strings representing table fields
-			// - options: index options (groupability, sortability, type, etc.)
 			index: function (name, fields, options) {
-				// reindexing table on no args at all 
-				if (!name) {
-					return self.reindex();
+				var index = indexes.index(name, fields, options);
+				if (name && fields) {
+					return self;
+				} else {
+					return index;
 				}
-				// looking up index when only name arg is given
-				if (!fields) {
-					return indexes[name];
-				}
-				// adding index to table (and optionally removing previous)
-				if (indexes.hasOwnProperty(name)) {
-					logging.warn("Overwriting existing index '" + name + "'");
-					delete indexes[name];
-				}
-				indexes[name] = jOrder.index(json, fields, options);
-				return self;
 			},
-	
+			
 			// rebuilds all indexes on table
 			reindex: function () {
-				var name;
-				for (name in indexes) {
-					if (indexes.hasOwnProperty(name)) {
-						indexes[name].rebuild();
-					}
-				}
+				indexes.rebuild();
 				return self;
 			},
-	
-			// resets table to its original state
-			// except for field changes within the original json
+			
 			clear: function () {
-				indexes = {};
+				indexes.clear();
 				return self;
 			},
 	
@@ -143,7 +87,7 @@ jOrder.table = function (core, constants, logging) {
 			update: function (before, after, options) {
 				options = options || {};
 	
-				var index = self.findIndex(options.indexName, {grouped: false}),
+				var index = indexes.find(options.indexName, {grouped: false}),
 						i,
 						oldId, newId,
 						name;
@@ -175,17 +119,14 @@ jOrder.table = function (core, constants, logging) {
 				}
 	
 				// updating indexes
-				for (name in indexes) {
-					if (indexes.hasOwnProperty(name)) {
-						index = indexes[name];
-						if (before) {
-							index.remove(before, oldId);
-						}
-						if (after) {
-							index.add(after, newId);
-						}
+				indexes.each(function (index) {
+					if (before) {
+						index.remove(before, oldId);
 					}
-				}
+					if (after) {
+						index.add(after, newId);
+					}
+				});
 				return self;
 			},
 	
@@ -250,7 +191,7 @@ jOrder.table = function (core, constants, logging) {
 				// default options
 				options = options || {};
 	
-				var index = self.findIndex(options.indexName, {row: conditions[0]}),
+				var index = indexes.find(options.indexName, {row: conditions[0]}),
 						rowIds, condition, range,
 						lower, upper,
 						selector;
@@ -321,7 +262,7 @@ jOrder.table = function (core, constants, logging) {
 			// - iterateCallback: function performing one step of iteration
 			aggregate: function (indexName, initCallback, iterateCallback) {
 				var result = {},
-						index = self.findIndex(indexName),
+						index = indexes.find(indexName),
 						groupIndex, groupId, items, seed, aggregated,
 						i;
 
@@ -347,7 +288,7 @@ jOrder.table = function (core, constants, logging) {
 						// initializing aggregated group with seed
 						// optionally transformed by callback
 						if (initCallback) {
-							aggregated = iterateCallback(initCallback(), core.deep(seed));
+							aggregated = iterateCallback(initCallback(seed), core.deep(seed));
 						} else {
 							aggregated = core.deep(seed);
 						}
@@ -379,7 +320,7 @@ jOrder.table = function (core, constants, logging) {
 				// default options
 				options = options || {};
 	
-				var index = self.findIndex(options.indexName, {row: core.join(fields, [])}),
+				var index = indexes.find(options.indexName, {row: core.join(fields, [])}),
 						order;
 				
 				// checking if index
@@ -461,9 +402,9 @@ jOrder.table = function (core, constants, logging) {
 	
 			// counts the lements in the table
 			count: function () {
-				if (indexes.length) {
+				if (indexes.count()) {
 					// using the first available index to check item count
-					return indexes[0].count();
+					return indexes.find().count();
 				} else {
 					// no index: iterating over entire table and counting items one by one
 					logging.warn("jOrder.table.count() iterates over table (length: " + json.length + ").");
@@ -476,6 +417,10 @@ jOrder.table = function (core, constants, logging) {
 				return json;
 			},
 	
+			indexes: function () {
+				return indexes;
+			},
+			
 			// get the first row from table
 			first: function () {
 				var i;
@@ -510,26 +455,15 @@ jOrder.table = function (core, constants, logging) {
 					}
 				}
 				return result;
-			},
-	
-			// tells whether there's an ordered index on the given combination of fields
-			ordered: function (fields) {
-				var index = self.findIndex(null, {row: fields});
-				if (!index) {
-					return false;
-				}
-				return index.ordered();
-			},
-	
-			// tells whether there's an ordered index on the given combination of fields
-			grouped: function (fields) {
-				var index = self.findIndex(null, {row: fields});
-				if (!index) {
-					return false;
-				}
-				return index.grouped();
 			}
 		};
+		
+		// delegating methods from indexes
+		// NOTE: delegated methods MUST NOT return reference to self!
+		core.delegate(indexes, self, {
+			'ordered': true,
+			'grouped': true
+		});
 		
 		return self;
 	};
