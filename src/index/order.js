@@ -107,20 +107,6 @@ jOrder.order = function ($constants, $logging, $signature) {
 			}
 		};
 		
-		// compacts the order by eliminating orphan entries
-		self.compact = function () {
-			// tracing calls to this method as it is expensive
-			$logging.log("Compacting index '" + self.signature() + "'.");
-
-			// removing orphan entries
-			var i;
-			for (i = order.length - 1; i >= 0; i--) {
-				if (!order[i]) {
-					order.splice(i, 1);
-				}
-			}
-		};
-
 		// internal function for bsearch
 		// - key: search term key
 		// - start: starting index in the order
@@ -284,6 +270,11 @@ jOrder.order = function ($constants, $logging, $signature) {
 			}
 		};
 
+		// legacy methods 
+		self.compact = function () {
+			$logging.warn("Compacting is obsolete");
+		};
+		
 		return self;
 	};
 }(jOrder.constants,
