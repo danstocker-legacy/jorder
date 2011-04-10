@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-jOrder.table = function (core, constants, logging) {
+jOrder.table = function ($core, $constants, $logging, $indexes) {
 	var
 	
 	// selectors for table.filter()
@@ -36,14 +36,14 @@ jOrder.table = function (core, constants, logging) {
 		// selectes start of word matches
 		// only first condition is processed
 		startof: function (row, data) {
-			var kv = core.split(data.conditions[0]);
+			var kv = $core.split(data.conditions[0]);
 			return row[kv.keys[0]].indexOf(kv.values[0]) === 0;
 		},
 		
 		// selects range of values
 		// only first condition is processed
 		range: function (row, data) {
-			var kv = core.split(data.conditions[0]),
+			var kv = $core.split(data.conditions[0]),
 					bounds = kv.values[0],
 					field = kv.keys[0];
 			return bounds.lower <= row[field] && bounds.upper > row[field];
@@ -57,7 +57,7 @@ jOrder.table = function (core, constants, logging) {
 		options = options || { renumber: false };
 
 		// member variables
-		var indexes = jOrder.indexes(json),
+		var indexes = $indexes(json),
 		
 		self = {
 			index: function (name, fields, options) {
@@ -100,7 +100,7 @@ jOrder.table = function (core, constants, logging) {
 				// obtaining old row
 				if (before) {
 					if (!index) {
-						throw "Can't find suitable index for fields: '" + core.keys(before).join(",") + "'.";
+						throw "Can't find suitable index for fields: '" + $core.keys(before).join(",") + "'.";
 					}
 					oldId = index.lookup([before])[0];
 					before = json[oldId];
@@ -110,7 +110,7 @@ jOrder.table = function (core, constants, logging) {
 				if (typeof oldId === 'undefined') {
 					// inserting new
 					if (!after) {
-						logging.warn("Update called but nothing changed.");
+						$logging.warn("Update called but nothing changed.");
 						return self;
 					}
 					newId = json.push(after) - 1;
@@ -188,7 +188,7 @@ jOrder.table = function (core, constants, logging) {
 			//	 (fields must be in the same exact order as in the index)
 			// - options:
 			//	 - indexName: index to use for search
-			//	 - mode: constants.exact, constants.range, constants.startof (not unicode!)
+			//	 - mode: $constants.exact, $constants.range, $constants.startof (not unicode!)
 			//	 - renumber: whether or not to preserve row ids
 			//	 - offset: search offset
 			//	 - limit: munber of rows to return starting from offset
@@ -205,8 +205,8 @@ jOrder.table = function (core, constants, logging) {
 				if (index) {
 					// obtaining row IDs for result
 					switch (options.mode) {
-					case constants.range:
-						condition = conditions ? core.values(conditions[0])[0] : null;
+					case $constants.range:
+						condition = conditions ? $core.values(conditions[0])[0] : null;
 						if (condition) {
 							range = typeof condition === 'object' ? condition : {lower: condition, upper: condition};
 							rowIds = index.range({
@@ -217,22 +217,22 @@ jOrder.table = function (core, constants, logging) {
 							rowIds = {lower: null, upper: null};
 						}
 						break;
-					case constants.startof:
-						condition = conditions ? core.values(conditions[0])[0] : null;
+					case $constants.startof:
+						condition = conditions ? $core.values(conditions[0])[0] : null;
 						lower = condition ? condition : null;
 						upper = lower ? lower + 'z' : null;
 						rowIds = index.range({ lower: lower, upper: upper }, options);
 						break;
 					default:
-					case constants.exact:
+					case $constants.exact:
 						// when offset and/or limit is specified, exact mode is not likely to work
 						if (options.offset || options.limit) {
-							logging.warn("Running 'jOrder.table.where()' in 'exact' mode with offset and limit specified. Consider running it in 'range' mode.");
+							$logging.warn("Running 'jOrder.table.where()' in 'exact' mode with offset and limit specified. Consider running it in 'range' mode.");
 						}
 						// when no conditions are set
 						rowIds = conditions ?
 							index.lookup(conditions) :
-							core.values(index.flat()); // what about grouped index?
+							$core.values(index.flat()); // what about grouped index?
 						break;
 					}
 					
@@ -240,18 +240,18 @@ jOrder.table = function (core, constants, logging) {
 					return self.select(rowIds, { renumber: options.renumber });
 				} else {
 					// no index found, searching iteratively
-					logging.warn("No matching index for fields: '" + core.keys(conditions[0]).join(',') + "'.");
+					$logging.warn("No matching index for fields: '" + $core.keys(conditions[0]).join(',') + "'.");
 					
 					// obtaining suitable selector
 					switch (options.mode) {
-					case constants.range:
+					case $constants.range:
 						selector = selectors.range;
 						break;
-					case constants.startof:
+					case $constants.startof:
 						selector = selectors.startof;
 						break;
 					default:
-					case constants.exact:
+					case $constants.exact:
 						selector = selectors.exact;
 						break;
 					}
@@ -277,7 +277,7 @@ jOrder.table = function (core, constants, logging) {
 				}
 	
 				// iterating over groups according to index
-				logging.warn("jOrder.table.aggregate() iterates over table (length: " + json.length + ").");
+				$logging.warn("jOrder.table.aggregate() iterates over table (length: " + json.length + ").");
 				groupIndex = index.flat();
 				for (groupId in groupIndex) {
 					if (groupIndex.hasOwnProperty(groupId)) {
@@ -293,9 +293,9 @@ jOrder.table = function (core, constants, logging) {
 						// initializing aggregated group with seed
 						// optionally transformed by callback
 						if (initCallback) {
-							aggregated = iterateCallback(initCallback(seed), core.deep(seed));
+							aggregated = iterateCallback(initCallback(seed), $core.deep(seed));
 						} else {
-							aggregated = core.deep(seed);
+							aggregated = $core.deep(seed);
 						}
 						
 						// iterating over rows in group
@@ -315,7 +315,7 @@ jOrder.table = function (core, constants, logging) {
 	
 			// sorts the contents of the table according to an index
 			// - fields: array of field names to sort by
-			// - direction: constants.asc or constants.desc
+			// - direction: $constants.asc or $constants.desc
 			// - options:
 			//	 - indexName: name of the index to use for sorting
 			//	 - compare: comparer callback (UNUSED)
@@ -325,19 +325,19 @@ jOrder.table = function (core, constants, logging) {
 				// default options
 				options = options || {};
 	
-				var index = indexes.find(options.indexName, {row: core.join(fields, [])}),
+				var index = indexes.find(options.indexName, {row: $core.join(fields, [])}),
 						order;
 				
 				// checking if index
-				if (constants.text === index.type()) {
+				if ($constants.text === index.type()) {
 					throw "Can't order by free-text index: '" + fields.join(',') + "'.";
 				}
 				// assess sorting order
 				order = index.order(direction, options);
 				if (!order) {
 					// sorting on the fly
-					logging.warn("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
-					return core.shallow(json).sort(function (a, b) {
+					$logging.warn("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
+					return $core.shallow(json).sort(function (a, b) {
 						return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 					});
 				}
@@ -377,7 +377,7 @@ jOrder.table = function (core, constants, logging) {
 			//	 - limit
 			filter: function (selector, options, data) {
 				// issuing warning
-				logging.warn("Performing linear search on table (length: " + json.length + "). Consider using an index.");
+				$logging.warn("Performing linear search on table (length: " + json.length + "). Consider using an index.");
 	
 				// applying default options
 				options = options || {};
@@ -412,8 +412,8 @@ jOrder.table = function (core, constants, logging) {
 					return indexes.find().count();
 				} else {
 					// no index: iterating over entire table and counting items one by one
-					logging.warn("jOrder.table.count() iterates over table (length: " + json.length + ").");
-					return core.keys(json).length;
+					$logging.warn("jOrder.table.count() iterates over table (length: " + json.length + ").");
+					return $core.keys(json).length;
 				}
 			},
 	
@@ -465,7 +465,7 @@ jOrder.table = function (core, constants, logging) {
 		
 		// delegating methods from indexes
 		// NOTE: delegated methods MUST NOT return reference to self!
-		core.delegate(indexes, self, {
+		$core.delegate(indexes, self, {
 			'ordered': true,
 			'grouped': true
 		});
@@ -474,5 +474,6 @@ jOrder.table = function (core, constants, logging) {
 	};
 }(jOrder.core,
 	jOrder.constants,
-	jOrder.logging);
+	jOrder.logging,
+	jOrder.indexes);
 
