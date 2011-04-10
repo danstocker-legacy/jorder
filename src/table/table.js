@@ -457,8 +457,14 @@ jOrder.table = function (core, constants, logging) {
 	
 			// counts the lements in the table
 			count: function () {
-				logging.warn("jOrder.table.count() iterates over the table (length: " + json.length + ").");
-				return core.keys(json).length;
+				if (indexes.length) {
+					// using the first available index to check item count
+					return indexes[0].count();
+				} else {
+					// no index: iterating over entire table and counting items one by one
+					logging.warn("jOrder.table.count() iterates over the table (length: " + json.length + ").");
+					return core.keys(json).length;
+				}
 			},
 	
 			// returns a copy of the flat contents of the table
