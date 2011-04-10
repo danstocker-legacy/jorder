@@ -320,41 +320,45 @@ jOrder.table = function (core, constants, logging) {
 			// - initCallback: function that initializes the aggregated row
 			// - iterateCallback: function performing one step of iteration
 			aggregate: function (indexName, initCallback, iterateCallback) {
-				var result = [],
-						index,
-						groupIndex, groupId, group, seed, rowId, aggregated,
-						i;				
+				var result = {},
+						index = self.findIndex(indexName),
+						groupIndex, groupId, items, seed, aggregated,
+						i;
 
 				// checking index
-				if (!indexes.hasOwnProperty(indexName)) {
-					throw "Index '" + indexName + "' not found.";
-				}
-				if (!(index = indexes[indexName]).grouped()) {
+				if (!index.grouped()) {
 					throw "Can't aggregate using a non-group index! Signature: '" + index.signature() + "'.";
 				}
-				logging.warn("jOrder.table.aggregate() iterates over the table (length: " + json.length + ").");
 	
-				// cycling through groups according to index
+				// iterating over groups according to index
+				logging.warn("jOrder.table.aggregate() iterates over table (length: " + json.length + ").");
 				groupIndex = index.flat();
-				result = [];
 				for (groupId in groupIndex) {
 					if (groupIndex.hasOwnProperty(groupId)) {
-						// initializing aggregated row (seed)
-						group = groupIndex[groupId].items;
-						for (rowId in group) {
-							if (group.hasOwnProperty(rowId)) {
-								seed = json[group[rowId]];
+						// obtainig first available row (seed)
+						items = groupIndex[groupId].items;
+						for (i in items) {
+							if (items.hasOwnProperty(i)) {
+								seed = json[i];
 								break;
 							}
 						}
-						aggregated = initCallback(core.shallow([seed])[0]);
-		
-						// iterating through each row in group
-						for (rowId in group) {
-							if (group.hasOwnProperty(rowId)) {
-								aggregated = iterateCallback(aggregated, json[group[rowId]]);
+
+						// initializing aggregated group with seed
+						// optionally transformed by callback
+						if (initCallback) {
+							aggregated = iterateCallback(initCallback(), core.deep(seed));
+						} else {
+							aggregated = core.deep(seed);
+						}
+						
+						// iterating over rows in group
+						for (i in items) {
+							if (items.hasOwnProperty(i) && json[i] !== seed) {
+								aggregated = iterateCallback(aggregated, json[i]);
 							}
 						}
+						
 						// adding aggregated group to result
 						result[groupId] = aggregated;
 					}
@@ -462,7 +466,7 @@ jOrder.table = function (core, constants, logging) {
 					return indexes[0].count();
 				} else {
 					// no index: iterating over entire table and counting items one by one
-					logging.warn("jOrder.table.count() iterates over the table (length: " + json.length + ").");
+					logging.warn("jOrder.table.count() iterates over table (length: " + json.length + ").");
 					return core.keys(json).length;
 				}
 			},
