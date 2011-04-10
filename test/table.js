@@ -32,6 +32,11 @@ jOrder.testing = function (testing, jOrder) {
 			equal(typeof table77.clear().index('test'), 'undefined', 'Clearing table removes indexes');
 		});
 		
+		test("Counting items", function () {
+			equal(testing.table77.count(), 77, "Counting 77-row table");
+			equal(testing.table77n.count(), 77, "Counting 77-row table (NO INDEX)");
+		});
+		
 		test("Selecting rows by ID", function () {
 			// with renumber
 			deepEqual(tableX.select([0, 2], {renumber: true}), [{
@@ -101,19 +106,26 @@ jOrder.testing = function (testing, jOrder) {
 				"Range search on unique field");
 			equal(testing.table77n.where([{'ID': {lower: 10, upper: 13}}], {renumber: true, mode: jOrder.range}).length, 3,
 				"Range search on unique field (NO INDEX)");
+			
+			// text range search
+			equal(testing.table1000.where([{'name': 'Using'}], {renumber: true, mode: jOrder.startof}).length, 12,
+				"Start of text search on text field");
+			equal(testing.table1000n.where([{'name': 'Using'}], {renumber: true, mode: jOrder.startof}).length, 12,
+				"Start of text search on text field (NO INDEX)");
 		});
 		
 		test("Updating table", function () {
-			var count = testing.table77.index('id').count();
+			// count checks
+			var count = testing.table77.count();
 			testing.table77.remove([{'ID': 5}]);
-			equal(testing.table77.index('id').count(), count - 1, "Removing an item decreases table size by 1");
+			equal(testing.table77.count(), count - 1, "Removing an item decreases table size by 1");
 			equal(testing.table77.insert([{
 				"ID": 5,
 				"Currency": "USD",
 				"Total": 0,
 				"StartDate": "4\/8\/2010",
 				"GroupID": 1
-			}]).index('id').count(), count, "Adding an item increases table size by 1");
+			}]).count(), count, "Adding an item increases table size by 1");
 		});
 	}();
 	
