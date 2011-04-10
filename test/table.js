@@ -62,6 +62,27 @@ jOrder.testing = function (testing, jOrder) {
 			}], "Leaving original row IDs");
 		});
 		
+		test("Search", function () {
+			equal(testing.table77.where([{'Total': 4}], {renumber: true}).length, 10, "Counting rows where Total = 4");
+			equal(testing.table77.where([{'Total': 4}]).length, 76, "Index of last row where Total = 4");
+			deepEqual(testing.table77.where([{'ID': 76}], {renumber: true}), [{
+				"ID": 76,
+				"Currency": "USD",
+				"EndDate": "10\/24\/2010",
+				"EndDateUtc": 129323520000000000,
+				"Total": 4,
+				"Amount": 0,
+				"Product": 2,
+				"StartDate": "3\/23\/2010",
+				"StartDateUtc": 129138213600000000,
+				"Status": 1,
+				"StatusStr": "Active",
+				"GroupID": 185
+			}], "Where ID = 76");
+			equal(testing.table77.where([{'Total': 5, 'Currency': 'USD'}], {renumber: true, indexName: 'signature'})[0].ID, 11,
+				"First suitable row by composite index (Total:5, Currency:USD)");
+		});
+		
 		test("Updating table", function () {
 			var count = testing.table77.index('id').count();
 			testing.table77.remove([{'ID': 5}]);
