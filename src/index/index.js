@@ -3,23 +3,23 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-// generates a lookup index on the specified table for the given set of fields
-// - json: array of uniform objects
-// - fields: array of strings representing table fields
-// - options: grouped, sorted, data type
-//	 - grouped: bool
-//	 - ordered: bool
-//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
-//	 - build: bool
-jOrder.index = function (core, constants, logging) {
+jOrder.index = function ($core, $constants, $logging, $lookup, $order) {
+	// generates a lookup index on the specified table for the given set of fields
+	// - json: array of uniform objects
+	// - fields: array of strings representing table fields
+	// - options: grouped, sorted, data type
+	//	 - grouped: bool
+	//	 - ordered: bool
+	//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
+	//	 - build: bool
 	return function (json, fields, options) {
 		// default options
 		options = options || {};
-		options.type = options.type || constants.string;
+		options.type = options.type || $constants.string;
 		
 		// private values
-		var lookup = jOrder.lookup(json, fields, options),
-				order = options.ordered ? jOrder.order(json, fields, options) : null,
+		var lookup = $lookup(json, fields, options),
+				order = options.ordered ? $order(json, fields, options) : null,
 				
 		self = {
 			// sets a lookup value for a given data row
@@ -82,7 +82,7 @@ jOrder.index = function (core, constants, logging) {
 				self.unbuild();
 				
 				// generating index
-				logging.log("Building index of length: " + json.length + ", signature '" + lookup.signature() + "'.");
+				$logging.log("Building index of length: " + json.length + ", signature '" + lookup.signature() + "'.");
 				var i, row;
 				for (i = 0; i < json.length; i++) {
 					// skipping 'holes' in array
@@ -117,7 +117,7 @@ jOrder.index = function (core, constants, logging) {
 	
 		// delegating methods from lookup and order
 		// NOTE: delegated methods MUST NOT return reference to self!
-		core.delegate(lookup, self, {
+		$core.delegate(lookup, self, {
 			'lookup': true,
 			'flat': true,
 			'count': true,
@@ -126,7 +126,7 @@ jOrder.index = function (core, constants, logging) {
 			'keys': true
 		});
 		if (order) {
-			core.delegate(order, self, {
+			$core.delegate(order, self, {
 				'reorder': true,
 				'compact': true,
 				'bsearch': true,
@@ -144,4 +144,6 @@ jOrder.index = function (core, constants, logging) {
 	};
 }(jOrder.core,
 	jOrder.constants,
-	jOrder.logging);
+	jOrder.logging,
+	jOrder.lookup,
+	jOrder.order);

@@ -4,10 +4,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, escape */
 
-// - fields: array of strings representing table fields
-// - options: grouped, sorted, data type
-//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
-jOrder.signature = function (constants, core, logging) {
+jOrder.signature = function ($constants, $core, $logging) {
+	// - fields: array of strings representing table fields
+	// - options: grouped, sorted, data type
+	//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
 	return function (fields, options) {
 		// check presence
 		if (typeof fields === 'undefined' || !fields.length) {
@@ -20,9 +20,9 @@ jOrder.signature = function (constants, core, logging) {
 		// check consistency
 		if (fields.length > 1) {
 			switch (options.type) {
-			case constants.text:
+			case $constants.text:
 				throw "Can't create a text index on more than one field.";
-			case constants.number:
+			case $constants.number:
 				throw "Can't create a number index on more than one field.";
 			}
 		}
@@ -42,7 +42,7 @@ jOrder.signature = function (constants, core, logging) {
 				var i, lookup;
 				if (strict) {
 					// all fields of the roe must be present in the index
-					lookup = core.join(fields, []);
+					lookup = $core.join(fields, []);
 					for (i in row) {
 						if (row.hasOwnProperty(i) && !lookup.hasOwnProperty(i)) {
 							return false;
@@ -65,7 +65,7 @@ jOrder.signature = function (constants, core, logging) {
 			// - row: data row to extract keys from
 			key: function (row) {
 				// extracting numeric key
-				if (self.options.type === constants.number) {
+				if (self.options.type === $constants.number) {
 					return row[fields[0]];
 				}
 				// extracting one (composite) key from any other type
@@ -86,15 +86,15 @@ jOrder.signature = function (constants, core, logging) {
 			// - row: data row to extract keys from
 			keys: function (row) {
 				switch (self.options.type) {
-				case constants.array:
+				case $constants.array:
 					// returning first field as is (already array)
 					return row[fields[0]];
-				case constants.text:
+				case $constants.text:
 					// extracting multiple keys by splitting along spaces
 					return row[fields[0]].split(/\s+/g);
 				default:
-				case constants.number:
-				case constants.string:
+				case $constants.number:
+				case $constants.string:
 					// extracting one (composite) key from any other type
 					var key = self.key(row);
 					return typeof key !== 'undefined' ? [key] : [];

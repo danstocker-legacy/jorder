@@ -3,16 +3,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-// generates a lookup index on the specified table for the given set of fields
-// - json: array of uniform objects
-// - fields: array of strings representing table fields
-// - options: grouped, sorted, data type
-//	 - grouped: bool
-//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
-jOrder.lookup = function (constants, logging) {
+jOrder.lookup = function ($constants, $logging, $signature) {
+	// generates a lookup index on the specified table for the given set of fields
+	// - json: array of uniform objects
+	// - fields: array of strings representing table fields
+	// - options: grouped, sorted, data type
+	//	 - grouped: bool
+	//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
 	return function (json, fields, options) {
 		// private values
-		var base = jOrder.signature(fields, options),
+		var base = $signature(fields, options),
 				self = Object.create(base),
 				flat, count;
 
@@ -152,4 +152,5 @@ jOrder.lookup = function (constants, logging) {
 		return self;
 	};
 }(jOrder.constants,
-	jOrder.logging);
+	jOrder.logging,
+	jOrder.signature);

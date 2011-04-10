@@ -8,18 +8,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, escape */
 
-// generates a lookup order on the specified table for the given set of fields
-// - json: array of uniform objects
-// - fields: array of strings representing table fields
-// - options: grouped, sorted, data type
-//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
-jOrder.order = function (constants, logging) {
+jOrder.order = function ($constants, $logging, $signature) {
 	// constants
 	var DEFAULT_LIMIT = 100;
 	
+	// generates a lookup order on the specified table for the given set of fields
+	// - json: array of uniform objects
+	// - fields: array of strings representing table fields
+	// - options: grouped, sorted, data type
+	//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
 	return function (json, fields, options) {
 		// private values
-		var base = jOrder.signature(fields, options),
+		var base = $signature(fields, options),
 				self = Object.create(base),
 				order;
 		
@@ -51,11 +51,11 @@ jOrder.order = function (constants, logging) {
 		// tests an actual key value against expected
 		function equal(actual, expected) {
 			switch (self.options.type) {
-			case constants.string:
-			case constants.text:
+			case $constants.string:
+			case $constants.text:
 				return actual.match(new RegExp('^' + expected));
 			default:
-			case constants.number:
+			case $constants.number:
 				return actual === expected;
 			}
 		}
@@ -71,8 +71,8 @@ jOrder.order = function (constants, logging) {
 				// determining what key to store depending on index type
 				key = keys[i];
 				switch (self.options.type) {
-				case constants.text:
-				case constants.array:
+				case $constants.text:
+				case $constants.array:
 					alt = key.toLowerCase();
 					break;
 				default:
@@ -87,7 +87,7 @@ jOrder.order = function (constants, logging) {
 				} else {
 					// adding key to order at suitable index
 					// number variable type must be preserved for sorting purposes
-					pos = order.length > 0 ? self.bsearch(key, constants.start, rowId) : 0;
+					pos = order.length > 0 ? self.bsearch(key, $constants.start, rowId) : 0;
 					order.splice(pos, 0, { key: alt, rowId: rowId });
 				}
 			}
@@ -101,7 +101,7 @@ jOrder.order = function (constants, logging) {
 			var i, pos;
 			for (i = 0; i < keys.length; i++) {
 				// finding a matching id in log(n) steps
-				pos = self.bsearch(keys[i], constants.start, rowId);
+				pos = self.bsearch(keys[i], $constants.start, rowId);
 				// removing key from order
 				order.splice(pos, 1);
 			}
@@ -110,7 +110,7 @@ jOrder.order = function (constants, logging) {
 		// compacts the order by eliminating orphan entries
 		self.compact = function () {
 			// tracing calls to this method as it is expensive
-			logging.log("Compacting index '" + self.signature() + "'.");
+			$logging.log("Compacting index '" + self.signature() + "'.");
 
 			// removing orphan entries
 			var i;
@@ -157,7 +157,7 @@ jOrder.order = function (constants, logging) {
 		// returns the position or preceeding position of the searched value
 		// order is expected to be a tight array
 		// - value: value we're lookung for
-		// - type: constants.start or constants.end
+		// - type: $constants.start or $constants.end
 		self.bsearch = function (key, type, rowId) {
 			// returning "not found" when order is empty
 			if (!order.length) {
@@ -176,11 +176,11 @@ jOrder.order = function (constants, logging) {
 			if (key < first.key || hasId && equal(first.key, key) && rowId < first.rowId) {
 				// returning first index if key is start type
 				// -1 otherwise
-				return type === constants.start ? start : - 1;
+				return type === $constants.start ? start : - 1;
 			} else if (key > last.key || hasId && equal(last.key, key) && rowId > last.rowId) {
 				// returning last index if key is end type
 				// last+1 otherwise
-				return type === constants.end ? end : order.length;
+				return type === $constants.end ? end : order.length;
 			}
 			
 			// start search
@@ -189,10 +189,10 @@ jOrder.order = function (constants, logging) {
 			hit = bsearch(key, start, end, rowId);			
 			if (hit.exact) {
 				// exact hit returns the pos as start position
-				pos = type === constants.start ? hit.pos : hit.pos - 1;
+				pos = type === $constants.start ? hit.pos : hit.pos - 1;
 			} else {
 				// non-exact hit returns the pos preceding a possible match
-				pos = type === constants.start ? hit.pos + 1 : hit.pos;
+				pos = type === $constants.start ? hit.pos + 1 : hit.pos;
 			}
 			return pos;
 		};
@@ -220,11 +220,11 @@ jOrder.order = function (constants, logging) {
 			
 			// determining search bounds based on index type and arguments
 			switch (self.options.type) {
-			case constants.text:
+			case $constants.text:
 				lower = bounds.lower ? escape(bounds.lower.toLowerCase()) : bounds.lower;
 				upper = bounds.upper ? escape(bounds.upper.toLowerCase()) : bounds.upper;
 				break;
-			case constants.string:
+			case $constants.string:
 				lower = bounds.lower ? escape(bounds.lower) : bounds.lower;
 				upper = bounds.upper ? escape(bounds.upper) : bounds.upper;
 				break;
@@ -235,12 +235,12 @@ jOrder.order = function (constants, logging) {
 			}
 			
 			// obtaining start of range
-			start = (typeof lower !== 'undefined' ? self.bsearch(lower, constants.start) : 0) + options.offset;
+			start = (typeof lower !== 'undefined' ? self.bsearch(lower, $constants.start) : 0) + options.offset;
 
 			// obtaining end of range
 			// smallest of [range end, page end (limit), table length]
 			end = Math.min(
-				typeof upper !== 'undefined' ? self.bsearch(upper, constants.end) : order.length - 1,
+				typeof upper !== 'undefined' ? self.bsearch(upper, $constants.end) : order.length - 1,
 				start + options.limit - 1);
 
 			// collecting positions of actial data rows according to index
@@ -263,23 +263,23 @@ jOrder.order = function (constants, logging) {
 			}
 
 			// default args
-			dir = dir || constants.asc;
+			dir = dir || $constants.asc;
 			options = options || {};
 			options.offset = options.offset || 0;
 			options.limit = options.limit || 0;
 			
 			// returning ref for ascending, full order
-			if (dir === constants.asc && !options.offset && !options.limit) {
+			if (dir === $constants.asc && !options.offset && !options.limit) {
 				return order;
 			}
 
 			// taking slice of order
 			options.limit = options.limit || DEFAULT_LIMIT;
 			switch (dir) {
-			case constants.desc:
+			case $constants.desc:
 				return order.slice(Math.max(0, order.length - options.offset - options.limit), order.length - options.offset).reverse();
 			default:
-			case constants.asc:
+			case $constants.asc:
 				return order.slice(options.offset, Math.min(options.offset + options.limit, order.length));
 			}
 		};
@@ -287,4 +287,5 @@ jOrder.order = function (constants, logging) {
 		return self;
 	};
 }(jOrder.constants,
-	jOrder.logging);
+	jOrder.logging,
+	jOrder.signature);

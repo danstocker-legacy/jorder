@@ -5,7 +5,7 @@
 
 jOrder.indexes = function ($collection, $index) {
 	// index collection
-	// - data: json table the table object is based on
+	// - json: json table the table object is based on
 	return function (json) {
 		// member variables
 		var self = Object.create($collection()),

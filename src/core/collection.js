@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-jOrder.collection = function (logging) {
+jOrder.collection = function ($logging) {
 	return function () {
 		var items = {},
 				count = 0,
@@ -15,7 +15,7 @@ jOrder.collection = function (logging) {
 			add: function (name, item) {
 				// adding item to collection (and optionally removing previous)
 				if (items.hasOwnProperty(name)) {
-					logging.warn("Overwriting existing item '" + name + "'");
+					$logging.warn("Overwriting existing item '" + name + "'");
 					delete items[name];
 					count--;
 				}
@@ -28,7 +28,7 @@ jOrder.collection = function (logging) {
 			// - name: identifies the item to return
 			get: function (name) {
 				if (!items.hasOwnProperty(name)) {
-					logging.warn("Invalid item name: '" + name + "'");
+					$logging.warn("Invalid item name: '" + name + "'");
 					return;
 				}
 				return items[name];

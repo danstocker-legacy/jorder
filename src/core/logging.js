@@ -3,7 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, window, Sys */
 
-jOrder.logging = function (jOrder, window) {
+jOrder.logging = function ($core) {
 	// utility functions
 	var self,
 			log;
@@ -37,7 +37,6 @@ jOrder.logging = function (jOrder, window) {
 		// use throw instead of console.error()
 	};
 	
-	return jOrder.delegate(self);
-}(jOrder,
-	window);
+	return $core.delegate(self);
+}(jOrder.core);
 

@@ -3,8 +3,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-jOrder.constants = function (core) {
-	return core.delegate({
+jOrder.constants = function ($core) {
+	return $core.delegate({
 		// version
 		name: "jOrder",
 		
