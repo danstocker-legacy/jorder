@@ -8,8 +8,6 @@ jOrder.testing = function (testing, core, jOrder) {
 	testing.table = function () {
 		module("Table");
 		
-		var tableX = jOrder.table(testing.jsonX);
-
 		test("Index operations", function () {
 			// checkIndex
 			notEqual(typeof testing.table77.indexes().get('total'), 'undefined', "Checking named index");
@@ -38,6 +36,8 @@ jOrder.testing = function (testing, core, jOrder) {
 		});
 		
 		test("Selecting rows by ID", function () {
+			var tableX = jOrder.table(testing.jsonX);
+
 			// with renumber
 			deepEqual(tableX.select([0, 2], {renumber: true}), [{
 				'title': 'Lord of the rings',
@@ -112,6 +112,29 @@ jOrder.testing = function (testing, core, jOrder) {
 				"Start of text search on text field");
 			equal(testing.table1000n.where([{'name': 'Using'}], {renumber: true, mode: jOrder.startof}).length, 12,
 				"Start of text search on text field (NO INDEX)");
+		});
+		
+		test("Sorting", function () {
+			var tableX = jOrder.table(testing.jsonX)
+				.index('author', ['author'], {ordered: true})
+				.index('volumes', ['volumes'], {type: jOrder.number, grouped: true, ordered: true})
+				.index('volumes_uo', ['volumes'], {type: jOrder.number, grouped: true})
+				.index('title', ['title'], {type: jOrder.text, grouped: true});
+
+			raises(function () {
+				tableX.orderby(['title'], jOrder.asc);
+			}, "Can't order by text field");
+			
+			deepEqual(tableX.orderby(['volumes'], jOrder.asc, {indexName: 'volumes'}), tableX.select([1, 2, 0], {renumber: true}),
+				"By numeric field, ascending");
+			deepEqual(tableX.orderby(['volumes'], jOrder.asc, {indexName: 'volumes_uo'}), tableX.select([1, 2, 0], {renumber: true}),
+				"By string type field, ascending, UNORDERED index");
+			deepEqual(tableX.orderby(['volumes'], jOrder.asc, {offset: 1}), tableX.select([2, 0], {renumber: true}),
+				"By numeric field, ascending, OFFSET: 1");
+			deepEqual(tableX.orderby(['volumes'], jOrder.desc), tableX.select([0, 2, 1], {renumber: true}),
+				"By numeric field, descending");
+			deepEqual(tableX.orderby(['author'], jOrder.asc), tableX.select([2, 1, 0], {renumber: true}),
+				"By string type field, ascending");
 		});
 		
 		test("Aggregation", function () {
