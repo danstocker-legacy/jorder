@@ -61,11 +61,16 @@ jOrder.table = function (core, constants, logging) {
 		
 		self = {
 			index: function (name, fields, options) {
-				var index = indexes.index(name, fields, options);
-				if (name && fields) {
+				if (!name) {
+					// reindexing table on no args at all 
+					indexes.rebuild();
 					return self;
+				} else if (!fields) {
+					// looking up index when only name arg is given
+					return indexes.get(name);
 				} else {
-					return index;
+					indexes.add(name, fields, options);
+					return self;
 				}
 			},
 			

@@ -13,7 +13,7 @@ jOrder.testing = function (testing, core, jOrder) {
 		test("Index operations", function () {
 			// checkIndex
 			notEqual(typeof testing.table77.indexes().get('total'), 'undefined', "Checking named index");
-			equal(testing.table77.indexes().get('foo'), false, "Checking invalid index");
+			equal(typeof testing.table77.indexes().get('foo'), 'undefined', "Checking invalid index");
 			
 			// findIndex
 			notEqual(typeof testing.table77.indexes().find('total'), 'undefined', "Finding index by name");

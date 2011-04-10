@@ -17,11 +17,23 @@ jOrder.indexes = function (logging) {
 			get: function (name) {
 				if (!indexes.hasOwnProperty(name)) {
 					logging.warn("Invalid index name: '" + name + "'");
-					return false;
+					return;
 				}
 				return indexes[name];
 			},
-					
+			
+			// adds an index to the collection
+			add: function (name, fields, options) {
+				// adding index to table (and optionally removing previous)
+				if (indexes.hasOwnProperty(name)) {
+					logging.warn("Overwriting existing index '" + name + "'");
+					delete indexes[name];
+					count--;
+				}
+				indexes[name] = jOrder.index(json, fields, options);
+				count++;
+			},
+			
 			// looks up an index according to the given fields
 			// - indexName: name of index to look up
 			// - options:
@@ -59,29 +71,6 @@ jOrder.indexes = function (logging) {
 				}
 			},
 			
-			// creates or gets an index
-			// - name: index name
-			// - fields: array of strings representing table fields
-			// - options: index options (groupability, sortability, type, etc.)
-			index: function (name, fields, options) {
-				// reindexing table on no args at all 
-				if (!name) {
-					self.rebuild();
-				}
-				// looking up index when only name arg is given
-				if (!fields) {
-					return indexes[name];
-				}
-				// adding index to table (and optionally removing previous)
-				if (indexes.hasOwnProperty(name)) {
-					logging.warn("Overwriting existing index '" + name + "'");
-					delete indexes[name];
-					count--;
-				}
-				indexes[name] = jOrder.index(json, fields, options);
-				count++;
-			},
-	
 			// rebuilds all indexes on table
 			rebuild: function () {
 				var name;
@@ -99,6 +88,7 @@ jOrder.indexes = function (logging) {
 				count = 0;
 			},
 		
+			// returns teh number of indexes in the collection
 			count: function () {
 				return count;
 			},
