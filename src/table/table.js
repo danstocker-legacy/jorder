@@ -435,24 +435,20 @@ jOrder.table = function (core, constants, logging) {
 	
 				// initializing result
 				var result = [],
-						i, row, counter;
-	
-				if (options.renumber) {
-					counter = 0;
-					for (i in json) {
-						if (json.hasOwnProperty(i) && selector(row = json[i], data)) {
-							if (counter++ >= options.offset) {
-								result.push(json[i]);
-							}
-							if (options.limit && counter === options.offset + options.limit) {
-								break;
+						i, row, counter = 0;
+
+				// sweeping entire table and selecting suitable rows
+				for (i in json) {
+					if (json.hasOwnProperty(i) && selector(row = json[i], data)) {
+						if (counter++ >= options.offset) {
+							if (options.renumber) {
+								result.push(row);
+							} else {
+								result[i] = row;
 							}
 						}
-					}
-				} else {
-					for (i in json) {
-						if (selector(json[i])) {
-							result[i] = json[i];
+						if (options.limit && counter === options.offset + options.limit) {
+							break;
 						}
 					}
 				}
