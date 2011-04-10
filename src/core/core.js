@@ -79,6 +79,8 @@ jOrder.core = function () {
 		},
 
 		// retrieves the keys of an object
+		// returns an array of STRINGS
+		// as object property keys are always strings
 		keys: function (object) {
 			var result = [],
 					key;
