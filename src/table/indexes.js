@@ -3,116 +3,73 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder */
 
-jOrder.indexes = function (logging) {
+jOrder.indexes = function ($collection, $index) {
 	// index collection
 	// - data: json table the table object is based on
 	return function (json) {
 		// member variables
-		var indexes = {},
-				count = 0,
-		
-		self = {
-			// checks whether index exists and returns that index
-			// - name: index name
-			get: function (name) {
-				if (!indexes.hasOwnProperty(name)) {
-					logging.warn("Invalid index name: '" + name + "'");
-					return;
-				}
-				return indexes[name];
-			},
-			
-			// adds an index to the collection
-			add: function (name, fields, options) {
-				// adding index to table (and optionally removing previous)
-				if (indexes.hasOwnProperty(name)) {
-					logging.warn("Overwriting existing index '" + name + "'");
-					delete indexes[name];
-					count--;
-				}
-				indexes[name] = jOrder.index(json, fields, options);
-				count++;
-			},
-			
-			// looks up an index according to the given fields
-			// - indexName: name of index to look up
-			// - options:
-			//   - row: sample row that's supposed to match the index
-			//   - grouped: whether the index in question should be
-			find: function (indexName, options) {
-				options = options || {};
-				
-				// looking up by index
-				if (indexName) {
-					return self.get(indexName);
-				}
-				
-				var name, index;
-				for (name in indexes) {
-					if (indexes.hasOwnProperty(name)) {
-						index = indexes[name];
-						if ((typeof options.row === 'undefined' || index.signature(options.row, true)) &&
-							(typeof options.grouped === 'undefined' || index.grouped() === options.grouped)) {
-							return index;
-						}
-					}
-				}
-				return null;
-			},
-		
-			// calls a handler on each index
-			// - handler: function to call on each index
-			each: function (handler) {
-				var i;
-				for (i in indexes) {
-					if (indexes.hasOwnProperty(i)) {
-						handler(indexes[i]);
-					}
-				}
-			},
-			
-			// rebuilds all indexes on table
-			rebuild: function () {
-				var name;
-				for (name in indexes) {
-					if (indexes.hasOwnProperty(name)) {
-						indexes[name].rebuild();
-					}
-				}
-			},
-	
-			// resets table to its original state
-			// except for field changes within the original json
-			clear: function () {
-				indexes = {};
+		var self = Object.create($collection()),
+				base_add = self.add,
+				indexes = {},
 				count = 0;
-			},
 		
-			// returns teh number of indexes in the collection
-			count: function () {
-				return count;
-			},
+		// adds an index to the collection
+		self.add = function (name, fields, options) {
+			// calling add() of base
+			base_add(name, $index(json, fields, options));
+		};
+
+		// looks up an index according to the given fields
+		// - indexName: name of index to look up
+		// - options:
+		//   - row: sample row that's supposed to match the index
+		//   - grouped: whether the index in question should be
+		self.find = function (indexName, options) {
+			options = options || {};
 			
-			// tells whether there's an ordered index on the given combination of fields
-			ordered: function (fields) {
-				var index = self.find(null, {row: fields});
-				if (!index) {
-					return false;
-				}
-				return index.ordered();
-			},
-	
-			// tells whether there's an ordered index on the given combination of fields
-			grouped: function (fields) {
-				var index = self.find(null, {row: fields});
-				if (!index) {
-					return false;
-				}
-				return index.grouped();
+			// looking up by index
+			if (indexName) {
+				return self.get(indexName);
 			}
+			
+			var index;
+			self.each(function (key, item) {
+				if ((typeof options.row === 'undefined' || item.signature(options.row, true)) &&
+					(typeof options.grouped === 'undefined' || item.grouped() === options.grouped)) {
+					index = item;
+					return true;
+				}
+			});
+			return index;
+		};
+	
+		// rebuilds all indexes on table
+		self.rebuild = function () {
+			self.each(function (name, index) {
+				index.rebuild();
+			});
+		};
+
+		// tells whether there's an ordered index on the given combination of fields
+		self.ordered = function (fields) {
+			var index = self.find(null, {row: fields});
+			if (!index) {
+				return false;
+			}
+			return index.ordered();
+		};
+
+		// tells whether there's an ordered index on the given combination of fields
+		self.grouped = function (fields) {
+			var index = self.find(null, {row: fields});
+			if (!index) {
+				return false;
+			}
+			return index.grouped();
 		};
 		
 		return self;
 	};
-}(jOrder.logging);
+}(jOrder.collection,
+	jOrder.index);
 

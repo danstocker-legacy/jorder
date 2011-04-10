@@ -124,7 +124,7 @@ jOrder.table = function (core, constants, logging) {
 				}
 	
 				// updating indexes
-				indexes.each(function (index) {
+				indexes.each(function (name, index) {
 					if (before) {
 						index.remove(before, oldId);
 					}
