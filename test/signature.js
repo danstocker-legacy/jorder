@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Unit tests for jOrder index
 ////////////////////////////////////////////////////////////////////////////////
-/*global console, jOrder, module, test, ok, equal, deepEqual, raises */
+/*global console, jOrder, module, test, ok, equal, strictEqual, deepEqual, raises */
 
 jOrder.testing = function (testing, jOrder) {
 	// Data integrity tests
@@ -42,6 +42,8 @@ jOrder.testing = function (testing, jOrder) {
 		});
 		
 		test("Key extraction", function () {
+			strictEqual(number.key(testing.jsonX[0]), 3, "Extracting key from numeric index");
+			deepEqual(number.keys(testing.jsonX[0]), [3], "Extracting keys from numeric index");
 			deepEqual(string.keys(testing.jsonX[0]), ['Tolkien'], "Extracting single key from string type field");
 			deepEqual(string_multi.keys(testing.jsonX[0]), ['Tolkien_3'], "Extracting composite key from string type fields");
 			deepEqual(array.keys(testing.jsonX[0]), [5, 6, 43, 21, 88], "Extracting multiple keys from array type field");

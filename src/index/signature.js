@@ -64,6 +64,10 @@ jOrder.signature = function (constants, core, logging) {
 			// for lookup purposes
 			// - row: data row to extract keys from
 			key: function (row) {
+				// extracting numeric key
+				if (self.options.type === constants.number) {
+					return row[fields[0]];
+				}
 				// extracting one (composite) key from any other type
 				var key = [],
 						i, field;
@@ -82,9 +86,6 @@ jOrder.signature = function (constants, core, logging) {
 			// - row: data row to extract keys from
 			keys: function (row) {
 				switch (self.options.type) {
-				case constants.number:
-					// extracting first field
-					return [row[fields[0]]];
 				case constants.array:
 					// returning first field as is (already array)
 					return row[fields[0]];
@@ -92,9 +93,11 @@ jOrder.signature = function (constants, core, logging) {
 					// extracting multiple keys by splitting along spaces
 					return row[fields[0]].split(/\s+/g);
 				default:
+				case constants.number:
+				case constants.string:
 					// extracting one (composite) key from any other type
 					var key = self.key(row);
-					return key ? [key] : [];
+					return typeof key !== 'undefined' ? [key] : [];
 				}
 			}
 		};

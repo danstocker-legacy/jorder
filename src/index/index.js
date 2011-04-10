@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder index object
 ////////////////////////////////////////////////////////////////////////////////
-/*global jOrder, escape */
+/*global jOrder */
 
 // generates a lookup index on the specified table for the given set of fields
 // - json: array of uniform objects
@@ -122,6 +122,7 @@ jOrder.index = function (core, constants, logging) {
 			'flat': true,
 			'count': true,
 			'signature': true,
+			'key': true,
 			'keys': true
 		});
 		if (order) {
