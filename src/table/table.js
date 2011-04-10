@@ -277,7 +277,7 @@ jOrder.table = function ($core, $constants, $logging, $indexes) {
 				}
 	
 				// iterating over groups according to index
-				$logging.warn("jOrder.table.aggregate() iterates over table (length: " + json.length + ").");
+				$logging.warn("Aggregation iterates over table (length: " + json.length + ").");
 				groupIndex = index.flat();
 				for (groupId in groupIndex) {
 					if (groupIndex.hasOwnProperty(groupId)) {
@@ -315,56 +315,43 @@ jOrder.table = function ($core, $constants, $logging, $indexes) {
 	
 			// sorts the contents of the table according to an index
 			// - fields: array of field names to sort by
-			// - direction: $constants.asc or $constants.desc
+			// - dir: $constants.asc or $constants.desc
 			// - options:
 			//	 - indexName: name of the index to use for sorting
 			//	 - compare: comparer callback (UNUSED)
 			//	 - offset
 			//	 - limit
-			orderby: function (fields, direction, options) {
+			orderby: function (fields, dir, options) {
 				// default options
 				options = options || {};
+				dir = dir || $constants.asc;
 	
 				var index = indexes.find(options.indexName, {row: $core.join(fields, [])}),
-						order;
+						order, rowIds,
+						i;
 				
-				// checking if index
-				if ($constants.text === index.type()) {
+				// checking index validity
+				if (index.type() === $constants.text) {
 					throw "Can't order by free-text index: '" + fields.join(',') + "'.";
 				}
-				// assess sorting order
-				order = index.order(direction, options);
-				if (!order) {
+				
+				// assessing sorting order
+				if (index.order) {
+					// obtaining affected rowIds
+					order = index.order(dir, options);
+					rowIds = [];
+					for (i = 0; i < order.length; i++) {
+						rowIds.push(order[i].rowId);
+					}
+					// returning ordered rows
+					return self.select(rowIds, { renumber: true });
+				} else {
 					// sorting on the fly
-					$logging.warn("Index '" + options.indexName + "' is not ordered. Sorting index on the fly.");
+					$logging.warn("Unordered index or no index available. Sorting table on the fly.");
 					return $core.shallow(json).sort(function (a, b) {
 						return a[fields[0]] > b[fields[0]] ? 1 : a[fields[0]] < b[fields[0]] ? -1 : 0;
 					});
 				}
-	
-				// gathers row ids, compacts index if necessary
-				function rowIds() {
-					var result = [],
-							i;
-					
-					function restart() {
-						index.compact();
-						order = index.order(direction, options);
-						return rowIds();
-					}
-	
-					for (i = 0; i < order.length; i++) {
-						// dealing with fragmented order
-						if (!(order[i].rowId in json)) {
-							return restart();
-						}
-						result.push(order[i].rowId);
-					}
-					return result;
-				}
-	
-				// returning ordered rows
-				return self.select(rowIds(), { renumber: true });
 			},
 	
 			// filters table rows using the passed selector function
@@ -412,7 +399,7 @@ jOrder.table = function ($core, $constants, $logging, $indexes) {
 					return indexes.find().count();
 				} else {
 					// no index: iterating over entire table and counting items one by one
-					$logging.warn("jOrder.table.count() iterates over table (length: " + json.length + ").");
+					$logging.warn("Indexless row count iterates over table (length: " + json.length + ").");
 					return $core.keys(json).length;
 				}
 			},
