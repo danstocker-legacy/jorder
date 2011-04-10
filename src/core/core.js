@@ -79,7 +79,7 @@ jOrder.core = function () {
 		},
 
 		// retrieves the keys of an object
-		keys: function (object, values) {
+		keys: function (object) {
 			var result = [],
 					key;
 			for (key in object) {
