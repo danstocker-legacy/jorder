@@ -63,9 +63,15 @@ jOrder.testing = function (testing, jOrder) {
 		});
 		
 		test("Search", function () {
+			// exact search on grouped field, results packed
 			equal(testing.table77.where([{'Total': 4}], {renumber: true}).length, 10, "Counting rows where Total = 4");
+			equal(testing.table77n.where([{'Total': 4}], {renumber: true}).length, 10, "Counting rows where Total = 4 (NO INDEX)");
+			
+			// eaxact search on grouped field, non-packed
 			equal(testing.table77.where([{'Total': 4}]).length, 76, "Index of last row where Total = 4");
-			deepEqual(testing.table77.where([{'ID': 76}], {renumber: true}), [{
+			equal(testing.table77n.where([{'Total': 4}]).length, 76, "Index of last row where Total = 4 (NO INDEX)");
+
+			var expected = [{
 				"ID": 76,
 				"Currency": "USD",
 				"EndDate": "10\/24\/2010",
@@ -78,9 +84,23 @@ jOrder.testing = function (testing, jOrder) {
 				"Status": 1,
 				"StatusStr": "Active",
 				"GroupID": 185
-			}], "Where ID = 76");
+			}];
+			
+			// exact search on unique field, packed
+			deepEqual(testing.table77.where([{'ID': 76}], {renumber: true}), expected, "Where ID = 76");
+			deepEqual(testing.table77n.where([{'ID': 76}], {renumber: true}), expected, "Where ID = 76 (NO INDEX)");
+
+			// exact search on composite index, packed
 			equal(testing.table77.where([{'Total': 5, 'Currency': 'USD'}], {renumber: true, indexName: 'signature'})[0].ID, 11,
 				"First suitable row by composite index (Total:5, Currency:USD)");
+			equal(testing.table77n.where([{'Total': 5, 'Currency': 'USD'}], {renumber: true})[0].ID, 11,
+				"First suitable row by composite index (Total:5, Currency:USD, NO INDEX)");
+			
+			// range search
+			equal(testing.table77.where([{'ID': {lower: 10, upper: 13}}], {renumber: true, mode: jOrder.range}).length, 3,
+				"Range search on unique field");
+			equal(testing.table77n.where([{'ID': {lower: 10, upper: 13}}], {renumber: true, mode: jOrder.range}).length, 3,
+				"Range search on unique field (NO INDEX)");
 		});
 		
 		test("Updating table", function () {
