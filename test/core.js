@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder unit tests
 ////////////////////////////////////////////////////////////////////////////////
-/*global jOrder, module, test, equal, deepEqual */
+/*global jOrder, module, test, equal, notEqual, deepEqual */
 
 jOrder.testing = function (testing, core) {
 	// Data integrity tests
@@ -10,8 +10,17 @@ jOrder.testing = function (testing, core) {
 		
 		test("Method delegation", function () {
 			equal(jOrder.delegate, core.delegate, "Delegation preserves reference to method.");
-		});		
+		});
 
+		test("Deep copy", function () {
+			var orig = testing.json77,
+					copy = core.deep(orig);
+
+			deepEqual(orig, copy, "Deep copy preserves structure & values.");
+			notEqual(orig, copy, "Deep copy changes table reference.");
+			notEqual(orig[0], copy[0], "Deep copy changes row references.");
+		});
+		
 		test("Shallow copy", function () {
 			var orig = testing.json77,
 					copy;

@@ -25,6 +25,36 @@ jOrder.core = function () {
 			return module;
 		},
 	
+		// creates a deep copy of the object recursively
+		// WARNING: reference looping is NOT handled!
+		deep: function (json) {
+			var result,
+					i;
+			
+			// ordinal types are returned as is
+			if (typeof json !== 'object') {
+				return json;
+			}
+			
+			// processing arrays and hashtables
+			if (typeof json.length !== 'undefined') {
+				// array
+				result = [];
+				for (i = 0; i < json.length; i++) {
+					result[i] = self.deep(json[i]);
+				}
+			} else {
+				// hashtable
+				result = {};
+				for (i in json) {
+					if (json.hasOwnProperty(i)) {
+						result[i] = self.deep(json[i]);
+					}
+				}
+			}
+			return result;
+		},
+		
 		// makes a shallow copy of the passed JSON
 		// optionally renumbered
 		shallow: function (json, renumber) {
