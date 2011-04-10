@@ -8,24 +8,24 @@ jOrder.testing = function (testing, core, jOrder) {
 	testing.table = function () {
 		module("Table");
 		
-		var table77 = jOrder.table(testing.json77),
-				tableX = jOrder.table(testing.jsonX);
+		var tableX = jOrder.table(testing.jsonX);
 
 		test("Index operations", function () {
 			// checkIndex
-			notEqual(typeof testing.table77.checkIndex('total'), 'undefined', "Checking named index");
-			equal(testing.table77.checkIndex('foo'), false, "Checking invalid index");
+			notEqual(typeof testing.table77.indexes().get('total'), 'undefined', "Checking named index");
+			equal(testing.table77.indexes().get('foo'), false, "Checking invalid index");
 			
 			// findIndex
-			notEqual(typeof testing.table77.findIndex('total'), 'undefined', "Finding index by name");
-			equal(testing.table77.findIndex(null, {row: {'Total': 0, 'Currency': 0}}),
-				testing.table77.findIndex('signature'),
+			notEqual(typeof testing.table77.indexes().find('total'), 'undefined', "Finding index by name");
+			equal(testing.table77.indexes().find(null, {row: {'Total': 0, 'Currency': 0}}),
+				testing.table77.indexes().find('signature'),
 				"Finding index by fields");
-			equal(testing.table77.findIndex(null, {grouped: true}),
-				testing.table77.findIndex('group'),
+			equal(testing.table77.indexes().find(null, {grouped: true}),
+				testing.table77.indexes().find('group'),
 				"Finding index by grouped state");
 
 			// adding and looking up
+			var table77 = jOrder.table(testing.json77);
 			equal(typeof table77.index('test'), 'undefined', "There is no index on table by default");
 			notEqual(typeof table77.index('test', ['ID']).index('test'), 'undefined', "Adding index to table");
 			notEqual(table77.index('test').flat(), table77.reindex().index('test').flat(), "Re-indexing table changes indexes");
@@ -124,8 +124,7 @@ jOrder.testing = function (testing, core, jOrder) {
 			raises(function () {
 				testing.table77.aggregate('id', null, sum);
 			}, "Aggregating without grouped index raises exception");
-			deepEqual(core.keys(testing.table77.aggregate('total', null, sum)),
-				['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '12', '13', '15', '16', '20'],
+			equal(core.keys(testing.table77.aggregate('total', null, sum)).length, 16,
 				"Aggregation preserves the index's keys");
 			
 			function concat(aggregated, next) {
