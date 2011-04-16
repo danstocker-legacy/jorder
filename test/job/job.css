@@ -1,0 +1,53 @@
+body {
+	font-family: arial, sans;
+	font-size: 12px;
+}
+
+table {
+	margin: 8px 0 0 0;
+	width: 500px;
+	border-collapse: collapse;
+}
+
+table col.job-desc {
+	width: 60%;
+}
+
+table col.job-result {
+	width: 20%;
+}
+
+table col.job-button,
+table col.job-arrow {
+	width: 10%;
+}
+
+table tr.reference {
+	color: #3A6EA5;
+}
+
+table th,
+table td {
+	padding: 4px;
+	vertical-align: baseline;
+	border: 1px solid #ddd;
+}
+
+table td.job-arrow {
+	border: none;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+table th {
+	text-align: left;
+	font-weight: bold;
+}
+
+#job-results {
+	position: absolute;
+	top: 0;
+	left: 500px;
+	margin: 0;
+}	
+
