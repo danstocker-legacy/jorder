@@ -9,7 +9,7 @@ jOrder.logging = function ($core) {
 			log;
 
 	if (!window.console) {
-		log = Sys && Sys.Debug ?
+		log = window.Sys && window.Sys.Debug ?
 			// using Sys.Debug
 			function (msg) {
 				Sys.Debug.trace(msg);
@@ -28,11 +28,15 @@ jOrder.logging = function ($core) {
 	self = {
 		// logs to console
 		log: function (msg) {
-			window.console.log(msg);
+			if (jOrder.logging) {
+				window.console.log(msg);
+			}
 		},
 		// issues a warning
 		warn: function (msg) {
-			window.console.warn(msg);
+			if (jOrder.logging) {
+				window.console.warn(msg);
+			}
 		}
 		// use throw instead of console.error()
 	};
