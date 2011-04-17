@@ -56,6 +56,8 @@ var jOB = function ($) {
 		$('#job-estimate').click(function () {
 			self.estimate = $(this).is(':checked');
 		});
+		
+		self.start();
 	});
 	
 	self = {
