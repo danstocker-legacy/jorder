@@ -11,5 +11,5 @@ src/index/index.js \
 src/table/indexes.js \
 src/table/selectors.js \
 src/table/table.js \
-> jorder.js
+> build/jorder.js
 
