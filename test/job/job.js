@@ -9,8 +9,22 @@ var jOB = function ($) {
 	var benchmarks = [],	// all benchmarks
 			self;
 
+	// converts argument list to actual array
+	function argumentsToArray(args) {
+		var result = [],
+				i;
+		for (i = 0; i < args.length; i++) {
+			result.push(args[i]);
+		}
+		return result;
+	}
+			
 	// processes a row
 	function process(row, handler) {
+		if (typeof row === 'string') {
+			return handler('string', row);
+		}
+		
 		var result = [],
 				field;
 		for (field in row) {
@@ -67,18 +81,30 @@ var jOB = function ($) {
 		estimate: true,		// whether to project timed out test durations
 		
 		// registers a benchmark
-		benchmark: function (desc) {
-			benchmarks.push({desc: desc, tests: []});
+		// - desc: describes the benchmark
+		// - labels: labels for each candidate
+		benchmark: function (desc /*, labels */) {
+			benchmarks.push({desc: desc, labels: argumentsToArray(arguments).slice(1), tests: []});
 		},
 		
 		// runs a test and measures time
-		// -message to be displayed for test
-		// -handler: test to run 'count' times
-		//	expected to return a json table
-		test: function (message, handler, options) {
-			var benchmark = benchmarks[benchmarks.length - 1];
+		// - message to be displayed for test
+		// - handlers: test to run 'count' times
+		//	 expected to return a json table
+		// - options
+		test: function (message /*, handlers..., options */) {
+			var benchmark = benchmarks[benchmarks.length - 1],
+					candidates,
+					options,
+					args = argumentsToArray(arguments);
+			if (typeof args[args.length - 1] === 'object') {
+				options = args[args.length - 1];
+				candidates = args.slice(1, args.length - 1);
+			} else {
+				candidates = args.slice(1);
+			}
 			if (benchmark) {
-				benchmark.tests.push({message: message, handler: handler, options: options});
+				benchmark.tests.push({message: message, handlers: candidates, options: options});
 			}
 		},
 
@@ -114,62 +140,85 @@ var jOB = function ($) {
 
 		// builds a table containing 		
 		start: function () {
-			$('#job-benchmarks').append([
-				'<colgroup>',
-				'<col class="job-desc">',
-				'<col class="job-button">',
-				'<col class="job-result">',
-				'<col class="job-arrow">',
-				'</colgroup>',
-				(function () {
-					var result = [],
-							j, benchmark,
-							i, test;
-					for (j = 0; j < benchmarks.length; j++) {
-						benchmark = benchmarks[j];
-						// benchmark header
+			$('#job-benchmarks').append(function () {
+				var result = [],
+						j, benchmark,
+						i, test;
+				for (j = 0; j < benchmarks.length; j++) {
+					benchmark = benchmarks[j];
+					
+					// adding benchmark title
+					result.push([
+						'<h3>', benchmark.desc, '</h3>',
+						'<table>'
+					].join(''));
+					
+					// adding benchmark header
+					if (benchmark.labels.length) {
 						result.push([
-							'<tbody>',
+							'<thead>',
 							'<tr>',
-							'<th colspan="3">', benchmark.desc, '</th>',
-							'</tr>'
+							'<td></td>',
+							'<td></td>'
 						].join(''));
-						// tests
-						for (i = 0; i < benchmark.tests.length; i++) {
-							test = benchmark.tests[i];
+						// adding labels
+						for (i = 0; i < benchmark.labels.length; i++) {
 							result.push([
-								'<tr id="job-', j, '-', i, '">',
-								'<td>', test.message, '</td>',
-								'<td><input class="job-run" type="button" value="&#8594;" /></td>',
-								'<td class="job-result"></td>',
-								'<td class="job-arrow"></td>',
-								'</tr>'
+								'<td>',
+								benchmark.labels[i],
+								'</td>'
 							].join(''));
 						}
-						result.push('</tbody>');
+						result.push([
+							'</tr>',
+							'</thead>'
+						].join(''));
 					}
-					return result.join('');
-				}()),
-				'</tbody>'
-			].join(''));
+					
+					// adding tests
+					result.push('<tbody>');
+					for (i = 0; i < benchmark.tests.length; i++) {
+						test = benchmark.tests[i];
+						result.push([
+							'<tr id="job-', j, '-', i, '">',
+							'<td class="job-desc">', test.message, '</td>',
+							'<td class="job-button"><input class="job-run" type="button" value="&#8594;" /></td>',
+							// adding result cells for each candidate
+							(function () {
+								var result = [],
+										handlers = test.handlers,
+										k;
+								for (k = 0; k < handlers.length; k++) {
+									result.push('<td id="job-' + [j, i, k].join('-') + '" class="job-result"></td>');
+								}
+								return result.join('');
+							}()),
+							'<td class="job-arrow"></td>',
+							'</tr>'
+						].join(''));
+					}
+					result.push([
+						'</tbody>',
+						'</table>'
+					].join(''));
+				}
+				return result.join('');
+			}());
 		}
 	};
 	
-	// events
-	$('input.job-run').live('click', function () {
-		var $this = $(this),
-				$tr = $this.closest('tr'),
-				$tbody = $this.closest('tbody'),
-				id = $tr.attr('id').split('-'),
-				test = benchmarks[id[1]].tests[id[2]],
-				i,
+	function run(b, t, c) {
+		var result,
+				test = benchmarks[b].tests[t],
 				start = new Date(), end,
-				unit = 'ms',
-				result;
-	
+				i,
+				$target,
+				$tr = $(['#job', b, t].join('-')),
+				unit = 'ms';
+		
 		// running test function
 		for (i = 0; i < self.count; i++) {
-			result = test.handler();
+			result = test.handlers[c]();
 			if (self.timeout < new Date() - start) {
 				break;
 			}
@@ -179,38 +228,48 @@ var jOB = function ($) {
 		// removing all arrows
 		$('td.job-arrow')
 			.empty();
-				
+		$target = $(['#job', b, t, c].join('-'));
+
 		// handling timeout
 		if (i < self.count) {
 			// adding timeout value (% or estimation)
-			$tr
-				.find('.job-result')
-					.text(self.estimate ?
-						String(Math.floor(self.timeout * self.count / i)) + unit :
-						"timeout (" + Math.floor(100 * i / self.count) + "%)")
-				.end();
+			$target.text(self.estimate ?
+				String(Math.floor(self.timeout * self.count / i)) + unit :
+				"timeout (" + Math.floor(100 * i / self.count) + "%)");
 
 			// hiding result table
 			$('#job-results')
 				.hide();
 			return;
 		} else {
-			// adding duration and arrow
-			$tr
-				.find('.job-result')
-					.text(String(end - start) + unit)
-				.end()
-				.find('.job-arrow')
-					.html('<span>&#8594;</span>')
-				.end();
+			// adding duration
+			$target.text(String(end - start) + unit);
+			
+			// displaying arrow
+			$tr.find('.job-arrow')
+				.html('<span>&#8594;</span>')
+			.end();
 				
-			// aligning result table to benchmark header
-			$('#job-results')
-				.css('top', $tbody.offset().top);		
-
 			// building result table
 			self.build(test.options && test.options.lengthonly ? [{ length: result.length }] : result);
 		}
+	}
+	
+	// events
+	$('input.job-run').live('click', function () {
+		var $this = $(this),
+				$tr = $this.closest('tr'),
+				$tbody = $this.closest('tbody'),
+				id = $tr.attr('id').split('-'),
+				test = benchmarks[id[1]].tests[id[2]],
+				i;
+		for (i = 0; i < test.handlers.length; i++) {
+			run(id[1], id[2], i);
+		}
+
+		// aligning result table to benchmark header
+		$('#job-results')
+			.css('top', $tbody.offset().top);		
 	});
 	
 	return self;
