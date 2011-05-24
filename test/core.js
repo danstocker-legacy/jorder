@@ -12,13 +12,29 @@ jOrder.testing = function (testing, core) {
 			equal(jOrder.delegate, core.delegate, "Delegation preserves reference to method.");
 		});
 
-		test("Deep copy", function () {
+		test("Deep copying JSON", function () {
 			var orig = testing.json77,
 					copy = core.deep(orig);
 
 			deepEqual(orig, copy, "Deep copy preserves structure & values.");
 			notEqual(orig, copy, "Deep copy changes table reference.");
 			notEqual(orig[0], copy[0], "Deep copy changes row references.");
+		});
+		
+		test("Deep copying object", function () {
+			var orig = testing.json77[0],
+					copy = core.deep(orig);
+
+			deepEqual(orig, copy, "Deep copy preserves structure & values.");
+			notEqual(orig, copy, "Deep copy changes reference.");
+		});
+		
+		test("Deep copying object with null", function () {
+			var orig = {a: 'test', b: 'foo', c: null},
+					copy = core.deep(orig);
+
+			deepEqual(orig, copy, "Deep copy preserves structure & values.");
+			notEqual(orig, copy, "Deep copy changes reference.");
 		});
 		
 		test("Shallow copy", function () {
