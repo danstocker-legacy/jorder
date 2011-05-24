@@ -63,7 +63,7 @@
 
 	// Range search on 77 rows
 	jOB.test("'Total' between 11 and 15", function () {
-		return jOrder.testing.table77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range, renumber: true });
+		return jorder77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range, renumber: true });
 	}, function () {
 		var result = [], i, row;
 		for (i = 0; i < jOrder.testing.json77.length; i++) {
