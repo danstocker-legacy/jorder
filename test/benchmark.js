@@ -16,7 +16,7 @@
 	db1000 = DB(jOrder.testing.json1000);
 		
 	// Exact search on 77 rows
-	jOB.benchmark("Exact mathces on small table", "jOrder", "native", "db.js", "jLinq");
+	jOB.benchmark("Search on small table", "jOrder", "native", "db.js", "jLinq");
 	jOB.test("'GroupID' being either 107 or 185", function () {
 		return jorder77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	}, function () {
@@ -62,7 +62,6 @@
 	});
 
 	// Range search on 77 rows
-	jOB.benchmark("Range search on small table", "jOrder", "native", "db.js", "jLinq");	
 	jOB.test("'Total' between 11 and 15", function () {
 		return jOrder.testing.table77.where([{ 'Total': { lower: 11, upper: 15 } }], { mode: jOrder.range, renumber: true });
 	}, function () {
@@ -100,10 +99,10 @@
 		return jLinq.from(jOrder.testing.json77)
 			.sort('ID')
 			.select();
-	});
-		
+	});	
+
 	// Exact search on 1000 rows
-	jOB.benchmark("Exact mathces on big table", "jOrder", "native", "db.js", "jLinq");
+	jOB.benchmark("Search on big table", "jOrder", "native", "db.js", "jLinq");
 	jOB.test("'id' being either 107 or 115", function () {
 		return jorder1000.where([{ 'id': 107 }, { 'id': 115 }], {renumber: true});
 	}, function () {
@@ -126,7 +125,6 @@
 	});
 
 	// Range search on 1000 rows
-	jOB.benchmark("Range search on big table", "jOrder", "native", "db.js", "jLinq");
 	jOB.test("'id' between 203 and 315", function () {
 		return jorder1000.where([{ 'id': { lower: 203, upper: 315 } }], { mode: jOrder.range, renumber: true, limit: 1000 });
 	}, function () {
@@ -183,6 +181,28 @@
 			.betweenEquals('id', 203, 315)
 			.skipTake(20, 20);
 	});
+	
+	// Freetext search on 1000 rows
+	jOB.test("rows with 'name' field starting with \"con\"", function () {
+		return jorder1000.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000, renumber: true });
+	}, function () {
+		var result = [], i, row;
+		for (i = 0; i < jOrder.testing.json1000.length; i++) {
+			row = jOrder.testing.json1000[i];
+			if (null !== row.name.match(/\bcon/i)) {
+				result.push(row);
+			}
+		}
+		return result;		
+	}, function () {
+		return db1000
+			.find({'name': db1000.like('con')})
+			.select('*');
+	}, function () {
+		return jLinq.from(jOrder.testing.json1000)
+			.starts('name', 'con')
+			.select();
+	});
 
 	// Sorting on 1000 rows
 	jOB.benchmark("Sorting on big table", "jOrder", "native", "db.js", "jLinq");
@@ -218,29 +238,6 @@
 		return jLinq.from(jOrder.testing.json1000)
 			.sort('name')
 			.take(20);
-	});
-	
-	// Freetext search on 1000 rows
-	jOB.benchmark("Free text search on large table", "jOrder", "native", "db.js", "jLinq");
-	jOB.test("rows with 'name' field starting with \"con\"", function () {
-		return jorder1000.where([{ 'name': 'con' }], { mode: jOrder.startof, indexName: 'fulltext', limit: 1000, renumber: true });
-	}, function () {
-		var result = [], i, row;
-		for (i = 0; i < jOrder.testing.json1000.length; i++) {
-			row = jOrder.testing.json1000[i];
-			if (null !== row.name.match(/\bcon/i)) {
-				result.push(row);
-			}
-		}
-		return result;		
-	}, function () {
-		return db1000
-			.find({'name': db1000.like('con')})
-			.select('*');
-	}, function () {
-		return jLinq.from(jOrder.testing.json1000)
-			.starts('name', 'con')
-			.select();
 	});
 	
 	jOrder.logging = false;
