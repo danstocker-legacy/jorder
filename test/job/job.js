@@ -138,7 +138,7 @@ var jOB = function ($) {
 				].join(''));
 		},
 
-		// builds a table containing 		
+		// builds table for one set of tests (benchmark)
 		start: function () {
 			$('#job-benchmarks').append(function () {
 				var result = [],
@@ -207,14 +207,16 @@ var jOB = function ($) {
 		}
 	};
 	
+	// runs test
 	function run(b, t, c) {
 		var result,
 				test = benchmarks[b].tests[t],
 				start = new Date(), end,
 				i,
-				$target,
-				$tr = $(['#job', b, t].join('-')),
+				$target = $(['#job', b, t, c].join('-')),
 				unit = 'ms';
+		
+		$target.attr('title', test.handlers[c].toString());
 		
 		// running test function
 		for (i = 0; i < self.count; i++) {
@@ -224,11 +226,6 @@ var jOB = function ($) {
 			}
 		}
 		end = new Date();
-		
-		// removing all arrows
-		$('td.job-arrow')
-			.empty();
-		$target = $(['#job', b, t, c].join('-'));
 
 		// handling timeout
 		if (i < self.count) {
@@ -236,40 +233,61 @@ var jOB = function ($) {
 			$target.text(self.estimate ?
 				String(Math.floor(self.timeout * self.count / i)) + unit :
 				"timeout (" + Math.floor(100 * i / self.count) + "%)");
-
-			// hiding result table
-			$('#job-results')
-				.hide();
-			return;
 		} else {
 			// adding duration
 			$target.text(String(end - start) + unit);
-			
-			// displaying arrow
-			$tr.find('.job-arrow')
-				.html('<span>&#8594;</span>')
-			.end();
-				
-			// building result table
-			self.build(test.options && test.options.lengthonly ? [{ length: result.length }] : result);
 		}
+	}
+	
+	// displays result table
+	function display(b, t, c) {
+		var test = benchmarks[b].tests[t],
+				$tr = $(['#job', b, t].join('-')),
+				$tbody = $tr.closest('tbody'),
+				result = test.handlers[c]();
+
+		// hiding all other arrows
+		$('td.job-arrow')
+			.empty();
+
+		// displaying arrow
+		$tr.find('.job-arrow')
+			.html('<span>&#8594;</span>')
+		.end();
+			
+		// building result table
+		self.build(test.options && test.options.lengthonly ? [{ length: result.length }] : result);
+
+		// aligning result table to benchmark header
+		$('#job-results')
+			.css('top', $tbody.offset().top);				
 	}
 	
 	// events
 	$('input.job-run').live('click', function () {
 		var $this = $(this),
 				$tr = $this.closest('tr'),
-				$tbody = $this.closest('tbody'),
-				id = $tr.attr('id').split('-'),
-				test = benchmarks[id[1]].tests[id[2]],
+				id = $tr.attr('id').split('-').slice(1),
+				test = benchmarks[id[0]].tests[id[1]],
 				i;
 		for (i = 0; i < test.handlers.length; i++) {
-			run(id[1], id[2], i);
+			run(id[0], id[1], i);
 		}
-
-		// aligning result table to benchmark header
-		$('#job-results')
-			.css('top', $tbody.offset().top);		
+	});
+	
+	$('td.job-result').live('click', function () {
+		var $this = $(this),
+				id;
+			
+		if (!$(this).contents().length) {
+			return;
+		}
+			
+		id = $(this).attr('id').split('-').slice(1);
+		display(id[0], id[1], id[2]);
+		
+		$('td.job-result').removeClass('job-active');
+		$this.addClass('job-active');
 	});
 	
 	return self;

@@ -40,6 +40,10 @@ table td.job-arrow {
 	font-weight: bold;
 }
 
+table td.job-active {
+	background: yellow;
+}
+
 table th {
 	text-align: left;
 	font-weight: bold;
