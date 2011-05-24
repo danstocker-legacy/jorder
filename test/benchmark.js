@@ -217,7 +217,7 @@
 			.order('name', 'asc')
 			.select('*');
 	}, function () {
-		return jLinq.from(jOrder.testing.json1000)
+		return jLinq.from(jOrder.shallow(jOrder.testing.json1000))
 			.sort('name')
 			.select();
 	}, { lengthonly: true });
@@ -235,7 +235,7 @@
 			.select('*')
 			.slice(0, 20);
 	}, function () {
-		return jLinq.from(jOrder.testing.json1000)
+		return jLinq.from(jOrder.shallow(jOrder.testing.json1000))
 			.sort('name')
 			.take(20);
 	});
