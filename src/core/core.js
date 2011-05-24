@@ -32,7 +32,7 @@ jOrder.core = function () {
 					i;
 			
 			// ordinal types are returned as is
-			if (typeof json !== 'object') {
+			if (typeof json !== 'object' || json === null) {
 				return json;
 			}
 			
