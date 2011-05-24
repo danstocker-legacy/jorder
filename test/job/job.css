@@ -5,6 +5,7 @@ body {
 
 table {
 	margin: 8px 0 0 0;
+	width: 50%;
 	border-collapse: collapse;
 }
 
@@ -47,7 +48,7 @@ table th {
 #job-results {
 	position: absolute;
 	top: 0;
-	left: 500px;
+	left: 50%;
 	margin: 0;
 }	
 
