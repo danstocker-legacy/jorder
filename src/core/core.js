@@ -131,6 +131,12 @@ jOrder.core = function () {
 				}
 			}
 			return result;
+		},
+		
+		// legacy function for deep copying
+		// DEPRECATED
+		copyTable: function (json) {
+			return self.deep(json);
 		}
 	};
 
