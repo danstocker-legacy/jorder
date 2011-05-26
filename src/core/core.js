@@ -26,13 +26,15 @@ jOrder.core = function () {
 		},
 	
 		// creates a deep copy of the object recursively
+		// optionally renumbered
 		// WARNING: reference looping is NOT handled!
-		deep: function (json, options) {
-			options = options || {};
+		deep: function (json, renumber) {
 			var result,
 					isArray = json && typeof json.length !== 'undefined',
-					renumber = isArray && options.renumber === true,
 					i;
+			
+			// renumber flag only valid if json is array
+			renumber = isArray && renumber === true;
 			
 			// ordinal types are returned as is
 			if (typeof json !== 'object' || json === null) {
@@ -134,7 +136,7 @@ jOrder.core = function () {
 		// legacy function for deep copying
 		// DEPRECATED
 		copyTable: function (json) {
-			return self.deep(json, {renumber: true});
+			return self.deep(json, true);
 		}
 	};
 
