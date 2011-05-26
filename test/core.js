@@ -12,13 +12,13 @@ jOrder.testing = function (testing, core) {
 			equal(jOrder.delegate, core.delegate, "Delegation preserves reference to method.");
 		});
 
-		test("Deep copying array (JSON)", function () {
+		test("Deep copying tight array (JSON)", function () {
 			var orig = testing.json77,
 					copy = core.deep(orig);
 
 			deepEqual(orig, copy, "Deep copy preserves structure & values.");
-			notEqual(orig, copy, "Deep copy changes table reference.");
-			notEqual(orig[0], copy[0], "Deep copy changes row references.");
+			notEqual(orig, copy, "Deep copy changes array reference.");
+			notEqual(orig[0], copy[0], "Deep copy changes item references.");
 		});
 		
 		test("Deep copying sparse array", function () {
@@ -29,22 +29,13 @@ jOrder.testing = function (testing, core) {
 			sparse[3] = 'test';
 			sparse[5] = 'bar';
 			copy_plain = core.deep(sparse);
-			copy_renum = core.deep(sparse, {renumber: true});
+			copy_renum = core.deep(sparse, true);
 
 			deepEqual(sparse, copy_plain, "Deep copy preserves structure & values.");
-			notEqual(sparse, copy_plain, "Deep copy changes reference.");
 			equal(sparse[2], copy_renum[0], "Renumbering packs indices.");
 		});
 		
 		test("Deep copying object", function () {
-			var orig = testing.json77[0],
-					copy = core.deep(orig);
-
-			deepEqual(orig, copy, "Deep copy preserves structure & values.");
-			notEqual(orig, copy, "Deep copy changes reference.");
-		});
-		
-		test("Deep copying object with null", function () {
 			var orig = {a: 'test', b: 'foo', c: null},
 					copy = core.deep(orig);
 
@@ -62,7 +53,7 @@ jOrder.testing = function (testing, core) {
 			
 			// altering field in copy should alter original
 			copy[0].ID = 1000;
-			equal(orig[0].ID, copy[0].ID, "Shallow copy preserves references to rows.");
+			equal(orig[0].ID, copy[0].ID, "Shallow copy preserves references to items.");
 			
 			// removing random rows
 			orig = core.shallow(testing.json77);
@@ -72,7 +63,7 @@ jOrder.testing = function (testing, core) {
 					
 			// creating copy w/ renumbering
 			copy = core.shallow(orig, true);
-			equal(orig.length, copy.length + 3, "Renumbering packs empty indices.");
+			equal(orig.length, copy.length + 3, "Renumbering packs indices.");
 		});		
 
 		test("Key - value operations", function () {
