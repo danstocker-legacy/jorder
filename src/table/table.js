@@ -316,6 +316,7 @@ jOrder.table = function ($core, $constants, $logging, $indexes, $selectors) {
 			//	 - renumber: whether to preserve original row ids
 			//	 - offset
 			//	 - limit
+			// - data: UNDOCUMENTED. required when used w/ default selectors
 			filter: function (selector, options, data) {
 				// issuing warning
 				$logging.warn("Performing linear search on table (length: " + json.length + "). Consider using an index.");

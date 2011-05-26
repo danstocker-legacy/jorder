@@ -144,6 +144,7 @@ jOrder.order = function ($constants, $logging, $signature) {
 		// order is expected to be a tight array
 		// - value: value we're lookung for
 		// - type: $constants.start or $constants.end
+		// - rowId: UNDOCUMENTED. required by .add()
 		self.bsearch = function (key, type, rowId) {
 			// returning "not found" when order is empty
 			if (!order.length) {
