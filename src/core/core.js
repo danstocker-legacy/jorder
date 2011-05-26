@@ -27,8 +27,11 @@ jOrder.core = function () {
 	
 		// creates a deep copy of the object recursively
 		// WARNING: reference looping is NOT handled!
-		deep: function (json) {
+		deep: function (json, options) {
+			options = options || {};
 			var result,
+					isArray = json && typeof json.length !== 'undefined',
+					renumber = isArray && options.renumber === true,
 					i;
 			
 			// ordinal types are returned as is
@@ -37,17 +40,12 @@ jOrder.core = function () {
 			}
 			
 			// processing arrays and hashtables
-			if (typeof json.length !== 'undefined') {
-				// array
-				result = [];
-				for (i = 0; i < json.length; i++) {
-					result[i] = self.deep(json[i]);
-				}
-			} else {
-				// hashtable
-				result = {};
-				for (i in json) {
-					if (json.hasOwnProperty(i)) {
+			result = isArray ? [] : {};
+			for (i in json) {
+				if (json.hasOwnProperty(i)) {
+					if (renumber) {
+						result.push(self.deep(json[i]));
+					} else {
 						result[i] = self.deep(json[i]);
 					}
 				}
@@ -136,7 +134,7 @@ jOrder.core = function () {
 		// legacy function for deep copying
 		// DEPRECATED
 		copyTable: function (json) {
-			return self.deep(json);
+			return self.deep(json, {renumber: true});
 		}
 	};
 
