@@ -216,10 +216,14 @@ var jOB = function ($) {
 				$target = $(['#job', b, t, c].join('-')),
 				unit = 'ms';
 		
-		$target.attr('title', test.handlers[c].toString());
+		$target.attr('title', test.handlers[c] ? test.handlers[c].toString() : "N/A");
 		
 		// running test function
 		for (i = 0; i < self.count; i++) {
+			if (test.handlers[c] === null) {
+				$target.text("N/A");
+				return;
+			}
 			result = test.handlers[c]();
 			if (self.timeout < new Date() - start) {
 				break;
