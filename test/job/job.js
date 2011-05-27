@@ -211,7 +211,7 @@ var jOB = function ($) {
 	function run(b, t, c) {
 		var result,
 				test = benchmarks[b].tests[t],
-				start = new Date(), end,
+				start, end,
 				i,
 				$target = $(['#job', b, t, c].join('-')),
 				unit = 'ms';
@@ -219,12 +219,13 @@ var jOB = function ($) {
 		$target.attr('title', test.handlers[c] ? test.handlers[c].toString() : "N/A");
 		
 		// running test function
+		start = new Date();
 		for (i = 0; i < self.count; i++) {
 			if (test.handlers[c] === null) {
 				$target.text("N/A");
 				return;
 			}
-			result = test.handlers[c]();
+			result = test.handlers[c](i);
 			if (self.timeout < new Date() - start) {
 				break;
 			}
@@ -274,6 +275,13 @@ var jOB = function ($) {
 				id = $tr.attr('id').split('-').slice(1),
 				test = benchmarks[id[0]].tests[id[1]],
 				i;
+		
+		// running before 
+		if (test.options && typeof test.options.before === 'function') {
+			test.options.before();
+		}
+		
+		// running tests on all candidates		
 		for (i = 0; i < test.handlers.length; i++) {
 			run(id[0], id[1], i);
 		}
