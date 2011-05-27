@@ -21,7 +21,55 @@
 	taffy77 = new TAFFY(jOrder.testing.json77),
 	taffy1000j,
 	taffy1000 = new TAFFY(jOrder.testing.json1000);
+
+	// object initialization	
+	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
 	
+	// Initializing small table
+	jOB.test("Small table", function () {
+		var table = jOrder(jOrder.testing.json77 || [])
+			.index('id', ['ID'], { ordered: true, type: jOrder.number })
+			.index('id_nosort', ['ID'])
+			.index('group', ['GroupID'], { ordered: true, grouped: true, type: jOrder.number })
+			.index('total', ['Total'], { ordered: true, grouped: true, type: jOrder.number })
+			.index('date', ['StartDate'], { ordered: true, grouped: true })
+			.index('signature', ['Total', 'Currency'], { ordered: true, grouped: true });
+		return [];
+	}, function () {
+		// native version needs no initialization
+		return [];
+	}, function () {
+		var table = DB(jOrder.testing.json77);
+		return [];
+	}, function () {
+		// jLinq needs no initialization
+		return [];
+	}, function () {
+		var table = new TAFFY(jOrder.testing.json77);
+		return [];
+	}, {lengthonly: true});
+
+	// Initializing large table
+	jOB.test("Large table", function () {
+		var table = jOrder(jOrder.testing.json1000 || [])
+			.index('id', ['id'], { ordered: true, type: jOrder.number })
+			.index('name', ['name'], { ordered: true, grouped: true })
+			.index('fulltext', ['name'], { ordered: true, grouped: true, type: jOrder.text });
+		return [];
+	}, function () {
+		// native version needs no initialization
+		return [];
+	}, function () {
+		var table = DB(jOrder.testing.json1000);
+		return [];
+	}, function () {
+		// jLinq needs no initialization
+		return [];
+	}, function () {
+		var table = new TAFFY(jOrder.testing.json1000);
+		return [];
+	}, {lengthonly: true});
+
 	// Exact search on 77 rows
 	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
 	jOB.test("'GroupID' being either 107 or 185", function () {
