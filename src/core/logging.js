@@ -37,9 +37,17 @@ jOrder.logging = function ($core) {
 			if (jOrder.logging) {
 				window.console.warn(msg);
 			}
-		}
+		},
 		// use throw instead of console.error()
+		// DEPRECATED
+		error: function () {
+			self.warn("Use throw instead of .error()");
+		}
 	};
+	
+	// legacy warning function
+	// DEPRECATED
+	self.warning = self.warn;
 	
 	return $core.delegate(self);
 }(jOrder.core);
