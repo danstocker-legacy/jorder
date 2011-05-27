@@ -20,8 +20,14 @@
 	taffy77j,
 	taffy77 = new TAFFY(jOrder.testing.json77),
 	taffy1000j,
-	taffy1000 = new TAFFY(jOrder.testing.json1000);
-
+	taffy1000 = new TAFFY(jOrder.testing.json1000),
+	
+	// temp table buffers
+	native77tj,
+	jorder77t,
+	db77t,
+	taffy77t;
+	
 	// object initialization	
 	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
 	
@@ -336,6 +342,77 @@
 			.slice(0, 20);
 	});
 	
+	// Sorting on 1000 rows
+	jOB.benchmark("Modifying small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+
+	function resetTables() {
+		native77tj = jOrder.shallow(jOrder.testing.json77);
+		
+		jorder77t = jOrder(jOrder.shallow(jOrder.testing.json77))
+			.index('id', ['ID'], { ordered: true, type: jOrder.number })
+			.index('id_nosort', ['ID'])
+			.index('group', ['GroupID'], { ordered: true, grouped: true, type: jOrder.number })
+			.index('total', ['Total'], { ordered: true, grouped: true, type: jOrder.number })
+			.index('date', ['StartDate'], { ordered: true, grouped: true })
+			.index('signature', ['Total', 'Currency'], { ordered: true, grouped: true });
+		
+		db77t = DB(jOrder.shallow(jOrder.testing.json77));
+		
+		taffy77t = new TAFFY(jOrder.shallow(jOrder.testing.json77));
+	}
+	
+	function generateRow(i) {
+		return {
+			"ID": 5000 + i,
+			"Currency": "USD",
+			"EndDate": "8\/5\/2010",
+			"EndDateUtc": 129254400000000000,
+			"Total": 5,
+			"Amount": 0,
+			"Product": 2,
+			"StartDate": "3\/4\/2010",
+			"StartDateUtc": 129121866600000000,
+			"Status": 1,
+			"StatusStr": "Active",
+			"GroupID": 1
+		};
+	}
+	
+	jOB.test("Insertion", function (i) {
+		if (typeof i !== 'undefined') {
+			jorder77t.insert([generateRow(i)]);
+			return [];
+		} else {
+			return jorder77t.flat();
+		}
+	}, function (i) {
+		if (typeof i !== 'undefined') {
+			native77tj.push(generateRow(i));
+			return [];
+		} else {
+			return native77tj;
+		}
+	}, function (i) {
+		if (typeof i !== 'undefined') {
+			db77t.insert([generateRow(i)]);
+			return [];
+		} else {
+			return db77t.select('*');
+		}
+	},
+	null,
+	function (i) {
+		if (typeof i !== 'undefined') {
+			taffy77t.insert(generateRow(i));
+			return [];
+		} else {
+			return taffy77t.get();
+		}
+	}, {
+		lengthonly: true,
+		before: resetTables
+	});
+
 	jOrder.logging = false;
 }(jQuery,
 	jOrder,
