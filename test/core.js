@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder unit tests
 ////////////////////////////////////////////////////////////////////////////////
-/*global jOrder, module, test, equal, notEqual, deepEqual */
+/*global jOrder, module, test, equal, notEqual, deepEqual, raises */
 
 jOrder.testing = function (testing, core) {
 	// Data integrity tests
@@ -37,10 +37,24 @@ jOrder.testing = function (testing, core) {
 		
 		test("Deep copying object", function () {
 			var orig = {a: 'test', b: 'foo', c: null},
-					copy = core.deep(orig);
+					copy = core.deep(orig),
+					tmp_depth = jOrder.core.MAX_DEPTH;
 
 			deepEqual(orig, copy, "Deep copy preserves structure & values.");
 			notEqual(orig, copy, "Deep copy changes reference.");
+
+			jOrder.core.MAX_DEPTH = 3;
+			raises(function () {
+				var tooDeep = [{
+					a: [{x: 1}, 2],
+					b: 2
+				}, {
+					a: [{x: 0}, 0],
+					b: 5
+				}];
+				copy = core.deep(tooDeep);
+			}, "Exceeding maximum depth raises exception.");
+			jOrder.core.MAX_DEPTH = tmp_depth;
 		});
 		
 		test("Shallow copy", function () {
