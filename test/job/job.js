@@ -42,20 +42,22 @@ var jOB = function ($) {
 
 	// adding toolbar
 	$(function () {
-		$(['<label for="job-count">Test cycles: </label>',
-			'<select id="job-count">',
-			'<option value="1">1</option>',
-			'<option value="10" selected="selected">10</option>',
-			'<option value="100">100</option>',
-			'<option value="1000">1000</option>',
-			'</select>',
-			'<label for="job-timeout">Timeout: </label>',
-			'<select id="job-timeout">',
-			'<option value="1000" selected="selected">1 sec</option>',
-			'<option value="5000">5 secs</option>',
-			'</select>',
-			'<input id="job-estimate" type="checkbox" checked="checked" />',
-			'<label for="job-estimate">Estimate on timeout</label>',
+		$([
+			'<div>',
+			'	<label for="job-count">Test cycles: </label>',
+			'	<select id="job-count">',
+			'		<option value="1">1</option>',
+			'		<option value="10" selected="selected">10</option>',
+			'		<option value="100">100</option>',
+			'		<option value="1000">1000</option>',
+			'	</select>',
+			'	<label for="job-timeout">Timeout: </label>',
+			'	<select id="job-timeout">',
+			'		<option value="1000" selected="selected">1 sec</option>',
+			'		<option value="5000">5 secs</option>',
+			'	</select>',
+			'	<input id="job-estimate" type="checkbox" checked="checked" />',
+			'	<label for="job-estimate">Estimate on timeout</label>',
 			'</div>'
 		].join(''))
 			.appendTo($('#job-toolbar'));
