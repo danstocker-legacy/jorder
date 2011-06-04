@@ -8,6 +8,8 @@ var jOrder = function (json, options) {
 
 jOrder.core = function () {
 	var self = {
+		MAX_DEPTH: 10,
+		
 		// delegates all of a module's properties to the jOrder object
 		delegate: function (module, host, properties) {
 			host = host || jOrder;
@@ -27,8 +29,14 @@ jOrder.core = function () {
 	
 		// creates a deep copy of the object recursively
 		// optionally renumbered
-		// WARNING: reference looping is NOT handled!
-		deep: function (json, renumber) {
+		deep: function (json, renumber, depth) {
+			depth = depth || 0;
+			
+			// checking depth
+			if (depth >= self.MAX_DEPTH) {
+				throw "Deep copying exceeded maximum depth (" + self.MAX_DEPTH + ")";
+			}
+			
 			var result,
 					isArray = json && typeof json.length !== 'undefined',
 					i;
@@ -46,9 +54,9 @@ jOrder.core = function () {
 			for (i in json) {
 				if (json.hasOwnProperty(i)) {
 					if (renumber) {
-						result.push(self.deep(json[i]));
+						result.push(self.deep(json[i], renumber, depth + 1));
 					} else {
-						result[i] = self.deep(json[i]);
+						result[i] = self.deep(json[i], renumber, depth + 1);
 					}
 				}
 			}
