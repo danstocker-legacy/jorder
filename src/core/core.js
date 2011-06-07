@@ -66,22 +66,18 @@ jOrder.core = function () {
 		// makes a shallow copy of the passed JSON
 		// optionally renumbered
 		shallow: function (json, renumber) {
-			var result = [],
+			var result,
 					i;
 			if (renumber) {
 				// new indices starting from 0
+				result = [];
 				for (i in json) {
 					if (!isNaN(i)) {
 						result.push(json[i]);
 					}
 				}
 			} else {
-				// retaining indices
-				for (i in json) {
-					if (!isNaN(i)) {
-						result[i] = json[i];
-					}
-				}
+				result = json.concat([]);
 			}
 			return result;
 		},
