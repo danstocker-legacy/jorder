@@ -412,7 +412,55 @@
 		lengthonly: true,
 		before: resetTables
 	});
-
+	
+	jOB.benchmark("Index building with jOrder",
+		"consistent",
+		"lazy");
+	
+	jOB.test("lookup", function () {
+		var lookup = jOrder.lookup(jOrder.testing.json1000, ['id'], { type: jOrder.number }),
+				json = jOrder.testing.json1000,
+				i;
+		for (i = 0; i < json.length; i++) {
+			lookup.add([json[i].id], i);
+		}
+		return [{count: lookup.count()}];
+	}, null);
+	
+	jOB.test("order", function () {
+		var order = jOrder.order([], ['id'], { type: jOrder.number }),
+				json = jOrder.testing.json1000,
+				i;
+		for (i = 0; i < json.length; i++) {
+			order.add([json[i].id], i);
+		}
+		return order.order();
+	}, function () {
+		var order = jOrder.order([], ['id'], { type: jOrder.number }),
+				json = jOrder.testing.json1000,
+				i;
+		for (i = 0; i < json.length; i++) {
+			order.add([json[i].id], i, true);
+		}
+		order.reorder();
+		return order.order();
+	});
+	
+	jOB.test("lookup + order", function () {
+		// empty index
+		var index = jOrder.index([], ['id'], { ordered: true, type: jOrder.number }),
+				json = jOrder.testing.json1000,
+				i;
+		for (i = 0; i < json.length; i++) {
+			index.add(json[i], i);
+		}
+		return [{count: index.count()}];
+	}, function () {
+		// full index, lazy ordering
+		var index = jOrder.index(jOrder.testing.json1000, ['id'], { ordered: true, type: jOrder.number });
+		return [{count: index.count()}];
+	});
+	
 	jOrder.logging = false;
 }(jQuery,
 	jOrder,
