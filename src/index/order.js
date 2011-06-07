@@ -281,3 +281,4 @@ jOrder.order = function ($constants, $logging, $signature) {
 }(jOrder.constants,
 	jOrder.logging,
 	jOrder.signature);
+

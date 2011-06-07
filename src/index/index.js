@@ -147,3 +147,4 @@ jOrder.index = function ($core, $constants, $logging, $lookup, $order) {
 	jOrder.logging,
 	jOrder.lookup,
 	jOrder.order);
+

@@ -107,3 +107,4 @@ jOrder.signature = function ($constants, $core, $logging) {
 }(jOrder.constants,
 	jOrder.core,
 	jOrder.logging);
+
