@@ -1,6 +1,6 @@
 cat \
-src/core/create.js \
 src/core/core.js \
+src/core/create.js \
 src/core/constants.js \
 src/core/logging.js \
 src/core/collection.js \
