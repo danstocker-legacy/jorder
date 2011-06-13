@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder performance tests
 ////////////////////////////////////////////////////////////////////////////////
-/*global jQuery, jOrder, jOB, DB, jLinq, TAFFY */
+/*global jQuery, jOrder, jOB, DB, jLinq, TAFFY, Jade */
 
 // registering benchmarks on document ready
 (function ($, jOrder, jOB) {
@@ -22,14 +22,26 @@
 	taffy1000j,
 	taffy1000 = new TAFFY(jOrder.testing.json1000),
 	
+	// JaDE
+	jade77 = new Jade({id: 'ID', index: 'GroupID, Total, StartDate, Currency'}),
+	jade1000 = new Jade({index: 'name'}),
+	
 	// temp table buffers
 	native77tj,
 	jorder77t,
 	db77t,
-	taffy77t;
+	taffy77t,
+	i;
+	
+	for (i = 0; i < jOrder.testing.json77.length; i++) {
+		jade77.add(jOrder.testing.json77[i]);
+	}
+	for (i = 0; i < jOrder.testing.json1000.length; i++) {
+		jade1000.add(jOrder.testing.json1000[i]);
+	}
 	
 	// object initialization	
-	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 	
 	// Initializing small table
 	jOB.test("Small table w/ 6 indexes (5 ordered)", function () {
@@ -53,6 +65,18 @@
 	function () {
 		var table = new TAFFY(jOrder.testing.json77);
 		return jOrder.testing.json77;
+	}, function () {
+		var json = jOrder.testing.json77,
+				table, i;
+		table = new Jade({
+			id: 'ID',
+			index: 'GroupID, Total, StartDate, Currency'
+		});
+		// adding arrays is buggy, have to add rows one by one
+		for (i = 0; i < json.length; i++) {
+			table.add(json[i]);
+		}
+		return json;
 	}, {lengthonly: true});
 
 	// Initializing large table
@@ -74,10 +98,22 @@
 	function () {
 		var table = new TAFFY(jOrder.testing.json1000);
 		return jOrder.testing.json1000;
+	}, function () {
+		var json = jOrder.testing.json1000,
+				table, i;
+		table = new Jade({
+			id: 'id',
+			index: 'name'
+		});
+		// adding arrays is buggy, have to add rows one by one
+		for (i = 0; i < json.length; i++) {
+			table.add(json[i]);
+		}
+		return json;
 	}, {lengthonly: true});
 
 	// Exact search on 77 rows
-	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 	jOB.test("'GroupID' being either 107 or 185", function () {
 		return jorder77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	}, function () {
@@ -100,6 +136,9 @@
 	}, function () {
 		return taffy77
 			.get({'GroupID': ['107', '185']});
+	}, function () {
+		return jade77
+			.get({'GroupID': {within: ['107', '185']}});
 	});
 
 	// Exact search on composite index
@@ -126,6 +165,9 @@
 	}, function () {
 		return taffy77
 			.get({'Total': 8, 'Currency': 'USD'});
+	}, function () {
+		return jade77
+			.get({'Total': '8', 'Currency': 'USD'});
 	});
 
 	// Range search on 77 rows
@@ -151,10 +193,13 @@
 	}, function () {
 		var pass1 = taffy77.get({'Total': {gte: 11}});
 		return new TAFFY(pass1).get({'Total': {lte: 15}});
+	}, function () {
+		return jade77
+			.get({'Total': {gte: 11, lte: 15}});
 	});
 
 	// Sorting on 77 rows
-	jOB.benchmark("Sorting on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Sorting on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 	jOB.test("by 'ID'", function () {
 		return jorder77.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	}, function () {
@@ -174,10 +219,13 @@
 		(new TAFFY(taffy77j))
 			.orderBy({'ID': 'asc'});
 		return taffy77j;
+	}, function () {
+		return jade77
+			.get({'_sort': 'ID'});
 	});	
 
 	// Exact search on 1000 rows
-	jOB.benchmark("Search on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Search on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 	jOB.test("'id' being either 107 or 115", function () {
 		return jorder1000.where([{ 'id': 107 }, { 'id': 115 }], {renumber: true});
 	}, function () {
@@ -200,6 +248,9 @@
 	}, function () {
 		return taffy1000
 			.get({id: [107, 115]});
+	}, function () {
+		return jade1000
+			.get({id: {within: [107, 115]}});
 	});
 
 	// Range search on 1000 rows
@@ -225,6 +276,9 @@
 	}, function () {
 		var pass1 = taffy1000.get({id: {gte: 203}});
 		return new TAFFY(pass1).get({id: {lte: 315}});
+	}, function () {
+		return jade1000
+			.get({'id': {gte: 203, lte: 315}});
 	});
 
 	// Range search on 1000 rows with limit
@@ -266,6 +320,9 @@
 		return new TAFFY(pass1)
 			.get({id: {lte: 315}})
 			.slice(20, 40);
+	}, function () {
+		return jade1000
+			.get({id: {gte: 203, lte: 315}, '_limit': 20, '_offset': 20});
 	});
 	
 	// Freetext search on 1000 rows
@@ -293,10 +350,13 @@
 	}, function () {
 		return taffy1000
 			.get({'name': {regex: /\bcon/i}});
+	}, function () {
+		return jade1000
+			.get({'_search': 'con'});
 	});
 
 	// Sorting on 1000 rows
-	jOB.benchmark("Sorting on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Sorting on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 	jOB.test("by 'name'", function () {
 		return jorder1000.orderby(['name'], jOrder.asc, { indexName: 'name' });
 	}, function () {
@@ -316,6 +376,9 @@
 		(new TAFFY(taffy1000j))
 			.orderBy({'name': 'asc'});
 		return taffy1000j;
+	}, function () {
+		return jade1000
+			.get({'_sort': 'name'});
 	}, { lengthonly: true });
 
 	// Sorting on 1000 rows, limited
@@ -340,12 +403,17 @@
 			.orderBy({'name': 'asc'});
 		return taffy1000j
 			.slice(0, 20);
+	}, function () {
+		return jade1000
+			.get({'_sort': 'name', '_limit': 20});
 	});
 	
 	// Sorting on 1000 rows
-	jOB.benchmark("Modifying small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3");
+	jOB.benchmark("Modifying small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
 
 	function resetTables() {
+		var i;
+		
 		native77tj = jOrder.shallow(jOrder.testing.json77);
 		
 		jorder77t = jOrder(jOrder.shallow(jOrder.testing.json77))
@@ -359,6 +427,11 @@
 		db77t = DB(jOrder.shallow(jOrder.testing.json77));
 		
 		taffy77t = new TAFFY(jOrder.shallow(jOrder.testing.json77));
+		
+		jade77 = new Jade({id: 'ID', index: 'GroupID, Total, StartDate, Currency'});
+		for (i = 0; i < jOrder.testing.json77.length; i++) {
+			jade77.add(jOrder.testing.json77[i]);
+		}
 	}
 	
 	function generateRow(i) {
@@ -407,6 +480,13 @@
 			return [];
 		} else {
 			return taffy77t.get();
+		}
+	}, function (i) {
+		if (typeof i !== 'undefined') {
+			jade77.add(generateRow(i));
+			return [];
+		} else {
+			return jade77.get();
 		}
 	}, {
 		lengthonly: true,
