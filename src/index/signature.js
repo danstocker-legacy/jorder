@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 /*global jOrder, escape */
 
-jOrder.signature = function ($constants, $core, $logging) {
+jOrder.signature = function ($constants, $core) {
 	// - fields: array of strings representing table fields
 	// - options: grouped, sorted, data type
 	//	 - type: jOrder.string, jOrder.number, jOrder.text, jOrder.array
@@ -105,6 +105,5 @@ jOrder.signature = function ($constants, $core, $logging) {
 		return self;
 	};
 }(jOrder.constants,
-	jOrder.core,
-	jOrder.logging);
+	jOrder.core);
 
