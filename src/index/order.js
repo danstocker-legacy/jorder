@@ -51,10 +51,10 @@ jOrder.order = function ($constants, $logging, $signature) {
 		// tests an actual key value against expected
 		function equal(actual, expected) {
 			switch (self.options.type) {
-			case $constants.string:
 			case $constants.text:
 				return actual.match(new RegExp('^' + expected));
 			default:
+			case $constants.string:
 			case $constants.number:
 				return actual === expected;
 			}
