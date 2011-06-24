@@ -12,7 +12,9 @@ jOrder.testing = function (testing, constants, jOrder) {
 		
 		// test indexes
 		string = jOrder.index(testing.jsonX, ['author'], {ordered: true}),
-		number = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, ordered: true});
+		number = jOrder.index(testing.jsonX, ['volumes'], {type: jOrder.number, grouped: true, ordered: true}),
+		
+		json;
 		
 		test("Binary search", function () {
 			// searching in empty order
@@ -47,18 +49,21 @@ jOrder.testing = function (testing, constants, jOrder) {
 			equal(number.bsearch(1.5, constants.end), 1, "In between result as end in grouped numeric index");
 		});
 
-		test("Bsearch edge cases", function () {
-			// heavily redundant data
-			var json = [
-				{val: 5},
-				{val: 1},
-				{val: 5},
-				{val: 5},
-				{val: 9},
-				{val: 5},
-				{val: 5}
-			],
-			grouped = jOrder.index(json, ['val'], {grouped: true, ordered: true, type: jOrder.number}),
+		// heavily redundant data
+		json = [
+			{val: 5, str: "testx"},
+			{val: 1, str: "test"},
+			{val: 5, str: "testA"},
+			{val: 5, str: "test"},
+			{val: 9, str: "blah"},
+			{val: 5, str: "blahhh"},
+			{val: 5, str: "lab"}
+		];
+
+		test("Bsearch edge cases (numeric)", function () {
+			var
+			
+			index = jOrder.index(json, ['val'], {grouped: true, ordered: true, type: jOrder.number}),
 			random_order = [5, 4, 0, 2, 6, 3, 1],
 			expected = [
 				{key: 1, rowId: 1},
@@ -71,20 +76,42 @@ jOrder.testing = function (testing, constants, jOrder) {
 			],
 			i;
 			
-			deepEqual(grouped.order(), expected, "Index is ordered by key, then rowId");
+			deepEqual(index.order(), expected, "Index is ordered by key, then rowId");
 
 			// locating items by key (and optionally rowId)
-			equal(grouped.bsearch(5, constants.start), 1, "Bsearch returns the lowest suitable item id by default");
-			equal(grouped.bsearch(5, constants.start, 5), 4, "Bsearch may locate a specific item within the index");
+			equal(index.bsearch(5, constants.start), 1, "Bsearch returns the lowest suitable item id by default");
+			equal(index.bsearch(5, constants.start, 5), 4, "Bsearch may locate a specific item within the index");
 			
 			// demonstrating that addition preserves integrity on both key and rowId
-			grouped.unbuild();
+			index.unbuild();
 			for (i = 0; i < 7; i++) {
-				grouped.add(json[random_order[i]], random_order[i]);
+				index.add(json[random_order[i]], random_order[i]);
 			}
-			deepEqual(grouped.order(), expected, "Order of additions has no effect on final index");
+			deepEqual(index.order(), expected, "Order of additions has no effect on final index");
 		});
 		
+		test("Bsearch edge cases (string)", function () {
+			// heavily redundant data
+			var
+			index = jOrder.index(json, ['str'], {grouped: true, ordered: true, type: jOrder.string}),
+			expected = [
+				{key: "blah", rowId: 4},
+				{key: "blahhh", rowId: 5},
+				{key: "lab", rowId: 6},
+				{key: "test", rowId: 1},
+				{key: "test", rowId: 3},
+				{key: "testA", rowId: 2},
+				{key: "testx", rowId: 0}			
+			],
+			i;
+			
+			deepEqual(index.order(), expected, "Index is ordered by key, then rowId");
+
+			// locating items by key (and optionally rowId)
+			equal(index.bsearch("test", constants.start), 3, "Bsearch returns the lowest suitable item id by default");
+			equal(index.bsearch("test", constants.start, 3), 4, "Bsearch may locate a specific item within the index");
+		});
+
 		test("Modifying order", function () {
 			var expected;
 			
