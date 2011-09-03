@@ -18,9 +18,9 @@
 	// TAFFY
 	// Taffy modofies the original json
 	taffy77j,
-	taffy77 = new TAFFY(jOrder.testing.json77),
+	taffy77 = TAFFY(jOrder.testing.json77),
 	taffy1000j,
-	taffy1000 = new TAFFY(jOrder.testing.json1000),
+	taffy1000 = TAFFY(jOrder.testing.json1000),
 	
 	// JaDE
 	jade77 = new Jade({id: 'ID', index: 'GroupID, Total, StartDate, Currency'}),
@@ -41,7 +41,7 @@
 	}
 	
 	// object initialization	
-	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Object initialization", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	
 	// Initializing small table
 	jOB.test("Small table w/ 6 indexes (5 ordered)", function () {
@@ -63,7 +63,7 @@
 	// jLinq needs no initialization
 	null,
 	function () {
-		var table = new TAFFY(jOrder.testing.json77);
+		var table = TAFFY(jOrder.testing.json77);
 		return jOrder.testing.json77;
 	}, function () {
 		var json = jOrder.testing.json77,
@@ -96,7 +96,7 @@
 	// jLinq needs no initialization
 	null,
 	function () {
-		var table = new TAFFY(jOrder.testing.json1000);
+		var table = TAFFY(jOrder.testing.json1000);
 		return jOrder.testing.json1000;
 	}, function () {
 		var json = jOrder.testing.json1000,
@@ -113,7 +113,7 @@
 	}, {lengthonly: true});
 
 	// Exact search on 77 rows
-	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("'GroupID' being either 107 or 185", function () {
 		return jorder77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
 	}, function () {
@@ -134,8 +134,8 @@
 			.equals('GroupID', 107).or(185)
 			.select();
 	}, function () {
-		return taffy77
-			.get({'GroupID': ['107', '185']});
+		return taffy77([{'groupid': 107}, {'groupid': 185}])
+			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
 	}, function () {
 		return jade77
 			.get({'GroupID': {within: ['107', '185']}});
@@ -163,8 +163,8 @@
 			.and('Currency', 'USD')
 			.select();
 	}, function () {
-		return taffy77
-			.get({'Total': 8, 'Currency': 'USD'});
+		return taffy77({'total': 8, 'currency': 'USD'})
+			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
 	}, function () {
 		return jade77
 			.get({'Total': '8', 'Currency': 'USD'});
@@ -191,15 +191,15 @@
 			.betweenEquals('Total', 11, 15)
 			.select();
 	}, function () {
-		var pass1 = taffy77.get({'Total': {gte: 11}});
-		return new TAFFY(pass1).get({'Total': {lte: 15}});
+		return taffy77({'total': {gte: 11, lte: 15}})
+			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
 	}, function () {
 		return jade77
 			.get({'Total': {gte: 11, lte: 15}});
 	});
 
 	// Sorting on 77 rows
-	jOB.benchmark("Sorting on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Sorting on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("by 'ID'", function () {
 		return jorder77.orderby(['ID'], jOrder.asc, { indexName: 'id' });
 	}, function () {
@@ -215,17 +215,16 @@
 			.sort('ID')
 			.select();
 	}, function () {
-		taffy77j = jOrder.shallow(jOrder.testing.json77);
-		(new TAFFY(taffy77j))
-			.orderBy({'ID': 'asc'});
-		return taffy77j;
+		return taffy77()
+			.order('id asec')
+			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
 	}, function () {
 		return jade77
 			.get({'_sort': 'ID'});
 	});	
 
 	// Exact search on 1000 rows
-	jOB.benchmark("Search on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Search on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("'id' being either 107 or 115", function () {
 		return jorder1000.where([{ 'id': 107 }, { 'id': 115 }], {renumber: true});
 	}, function () {
@@ -246,8 +245,8 @@
 			.equals('id', 107).or(115)
 			.select();
 	}, function () {
-		return taffy1000
-			.get({id: [107, 115]});
+		return taffy1000([{id: 107}, {id: 115}])
+			.select('id', 'name');
 	}, function () {
 		return jade1000
 			.get({id: {within: [107, 115]}});
@@ -274,8 +273,8 @@
 			.betweenEquals('id', 203, 315)
 			.select();
 	}, function () {
-		var pass1 = taffy1000.get({id: {gte: 203}});
-		return new TAFFY(pass1).get({id: {lte: 315}});
+		return taffy1000({id: {gte: 203, lte: 315}})
+			.select('id', 'name');
 	}, function () {
 		return jade1000
 			.get({'id': {gte: 203, lte: 315}});
@@ -316,9 +315,9 @@
 			.betweenEquals('id', 203, 315)
 			.skipTake(20, 20);
 	}, function () {
-		var pass1 = taffy1000.get({id: {gte: 203}});
-		return new TAFFY(pass1)
-			.get({id: {lte: 315}})
+		// there's no offset in Taffy, only limit -> must resort to Array.slice()
+		return taffy1000({'id': {gte: 203, lte: 315}})
+			.select('id', 'name')
 			.slice(20, 40);
 	}, function () {
 		return jade1000
@@ -348,15 +347,15 @@
 			.match('name', /\bcon/i)
 			.select();
 	}, function () {
-		return taffy1000
-			.get({'name': {regex: /\bcon/i}});
+		return taffy1000({'name': {regex: /\bcon/i}})
+			.select('id', 'name');
 	}, function () {
 		return jade1000
 			.get({'_search': 'con'});
 	});
 
 	// Sorting on 1000 rows
-	jOB.benchmark("Sorting on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Sorting on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("by 'name'", function () {
 		return jorder1000.orderby(['name'], jOrder.asc, { indexName: 'name' });
 	}, function () {
@@ -372,10 +371,9 @@
 			.sort('name')
 			.select();
 	}, function () {
-		taffy1000j = jOrder.shallow(jOrder.testing.json1000);
-		(new TAFFY(taffy1000j))
-			.orderBy({'name': 'asc'});
-		return taffy1000j;
+		return taffy1000()
+			.order('name asec')
+			.select('id', 'name');
 	}, function () {
 		return jade1000
 			.get({'_sort': 'name'});
@@ -398,18 +396,17 @@
 			.sort('name')
 			.take(20);
 	}, function () {
-		taffy1000j = jOrder.shallow(jOrder.testing.json1000);
-		(new TAFFY(taffy1000j))
-			.orderBy({'name': 'asc'});
-		return taffy1000j
-			.slice(0, 20);
+		return taffy1000()
+			.order('name asec')
+			.limit(20)
+			.select('id', 'name');
 	}, function () {
 		return jade1000
 			.get({'_sort': 'name', '_limit': 20});
 	});
 	
 	// Sorting on 1000 rows
-	jOB.benchmark("Modifying small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 1.7.3", "JaDE");
+	jOB.benchmark("Modifying small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 
 	function resetTables() {
 		var i;
@@ -426,7 +423,7 @@
 		
 		db77t = DB(jOrder.shallow(jOrder.testing.json77));
 		
-		taffy77t = new TAFFY(jOrder.shallow(jOrder.testing.json77));
+		taffy77t = TAFFY(jOrder.shallow(jOrder.testing.json77));
 		
 		jade77 = new Jade({id: 'ID', index: 'GroupID, Total, StartDate, Currency'});
 		for (i = 0; i < jOrder.testing.json77.length; i++) {
@@ -476,10 +473,12 @@
 	null,
 	function (i) {
 		if (typeof i !== 'undefined') {
-			taffy77t.insert(generateRow(i));
+			taffy77t
+				.insert(generateRow(i), false);
 			return [];
 		} else {
-			return taffy77t.get();
+			return taffy77t()
+				.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
 		}
 	}, function (i) {
 		if (typeof i !== 'undefined') {
