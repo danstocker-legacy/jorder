@@ -127,7 +127,7 @@
 		return result;
 	}, function () {
 		return db77
-			.find({'GroupID': db77.isin(['107', '185'])})
+			.find({'GroupID': db77.isin([107, 185])})
 			.select('*');
 	}, function () {
 		return jLinq.from(jOrder.testing.json77)
