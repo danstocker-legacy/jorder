@@ -113,6 +113,7 @@
 	}, {lengthonly: true});
 
 	// Exact search on 77 rows
+
 	jOB.benchmark("Search on small table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("'GroupID' being either 107 or 185", function () {
 		return jorder77.where([{ 'GroupID': 107 }, { 'GroupID': 185 }], { renumber: true });
@@ -135,7 +136,7 @@
 			.select();
 	}, function () {
 		return taffy77([{'groupid': 107}, {'groupid': 185}])
-			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
+			.get();
 	}, function () {
 		return jade77
 			.get({'GroupID': {within: ['107', '185']}});
@@ -192,7 +193,7 @@
 			.select();
 	}, function () {
 		return taffy77({'total': {gte: 11, lte: 15}})
-			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
+			.get()
 	}, function () {
 		return jade77
 			.get({'Total': {gte: 11, lte: 15}});
@@ -217,12 +218,12 @@
 	}, function () {
 		return taffy77()
 			.order('id asec')
-			.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
+			.get();
 	}, function () {
 		return jade77
 			.get({'_sort': 'ID'});
 	});	
-
+	var tStuff = [taffy1000().first(),taffy1000().last()];
 	// Exact search on 1000 rows
 	jOB.benchmark("Search on big table", "jOrder 1.2", "native", "db.js", "jLinq 3.0.1", "Taffy DB 2.0", "JaDE");
 	jOB.test("'id' being either 107 or 115", function () {
@@ -245,8 +246,8 @@
 			.equals('id', 107).or(115)
 			.select();
 	}, function () {
-		return taffy1000([{id: 107}, {id: 115}])
-			.select('id', 'name');
+		return taffy1000({id: [107,115]})
+			.get();
 	}, function () {
 		return jade1000
 			.get({id: {within: [107, 115]}});
@@ -274,7 +275,7 @@
 			.select();
 	}, function () {
 		return taffy1000({id: {gte: 203, lte: 315}})
-			.select('id', 'name');
+			.get();
 	}, function () {
 		return jade1000
 			.get({'id': {gte: 203, lte: 315}});
@@ -317,7 +318,7 @@
 	}, function () {
 		// there's no offset in Taffy, only limit -> must resort to Array.slice()
 		return taffy1000({'id': {gte: 203, lte: 315}})
-			.select('id', 'name')
+			.get()
 			.slice(20, 40);
 	}, function () {
 		return jade1000
@@ -348,7 +349,7 @@
 			.select();
 	}, function () {
 		return taffy1000({'name': {regex: /\bcon/i}})
-			.select('id', 'name');
+			.get();
 	}, function () {
 		return jade1000
 			.get({'_search': 'con'});
@@ -373,7 +374,7 @@
 	}, function () {
 		return taffy1000()
 			.order('name asec')
-			.select('id', 'name');
+			.get();
 	}, function () {
 		return jade1000
 			.get({'_sort': 'name'});
@@ -399,7 +400,7 @@
 		return taffy1000()
 			.order('name asec')
 			.limit(20)
-			.select('id', 'name');
+			.get();
 	}, function () {
 		return jade1000
 			.get({'_sort': 'name', '_limit': 20});
@@ -478,7 +479,7 @@
 			return [];
 		} else {
 			return taffy77t()
-				.select('id', 'currency', 'enddate', 'enddateutc', 'total', 'amount', 'product', 'startdate', 'startdateutc', 'status', 'statusstr', 'groupid');
+				.get()
 		}
 	}, function (i) {
 		if (typeof i !== 'undefined') {
