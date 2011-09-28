@@ -87,7 +87,7 @@ jOrder.order = function ($constants, $logging, $signature) {
 				} else {
 					// adding key to order at suitable index
 					// number variable type must be preserved for sorting purposes
-					pos = order.length > 0 ? self.bsearch(key, $constants.start, rowId) : 0;
+					pos = order.length > 0 ? self.bsearch(alt, $constants.start, rowId) : 0;
 					order.splice(pos, 0, { key: alt, rowId: rowId });
 				}
 			}
@@ -117,8 +117,7 @@ jOrder.order = function ($constants, $logging, $signature) {
 					first = order[start];
 			
 			// returning first item on exact hit
-			if (hasId && first.rowId === rowId ||
-				!hasId && equal(first.key, key)) {
+			if ((!hasId || first.rowId === rowId) && equal(first.key, key)) {
 				return {pos: start, exact: true};
 			}
 
