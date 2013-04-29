@@ -1,15 +1,15 @@
 cat \
-src/core/core.js \
-src/core/create.js \
-src/core/constants.js \
-src/core/logging.js \
-src/core/collection.js \
-src/index/signature.js \
-src/index/lookup.js \
-src/index/order.js \
-src/index/index.js \
-src/table/indexes.js \
-src/table/selectors.js \
-src/table/table.js \
+js/core/core.js \
+js/core/create.js \
+js/core/constants.js \
+js/core/logging.js \
+js/core/collection.js \
+js/index/signature.js \
+js/index/lookup.js \
+js/index/order.js \
+js/index/index.js \
+js/table/indexes.js \
+js/table/selectors.js \
+js/table/table.js \
 > build/jorder.js
 
