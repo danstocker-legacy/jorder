@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // jOrder unit tests
 ////////////////////////////////////////////////////////////////////////////////
-/*global jOrder, module, test, equal, notEqual, deepEqual, raises */
+/*global jOrder, module, test, equal, notEqual, notStrictEqual, deepEqual, raises */
 
 jOrder.testing = function (testing, core) {
 	// Data integrity tests
@@ -17,8 +17,8 @@ jOrder.testing = function (testing, core) {
 					copy = core.deep(orig);
 
 			deepEqual(orig, copy, "Deep copy preserves structure & values.");
-			notEqual(orig, copy, "Deep copy changes array reference.");
-			notEqual(orig[0], copy[0], "Deep copy changes item references.");
+			notStrictEqual(orig, copy, "Deep copy changes array reference.");
+            notStrictEqual(orig[0], copy[0], "Deep copy changes item references.");
 		});
 		
 		test("Deep copying sparse array", function () {
@@ -41,7 +41,7 @@ jOrder.testing = function (testing, core) {
 					tmp_depth = jOrder.core.MAX_DEPTH;
 
 			deepEqual(orig, copy, "Deep copy preserves structure & values.");
-			notEqual(orig, copy, "Deep copy changes reference.");
+			notStrictEqual(orig, copy, "Deep copy changes reference.");
 
 			jOrder.core.MAX_DEPTH = 3;
 			raises(function () {
