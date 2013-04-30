@@ -1,6 +1,5 @@
 cat \
 js/core/core.js \
-js/core/create.js \
 js/core/constants.js \
 js/core/logging.js \
 js/core/collection.js \
