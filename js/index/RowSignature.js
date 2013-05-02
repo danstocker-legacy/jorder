@@ -7,6 +7,8 @@
 troop.promise(jorder, 'RowSignature', function () {
     "use strict";
 
+    var hOP = Object.prototype.hasOwnProperty;
+
     /**
      * @class jorder.RowSignature
      * @extends troop.Base
@@ -69,6 +71,17 @@ troop.promise(jorder, 'RowSignature', function () {
                 this.fieldNames = fieldNames;
 
                 /**
+                 * Lookup object for field names
+                 * @type {object}
+                 */
+                this.fieldNameLookup = sntls.Dictionary
+                    .create({
+                        1: fieldNames
+                    })
+                    .reverse()
+                    .items;
+
+                /**
                  * @type {string}
                  */
                 this.signatureType = signatureType;
@@ -104,17 +117,38 @@ troop.promise(jorder, 'RowSignature', function () {
              * @param {object} row Raw table row
              * @return {boolean}
              */
-            validateRow: function (row) {
-                return false;
+            containedByRow: function (row) {
+                var fieldNames = this.fieldNames,
+                    i;
+
+                for (i = 0; i < fieldNames.length; i++) {
+                    if (!hOP.call(row, fieldNames[i])) {
+                        // signature field is not in row
+                        return false;
+                    }
+                }
+
+                return true;
             },
 
             /**
-             * Tells whether all row fields are in the signature.
+             * Tells whether all row fields are present in the signature.
              * @param {object} row Raw table row
              * @return {boolean}
              */
-            validatePartialRow: function (row) {
-                return false;
+            containsRow: function (row) {
+                var fieldNameLookup = this.fieldNameLookup,
+                    rowFieldNames = Object.keys(row),
+                    i;
+
+                for (i = 0; i < rowFieldNames.length; i++) {
+                    if (!hOP.call(fieldNameLookup, rowFieldNames[i])) {
+                        // row field is not in signature
+                        return false;
+                    }
+                }
+
+                return true;
             }
         });
 });
