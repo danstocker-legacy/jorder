@@ -22,6 +22,12 @@ troop.promise(jorder, 'RowSignature', function () {
             FIELD_SEPARATOR: '_',
 
             /**
+             * Regular expression for splitting along word boundaries
+             * @type {RegExp}
+             */
+            RE_WORD_DELIMITER: /\s+/g,
+
+            /**
              * Signature must be one of these types
              */
             SIGNATURE_TYPES: {
@@ -55,15 +61,12 @@ troop.promise(jorder, 'RowSignature', function () {
                     dessert.assert(SIGNATURE_TYPES.hasOwnProperty(signatureType), "Invalid signature type");
                 }
 
-                if (fieldNames.length > 1) {
-                    // validating signature type vs. field count
-                    dessert
-                        .assert(signatureType !== SIGNATURE_TYPES.fullText, "Full text row signature is restricted to a single field")
-                        .assert(signatureType !== SIGNATURE_TYPES.number, "Numeric row signature is restricted to a single field");
-                }
-
                 // default signature type is string
                 signatureType = signatureType || SIGNATURE_TYPES.string;
+
+                if (fieldNames.length > 1 && signatureType !== SIGNATURE_TYPES.string) {
+                    dessert.assert(false, "Signature type is restricted to a single field", signatureType);
+                }
 
                 /**
                  * @type {String[]}
@@ -131,7 +134,24 @@ troop.promise(jorder, 'RowSignature', function () {
              * @return {string[]}
              */
             getKeysForRow: function (row) {
-                return [];
+                var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
+                    fieldNames = this.fieldNames;
+
+                switch (this.signatureType) {
+                case SIGNATURE_TYPES.array:
+                    // returning first field as is (already array)
+                    return row[fieldNames[0]];
+
+                case SIGNATURE_TYPES.fullText:
+                    // extracting multiple keys by splitting into words
+                    return row[fieldNames[0]].split(this.RE_WORD_DELIMITER);
+
+                default:
+                case SIGNATURE_TYPES.number:
+                case SIGNATURE_TYPES.string:
+                    // extracting single key wrapped in array
+                    return [this.getKeyForRow(row)];
+                }
             },
 
             /**

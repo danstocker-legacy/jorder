@@ -62,4 +62,21 @@
             signature.getKeyForRow({foo: 'hello world'});
         }, "Non-string and non-numeric signature");
     });
+
+    test("Multi-key extraction", function () {
+        var signature;
+
+        signature = jorder.RowSignature.create(['foo'], 'number');
+        deepEqual(signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}), [4], "Numeric signature");
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
+        deepEqual(signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}), ['4_3'], "String signature");
+
+        signature = jorder.RowSignature.create(['foo'], 'array');
+        deepEqual(signature.getKeysForRow({foo: ['hello', 'world'], bar: 'etc'}), ['hello', 'world'
+        ], "Array signature");
+
+        signature = jorder.RowSignature.create(['foo'], 'fullText');
+        deepEqual(signature.getKeysForRow({foo: 'hello world', bar: 'etc'}), ['hello', 'world'], "Full text signature");
+    });
 }());
