@@ -78,7 +78,6 @@
             .setValue(35) // [2, 2, 3]
             .inc();
 
-        equal(num.asScalar, 35, "Incrementing maxValue fails silently");
-        deepEqual(num.asDigits, [2, 2, 3], "Incrementing maxValue fails silently");
+        deepEqual(num.asDigits, [0, 0, 0], "Overflow resets digit representation");
     });
 }());

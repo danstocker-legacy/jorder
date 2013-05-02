@@ -136,23 +136,23 @@ troop.promise(jorder, 'IrregularNumber', function () {
              * @return {jorder.IrregularNumber}
              */
             inc: function () {
-                var digits,
-                    radices,
+                var digits = this.asDigits,
+                    radices = this.radices,
                     i;
 
-                if (this.asScalar < this.maxValue) {
-                    digits = this.asDigits;
-                    radices = this.radices;
-
-                    // incrementing digit representation
-                    for (i = radices.length - 1; digits[i] === radices[i] - 1; i--) {
-                        digits[i] = 0;
-                    }
-                    digits[i]++;
-
-                    // incrementing scalar representation
-                    this.asScalar++;
+                // incrementing digit representation
+                for (i = radices.length - 1;
+                     digits[i] === radices[i] - 1;
+                     i--
+                    ) {
+                    digits[i] = 0;
                 }
+                if (i >= 0) {
+                    digits[i]++;
+                }
+
+                // incrementing scalar representation
+                this.asScalar++;
 
                 return this;
             }
