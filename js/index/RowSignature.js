@@ -59,7 +59,7 @@ troop.promise(jorder, 'RowSignature', function () {
                     // validating signature type vs. field count
                     dessert
                         .assert(signatureType !== SIGNATURE_TYPES.fullText, "Full text row signature is restricted to a single field")
-                        .assert(signatureType !== SIGNATURE_TYPES.number, "Number row signature is restricted to a single field");
+                        .assert(signatureType !== SIGNATURE_TYPES.number, "Numeric row signature is restricted to a single field");
                 }
 
                 // default signature type is string
@@ -99,7 +99,30 @@ troop.promise(jorder, 'RowSignature', function () {
              * @return {string}
              */
             getKeyForRow: function (row) {
-                return '';
+                dessert.assert(this.containedByRow(row), "Row doesn't fit signature");
+
+                var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
+                    fieldNames = this.fieldNames,
+                    result, i;
+
+                switch (this.signatureType) {
+                case SIGNATURE_TYPES.number:
+                    // extracting numeric key
+                    // TODO: multi-field signatures for numeric types
+                    return row[fieldNames[0]];
+
+                case SIGNATURE_TYPES.string:
+                    // extracting (composite) key from any other type
+                    result = [];
+                    for (i = 0; i < fieldNames.length; i++) {
+                        result.push(row[fieldNames[i]]);
+                    }
+                    return encodeURI(result.join('_'));
+
+                default:
+                    dessert.assert(false, "Invalid signature type");
+                    return ''; // will never be reached
+                }
             },
 
             /**

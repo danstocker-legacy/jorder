@@ -47,4 +47,19 @@
         equal(signature.containedByRow({foo: 'hello', bar: 'world'}), true, "Exact match");
         equal(signature.containedByRow({foo: 'hello', bar: 'world', extra: 'field'}), true, "Superset match");
     });
+
+    test("Key extraction", function () {
+        var signature;
+
+        signature = jorder.RowSignature.create(['foo'], 'number');
+        equal(signature.getKeyForRow({foo: 4}), 4, "Numeric signature");
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
+        equal(signature.getKeyForRow({foo: 4, bar: 3}), '4_3', "String signature");
+
+        signature = jorder.RowSignature.create(['foo'], 'fullText');
+        raises(function () {
+            signature.getKeyForRow({foo: 'hello world'});
+        }, "Non-string and non-numeric signature");
+    });
 }());
