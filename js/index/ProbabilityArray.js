@@ -38,7 +38,7 @@ troop.promise(jorder, 'ProbabilityArray', function () {
         })
         .addMethod(/** @lends jorder.ProbabilityArray */{
             /**
-             * @name jorder.ArrayList.create
+             * @name jorder.ProbabilityArray.create
              * @return {jorder.ProbabilityArray}
              */
 
@@ -88,6 +88,27 @@ troop.promise(jorder, 'ProbabilityArray', function () {
                 }
 
                 return result;
+            },
+
+            /**
+             * Retrieves all combinations wrapped in a hash object
+             * @return {sntls.Hash}
+             */
+            getCombinationsAsHash: function () {
+                return sntls.Hash.create(this.getCombinations());
             }
         });
 });
+
+(function () {
+    "use strict";
+
+    sntls.Hash.addMethod(/** @lends sntls.Hash */{
+        /**
+         * @return {jorder.ProbabilityArray}
+         */
+        toProbabilityArray: function () {
+            return jorder.ProbabilityArray.create(this.items);
+        }
+    });
+}());

@@ -1,5 +1,5 @@
-/*global module, test, raises, equal, strictEqual, deepEqual */
-/*global jorder */
+/*global module, test, ok, raises, equal, strictEqual, deepEqual */
+/*global sntls, jorder */
 (function () {
     "use strict";
 
@@ -18,6 +18,17 @@
             list = jorder.ProbabilityArray.create(arr);
 
         strictEqual(list.items, arr, "Item buffer added");
+    });
+
+    test("Type conversion", function () {
+        var hash = sntls.Hash.create([
+                [1, 2],
+                [3],
+                [4, 5]
+            ]),
+            probabilityArray = hash.toProbabilityArray();
+
+        ok(probabilityArray.isA(jorder.ProbabilityArray), "Hash converted to prob. array");
     });
 
     test("Item length measurement", function () {
