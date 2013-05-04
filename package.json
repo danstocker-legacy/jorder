@@ -1,0 +1,18 @@
+{
+    "name"        : "jorder",
+    "version"     : "0.1.0",
+    "description" : "Indexed table cache",
+    "keywords"    : ["table", "data", "query", "queries", "indexed"],
+    "author"      : "Dan Stocker <dan@kwaia.com>",
+    "repository"  : {
+        "type": "git",
+        "url" : "git://github.com/danstocker/jorder.git"
+    },
+    "dependencies": {
+        "dessert": ">=0.2.7",
+        "troop"  : ">=0.3.3",
+        "sntls"  : ">=0.4.1"
+    },
+    "files"       : ["out/jorder.js"],
+    "main"        : "out/jorder.js"
+}
