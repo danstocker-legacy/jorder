@@ -32,10 +32,6 @@
         raises(function () {
             jorder.RowSignature.create(['a', 'b'], 'foo');
         }, "Invalid signature type");
-
-        raises(function () {
-            jorder.RowSignature.create(['a', 'b'], 'number');
-        }, "Multi field & number type");
     });
 
     test("Instantiation", function () {
@@ -63,10 +59,16 @@
         var signature;
 
         signature = jorder.RowSignature.create(['foo'], 'number');
-        equal(signature.getKeyForRow({foo: 4}), 4, "Numeric signature");
+        equal(signature.getKeyForRow({foo: 4}), 4, "Single-field numeric signature");
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'number');
+        equal(signature.getKeyForRow({foo: 4, bar: 3, etc: 5}), 4 * signature.FIELD_SEPARATOR_NUMBER + 3, "Multi-field numeric signature");
+
+        signature = jorder.RowSignature.create(['foo'], 'string');
+        equal(signature.getKeyForRow({foo: 4, bar: 3, etc: 5}), '4', "Single-field string signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
-        equal(signature.getKeyForRow({foo: 4, bar: 3}), '4|3', "String signature");
+        equal(signature.getKeyForRow({foo: 4, bar: 3, etc: 5}), '4|3', "Multi-field string signature");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText');
         raises(function () {

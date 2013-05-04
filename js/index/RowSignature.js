@@ -20,7 +20,16 @@ troop.promise(jorder, 'RowSignature', function () {
              * @type {string}
              * @constant
              */
-            FIELD_SEPARATOR: '|',
+            FIELD_SEPARATOR_STRING: '|',
+
+            /**
+             * Field separator for numeric signature.
+             * Signature is calculated by (quasi-) shifting field
+             * values by 32 bits.
+             * @type {number}
+             * @constant
+             */
+            FIELD_SEPARATOR_NUMBER: Math.pow(2, 32),
 
             /**
              * Regular expression for splitting along word boundaries
@@ -42,8 +51,36 @@ troop.promise(jorder, 'RowSignature', function () {
         })
         .addPrivateMethod(/** @lends jorder.RowSignature */{
             /**
+             * Collection iteration handler URI encoding string items.
+             * @param {string} item Collection item
+             * @return {string}
+             * @private
+             */
+            _uriEncoder: function (item) {
+                return encodeURI(item);
+            },
+
+            /**
+             * Creates an array of specified length & filled with
+             * the specified value at each position.
+             * @param {number} length
+             * @param {*} value
+             * @return {*[]}
+             * @private
+             */
+            _createUniformArray: function (length, value) {
+                var result = new Array(length),
+                    i;
+                for (i = 0; i < length; i++) {
+                    result[i] = value;
+                }
+                return result;
+            },
+
+            /**
              * Collection iteration handler URI encoding string array items.
              * @param {*[]} item Item in an array collection.
+             * @return {*[]}
              * @private
              */
             _arrayUriEncoder: function (item) {
@@ -81,13 +118,6 @@ troop.promise(jorder, 'RowSignature', function () {
                     dessert.assert(SIGNATURE_TYPES.hasOwnProperty(signatureType), "Invalid signature type");
                 }
 
-                // default signature type is string
-                signatureType = signatureType || SIGNATURE_TYPES.string;
-
-                if (fieldNames.length > 1 && signatureType === SIGNATURE_TYPES.number) {
-                    dessert.assert(false, "Signature type is restricted to a single field", signatureType);
-                }
-
                 /**
                  * @type {String[]}
                  */
@@ -106,42 +136,59 @@ troop.promise(jorder, 'RowSignature', function () {
 
                 /**
                  * @type {string}
+                 * @default SIGNATURE_TYPES.string
                  */
-                this.signatureType = signatureType;
+                this.signatureType = signatureType || SIGNATURE_TYPES.string;
 
                 /**
                  * Signature composed of field names
                  * @type {String}
                  */
-                this.fieldSignature = this._arrayUriEncoder(fieldNames).join(this.FIELD_SEPARATOR);
+                this.fieldSignature = this._arrayUriEncoder(fieldNames).join(this.FIELD_SEPARATOR_STRING);
             },
 
             /**
              * Generates a key for the submitted row based on the current signature rules.
              * @param {object} row Raw table row
-             * @return {string}
+             * @return {string|number}
              */
             getKeyForRow: function (row) {
                 dessert.assert(this.containedByRow(row), "Row doesn't fit signature");
 
                 var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
                     fieldNames = this.fieldNames,
-                    result, i;
+                    radices, digits;
 
                 switch (this.signatureType) {
                 case SIGNATURE_TYPES.number:
                     // extracting numeric key
-                    // no need to URI encode, only numbers in signature
-                    // TODO: multi-field signatures for numeric types
-                    return row[fieldNames[0]];
+                    if (fieldNames.length === 1) {
+                        return row[fieldNames[0]];
+                    } else {
+                        radices = this._createUniformArray(fieldNames.length, this.FIELD_SEPARATOR_NUMBER);
+                        digits = sntls.Collection.create(row)
+                            .select(fieldNames)
+                            .asArray();
+
+                        return jorder.IrregularNumber.create(radices)
+                            .setDigits(digits)
+                            .asScalar;
+                    }
+                    break;
 
                 case SIGNATURE_TYPES.string:
-                    // extracting (composite) key from any other type
-                    result = [];
-                    for (i = 0; i < fieldNames.length; i++) {
-                        result.push(row[fieldNames[i]]);
+                    // extracting string key
+                    if (fieldNames.length === 1) {
+                        return this._uriEncoder(row[fieldNames[0]]);
+                    } else {
+                        return sntls.StringCollection.create(row)
+                            // reducing row to relevant fields
+                            .select(fieldNames)
+                            .forEach(this._uriEncoder)
+                            .asArray()
+                            .join(this.FIELD_SEPARATOR_STRING);
                     }
-                    return this._arrayUriEncoder(result).join(this.FIELD_SEPARATOR);
+                    break;
 
                 default:
                     dessert.assert(false, "Invalid signature type");
@@ -177,7 +224,7 @@ troop.promise(jorder, 'RowSignature', function () {
                             // joining combinations to make strings
                             .toCollection()
                             .forEach(this._arrayUriEncoder)
-                            .callEach('join', this.FIELD_SEPARATOR)
+                            .callEach('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
                             .asArray();
                     }
@@ -203,7 +250,7 @@ troop.promise(jorder, 'RowSignature', function () {
                             // joining combinations to make strings
                             .toCollection()
                             .forEach(this._arrayUriEncoder)
-                            .callEach('join', this.FIELD_SEPARATOR)
+                            .callEach('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
                             .asArray();
                     }
