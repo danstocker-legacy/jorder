@@ -46,7 +46,7 @@
         var num = jorder.IrregularNumber.create([3, 3, 4]),
             result;
 
-        result = num.setValue(15);
+        result = num.setScalar(15);
 
         strictEqual(result, num, "Setting value returns self");
         equal(num.asScalar, 15, "Scalar value set");
@@ -72,32 +72,32 @@
         var num = jorder.IrregularNumber.create([3, 3, 4]);
 
         num
-            .setValue(5)// [0, 1, 1]
+            .setScalar(5)// [0, 1, 1]
             .inc();
 
         equal(num.asScalar, 6, "Scalar incremented");
         deepEqual(num.asDigits, [0, 1, 2], "Digits incremented");
 
         num
-            .setValue(15)// [1, 0, 3]
+            .setScalar(15)// [1, 0, 3]
             .inc();
 
         deepEqual(num.asDigits, [1, 1, 0], "Single digit shift");
 
         num
-            .setValue(11)// [0, 2, 3]
+            .setScalar(11)// [0, 2, 3]
             .inc();
 
         deepEqual(num.asDigits, [1, 0, 0], "Multi digit shift");
 
         num
-            .setValue(23)// [1, 2, 3]
+            .setScalar(23)// [1, 2, 3]
             .inc();
 
         deepEqual(num.asDigits, [2, 0, 0], "Multi digit shift");
 
         num
-            .setValue(35)// [2, 2, 3]
+            .setScalar(35)// [2, 2, 3]
             .inc();
 
         deepEqual(num.asDigits, [0, 0, 0], "Overflow resets digit representation");

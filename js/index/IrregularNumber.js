@@ -133,11 +133,11 @@ troop.promise(jorder, 'IrregularNumber', function () {
             },
 
             /**
-             * Sets value on irregular number
+             * Sets scalar value on irregular number
              * @param {number} value
              * @return {jorder.IrregularNumber}
              */
-            setValue: function (value) {
+            setScalar: function (value) {
                 dessert.assert(value <= this.maxValue, "Value out of bounds");
 
                 // assigning scalar value
