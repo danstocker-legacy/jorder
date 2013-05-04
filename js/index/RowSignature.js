@@ -18,17 +18,20 @@ troop.promise(jorder, 'RowSignature', function () {
             /**
              * Field separator
              * @type {string}
+             * @constant
              */
             FIELD_SEPARATOR: '_',
 
             /**
              * Regular expression for splitting along word boundaries
              * @type {RegExp}
+             * @constant
              */
             RE_WORD_DELIMITER: /\s+/g,
 
             /**
              * Signature must be one of these types
+             * @constant
              */
             SIGNATURE_TYPES: {
                 array   : 'array',
