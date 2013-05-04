@@ -51,20 +51,38 @@ troop.promise(jorder, 'IrregularNumber', function () {
 
             /**
              * Converts scalar value to digits according to radices
-             * @param {number} value
+             * @param {number} scalar
              * @return {number[]}
              * @private
              */
-            _convertToDigits: function (value) {
+            _convertToDigits: function (scalar) {
                 var radixProducts = this._radixProducts,
                     result = [],
                     i;
 
                 for (i = 0; i < radixProducts.length; i++) {
-                    result.push(Math.floor(value / radixProducts[i]));
-                    value = value % radixProducts[i];
+                    result.push(Math.floor(scalar / radixProducts[i]));
+                    scalar = scalar % radixProducts[i];
                 }
-                result.push(value);
+                result.push(scalar);
+
+                return result;
+            },
+
+            /**
+             * Converts scalar value to digits according to radices
+             * @param {number[]} digits
+             * @return {number}
+             * @private
+             */
+            _convertToScalar: function (digits) {
+                var radixProducts = this._radixProducts,
+                    result = 0,
+                    i, j;
+
+                for (i = digits.length, j = radixProducts.length; i--; j--) {
+                    result += digits[i] * (radixProducts[j] || 1);
+                }
 
                 return result;
             }
@@ -127,6 +145,32 @@ troop.promise(jorder, 'IrregularNumber', function () {
 
                 // assigning digits
                 this.asDigits = this._convertToDigits(value);
+
+                return this;
+            },
+
+            /**
+             * Sets irregular number digits
+             * @param {number[]} digits
+             * @return {jorder.IrregularNumber}
+             */
+            setDigits: function (digits) {
+                var radices = this.radices,
+                    asDigits,
+                    i, j;
+
+                dessert
+                    .isArray(digits, "Invalid digits")
+                    .assert(digits.length <= radices.length, "Too many digits");
+
+                // assigning digits
+                asDigits = this.asDigits;
+                for (i = radices.length, j = digits.length - 1; i--; j--) {
+                    asDigits[i] = digits[j] || 0;
+                }
+
+                // assigning scalar value
+                this.asScalar = this._convertToScalar(digits);
 
                 return this;
             },
