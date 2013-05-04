@@ -1,9 +1,24 @@
-/*global module, test, raises, equal, deepEqual */
+/*global module, test, raises, equal, strictEqual, deepEqual */
 /*global jorder */
 (function () {
     "use strict";
 
     module("RowSignature");
+
+    test("URI encoding array", function () {
+        var arr = ["§1.", "`foo`", "foo bar", 5],
+            result;
+
+        result = jorder.RowSignature._arrayUriEncoder(arr);
+
+        strictEqual(result, arr, "URI encoded returns item");
+
+        deepEqual(
+            arr,
+            ["%C2%A71.", "%60foo%60", "foo%20bar", 5],
+            "Array URI-encoded"
+        );
+    });
 
     test("Instantiation exceptions", function () {
         raises(function () {
@@ -29,7 +44,7 @@
         equal(signature.signatureType, 'string', "Default signature type");
         deepEqual(signature.fieldNames, ['a', 'b'], "Signature fields");
         deepEqual(signature.fieldNameLookup, {a: '1', b: '1'}, "Signature field lookup");
-        equal(signature.fieldSignature, 'a_b', "Static field signature");
+        equal(signature.fieldSignature, 'a|b', "Static field signature");
     });
 
     test("Row validation", function () {
@@ -51,7 +66,7 @@
         equal(signature.getKeyForRow({foo: 4}), 4, "Numeric signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
-        equal(signature.getKeyForRow({foo: 4, bar: 3}), '4_3', "String signature");
+        equal(signature.getKeyForRow({foo: 4, bar: 3}), '4|3', "String signature");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText');
         raises(function () {
@@ -73,7 +88,7 @@
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
         deepEqual(
             signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}),
-            ['4_3'],
+            ['4|3'],
             "String signature"
         );
 
@@ -89,7 +104,7 @@
 
         deepEqual(
             signature.getKeysForRow(row),
-            ['hello_one', 'hello_two', 'world_one', 'world_two'],
+            ['hello|one', 'hello|two', 'world|one', 'world|two'],
             "Multi-field array signature"
         );
 
@@ -107,10 +122,18 @@
 
         deepEqual(
             signature.getKeysForRow(row),
-            ['hello_howdy', 'hello_all', 'world_howdy', 'world_all'],
+            ['hello|howdy', 'hello|all', 'world|howdy', 'world|all'],
             "Multi-field full text signature"
         );
 
         deepEqual(row, {foo: "hello world", bar: "howdy all", etc: 5}, "Row remains intact");
+
+        row = {foo: "A a|b", bar: "C D", etc: 5};
+
+        deepEqual(
+            signature.getKeysForRow(row),
+            ['A|C', 'A|D', 'a%7Cb|C', 'a%7Cb|D'],
+            "Multi-field full text signature with escaped chars"
+        );
     });
 }());

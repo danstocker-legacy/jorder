@@ -16,11 +16,11 @@ troop.promise(jorder, 'RowSignature', function () {
     jorder.RowSignature = troop.Base.extend()
         .addConstant(/** @lends jorder.RowSignature */{
             /**
-             * Field separator
+             * Field separator, must be escapable w/ encodeURI
              * @type {string}
              * @constant
              */
-            FIELD_SEPARATOR: '_',
+            FIELD_SEPARATOR: '|',
 
             /**
              * Regular expression for splitting along word boundaries
@@ -38,6 +38,23 @@ troop.promise(jorder, 'RowSignature', function () {
                 fullText: 'fullText',
                 number  : 'number',
                 string  : 'string'
+            }
+        })
+        .addPrivateMethod(/** @lends jorder.RowSignature */{
+            /**
+             * Collection iteration handler URI encoding string array items.
+             * @param {*[]} item Item in an array collection.
+             * @private
+             */
+            _arrayUriEncoder: function (item) {
+                var i, elem;
+                for (i = 0; i < item.length; i++) {
+                    elem = item[i];
+                    if (typeof elem === 'string') {
+                        item[i] = encodeURI(elem);
+                    }
+                }
+                return item;
             }
         })
         .addMethod(/** @lends jorder.RowSignature */{
@@ -96,7 +113,7 @@ troop.promise(jorder, 'RowSignature', function () {
                  * Signature composed of field names
                  * @type {String}
                  */
-                this.fieldSignature = encodeURI(fieldNames.join(this.FIELD_SEPARATOR));
+                this.fieldSignature = this._arrayUriEncoder(fieldNames).join(this.FIELD_SEPARATOR);
             },
 
             /**
@@ -114,6 +131,7 @@ troop.promise(jorder, 'RowSignature', function () {
                 switch (this.signatureType) {
                 case SIGNATURE_TYPES.number:
                     // extracting numeric key
+                    // no need to URI encode, only numbers in signature
                     // TODO: multi-field signatures for numeric types
                     return row[fieldNames[0]];
 
@@ -123,7 +141,7 @@ troop.promise(jorder, 'RowSignature', function () {
                     for (i = 0; i < fieldNames.length; i++) {
                         result.push(row[fieldNames[i]]);
                     }
-                    return encodeURI(result.join(this.FIELD_SEPARATOR));
+                    return this._arrayUriEncoder(result).join(this.FIELD_SEPARATOR);
 
                 default:
                     dessert.assert(false, "Invalid signature type");
@@ -145,7 +163,7 @@ troop.promise(jorder, 'RowSignature', function () {
                     if (fieldNames.length === 1) {
                         // quick solution for single-field signature
                         // returning first field as is (already array)
-                        return row[fieldNames[0]];
+                        return this._arrayUriEncoder(row[fieldNames[0]]);
                     } else {
                         // calculating all possible signatures for row
                         return sntls.Collection.create(row)
@@ -157,8 +175,9 @@ troop.promise(jorder, 'RowSignature', function () {
                             .toMultiArray()
                             .getCombinationsAsHash()
                             // joining combinations to make strings
-                            .toArrayCollection()
-                            .join(this.FIELD_SEPARATOR)
+                            .toCollection()
+                            .forEach(this._arrayUriEncoder)
+                            .callEach('join', this.FIELD_SEPARATOR)
                             // finalizing results
                             .asArray();
                     }
@@ -168,7 +187,7 @@ troop.promise(jorder, 'RowSignature', function () {
                     if (fieldNames.length === 1) {
                         // quick solution for single-field signature
                         // extracting multiple keys by splitting into words
-                        return row[fieldNames[0]].split(this.RE_WORD_DELIMITER);
+                        return this._arrayUriEncoder(row[fieldNames[0]].split(this.RE_WORD_DELIMITER));
                     } else {
                         // calculating all possible signatures for row
                         return sntls.StringCollection.create(row)
@@ -182,8 +201,9 @@ troop.promise(jorder, 'RowSignature', function () {
                             .toMultiArray()
                             .getCombinationsAsHash()
                             // joining combinations to make strings
-                            .toArrayCollection()
-                            .join(this.FIELD_SEPARATOR)
+                            .toCollection()
+                            .forEach(this._arrayUriEncoder)
+                            .callEach('join', this.FIELD_SEPARATOR)
                             // finalizing results
                             .asArray();
                     }
