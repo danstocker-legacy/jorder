@@ -64,7 +64,7 @@ troop.promise(jorder, 'RowSignature', function () {
                 // default signature type is string
                 signatureType = signatureType || SIGNATURE_TYPES.string;
 
-                if (fieldNames.length > 1 && signatureType !== SIGNATURE_TYPES.string) {
+                if (fieldNames.length > 1 && signatureType === SIGNATURE_TYPES.number) {
                     dessert.assert(false, "Signature type is restricted to a single field", signatureType);
                 }
 
@@ -120,7 +120,7 @@ troop.promise(jorder, 'RowSignature', function () {
                     for (i = 0; i < fieldNames.length; i++) {
                         result.push(row[fieldNames[i]]);
                     }
-                    return encodeURI(result.join('_'));
+                    return encodeURI(result.join(this.FIELD_SEPARATOR));
 
                 default:
                     dessert.assert(false, "Invalid signature type");
@@ -139,12 +139,52 @@ troop.promise(jorder, 'RowSignature', function () {
 
                 switch (this.signatureType) {
                 case SIGNATURE_TYPES.array:
-                    // returning first field as is (already array)
-                    return row[fieldNames[0]];
+                    if (fieldNames.length === 1) {
+                        // quick solution for single-field signature
+                        // returning first field as is (already array)
+                        return row[fieldNames[0]];
+                    } else {
+                        // calculating all possible signatures for row
+                        return sntls.Collection.create(row)
+                            // reducing row to relevant fields
+                            .select(fieldNames)
+                            // discarding field names in row
+                            .asArrayInHash()
+                            // getting all combinations w/ each field contributing one of their items
+                            .toMultiArray()
+                            .getCombinationsAsHash()
+                            // joining combinations to make strings
+                            .toArrayCollection()
+                            .join(this.FIELD_SEPARATOR)
+                            // finalizing results
+                            .asArray();
+                    }
+                    break;
 
                 case SIGNATURE_TYPES.fullText:
-                    // extracting multiple keys by splitting into words
-                    return row[fieldNames[0]].split(this.RE_WORD_DELIMITER);
+                    if (fieldNames.length === 1) {
+                        // quick solution for single-field signature
+                        // extracting multiple keys by splitting into words
+                        return row[fieldNames[0]].split(this.RE_WORD_DELIMITER);
+                    } else {
+                        // calculating all possible signatures for row
+                        return sntls.StringCollection.create(row)
+                            // reducing row to relevant fields
+                            .select(fieldNames)
+                            // splitting all fields into words
+                            .split(this.RE_WORD_DELIMITER)
+                            // discarding field names in row
+                            .asArrayInHash()
+                            // getting all word combinations w/ each field contributing one word
+                            .toMultiArray()
+                            .getCombinationsAsHash()
+                            // joining combinations to make strings
+                            .toArrayCollection()
+                            .join(this.FIELD_SEPARATOR)
+                            // finalizing results
+                            .asArray();
+                    }
+                    break;
 
                 default:
                 case SIGNATURE_TYPES.number:

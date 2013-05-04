@@ -19,10 +19,6 @@
         }, "Invalid signature type");
 
         raises(function () {
-            jorder.RowSignature.create(['a', 'b'], 'fullText');
-        }, "Multi field & fullText type");
-
-        raises(function () {
             jorder.RowSignature.create(['a', 'b'], 'number');
         }, "Multi field & number type");
     });
@@ -64,19 +60,57 @@
     });
 
     test("Multi-key extraction", function () {
-        var signature;
+        var row,
+            signature;
 
         signature = jorder.RowSignature.create(['foo'], 'number');
-        deepEqual(signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}), [4], "Numeric signature");
+        deepEqual(
+            signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}),
+            [4],
+            "Numeric signature"
+        );
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
-        deepEqual(signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}), ['4_3'], "String signature");
+        deepEqual(
+            signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}),
+            ['4_3'],
+            "String signature"
+        );
 
         signature = jorder.RowSignature.create(['foo'], 'array');
-        deepEqual(signature.getKeysForRow({foo: ['hello', 'world'], bar: 'etc'}), ['hello', 'world'
-        ], "Array signature");
+        deepEqual(
+            signature.getKeysForRow({foo: ['hello', 'world'], bar: 'etc'}),
+            ['hello', 'world'],
+            "Single-field array signature"
+        );
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'array');
+        row = {foo: ['hello', 'world'], bar: ['one', 'two'], etc: 'etc'};
+
+        deepEqual(
+            signature.getKeysForRow(row),
+            ['hello_one', 'hello_two', 'world_one', 'world_two'],
+            "Multi-field array signature"
+        );
+
+        deepEqual(row, {foo: ['hello', 'world'], bar: ['one', 'two'], etc: 'etc'}, "Row remains intact");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText');
-        deepEqual(signature.getKeysForRow({foo: 'hello world', bar: 'etc'}), ['hello', 'world'], "Full text signature");
+        deepEqual(
+            signature.getKeysForRow({foo: 'hello world', bar: 'etc'}),
+            ['hello', 'world'],
+            "Single-field full text signature"
+        );
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'fullText');
+        row = {foo: "hello world", bar: "howdy all", etc: 5};
+
+        deepEqual(
+            signature.getKeysForRow(row),
+            ['hello_howdy', 'hello_all', 'world_howdy', 'world_all'],
+            "Multi-field full text signature"
+        );
+
+        deepEqual(row, {foo: "hello world", bar: "howdy all", etc: 5}, "Row remains intact");
     });
 }());
