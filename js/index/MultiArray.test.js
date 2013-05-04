@@ -3,11 +3,11 @@
 (function () {
     "use strict";
 
-    module("ProbabilityArray");
+    module("MultiArray");
 
     test("Instantiation", function () {
         raises(function () {
-            jorder.ProbabilityArray.create('foo');
+            jorder.MultiArray.create('foo');
         }, "Invalid items");
 
         var arr = [
@@ -15,7 +15,7 @@
                 [3],
                 [4, 5]
             ],
-            list = jorder.ProbabilityArray.create(arr);
+            list = jorder.MultiArray.create(arr);
 
         strictEqual(list.items, arr, "Item buffer added");
     });
@@ -26,13 +26,13 @@
                 [3],
                 [4, 5]
             ]),
-            probabilityArray = hash.toProbabilityArray();
+            multiArray = hash.toMultiArray();
 
-        ok(probabilityArray.isA(jorder.ProbabilityArray), "Hash converted to prob. array");
+        ok(multiArray.isA(jorder.MultiArray), "Hash converted to prob. array");
     });
 
     test("Item length measurement", function () {
-        var list = jorder.ProbabilityArray.create([
+        var list = jorder.MultiArray.create([
             [1, 2],
             [3],
             [4, 5]
@@ -42,7 +42,7 @@
     });
 
     test("Selection", function () {
-        var list = jorder.ProbabilityArray.create([
+        var list = jorder.MultiArray.create([
             [1, 2],
             [3],
             [4, 5]
@@ -52,7 +52,7 @@
     });
 
     test("Combination", function () {
-        var list = jorder.ProbabilityArray.create([
+        var list = jorder.MultiArray.create([
             [1, 2],
             [3],
             [4, 5]

@@ -1,5 +1,5 @@
 /**
- * Probability Array
+ * Multi-Array
  *
  * An array that for each of its items holds an even distribution
  * of possible values (represented as arrays).
@@ -7,17 +7,17 @@
  * @example [[1, 2], [3], [4, 5]]
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'ProbabilityArray', function () {
+troop.promise(jorder, 'MultiArray', function () {
     "use strict";
 
     var base = sntls.Hash;
 
     /**
-     * @class jorder.ProbabilityArray
+     * @class jorder.MultiArray
      * @extends sntls.Hash
      */
-    jorder.ProbabilityArray = base.extend()
-        .addPrivateMethod(/** @lends jorder.ProbabilityArray */{
+    jorder.MultiArray = base.extend()
+        .addPrivateMethod(/** @lends jorder.MultiArray */{
             /**
              * Measures the number of possibilities for each item
              * and returns the counts in an array
@@ -36,10 +36,10 @@ troop.promise(jorder, 'ProbabilityArray', function () {
                 return result;
             }
         })
-        .addMethod(/** @lends jorder.ProbabilityArray */{
+        .addMethod(/** @lends jorder.MultiArray */{
             /**
-             * @name jorder.ProbabilityArray.create
-             * @return {jorder.ProbabilityArray}
+             * @name jorder.MultiArray.create
+             * @return {jorder.MultiArray}
              */
 
             /**
@@ -105,10 +105,10 @@ troop.promise(jorder, 'ProbabilityArray', function () {
 
     sntls.Hash.addMethod(/** @lends sntls.Hash */{
         /**
-         * @return {jorder.ProbabilityArray}
+         * @return {jorder.MultiArray}
          */
-        toProbabilityArray: function () {
-            return jorder.ProbabilityArray.create(this.items);
+        toMultiArray: function () {
+            return jorder.MultiArray.create(this.items);
         }
     });
 }());
