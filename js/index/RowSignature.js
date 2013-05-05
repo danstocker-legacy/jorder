@@ -167,8 +167,8 @@ troop.promise(jorder, 'RowSignature', function () {
                     } else {
                         radices = this._createUniformArray(fieldNames.length, this.FIELD_SEPARATOR_NUMBER);
                         digits = sntls.Collection.create(row)
-                            .select(fieldNames)
-                            .asArray();
+                            .filterByKeys(fieldNames)
+                            .getValues();
 
                         return jorder.IrregularNumber.create(radices)
                             .setDigits(digits)
@@ -183,9 +183,9 @@ troop.promise(jorder, 'RowSignature', function () {
                     } else {
                         return sntls.StringCollection.create(row)
                             // reducing row to relevant fields
-                            .select(fieldNames)
-                            .forEach(this._uriEncoder)
-                            .asArray()
+                            .filterByKeys(fieldNames)
+                            .forEachItem(this._uriEncoder)
+                            .getValues()
                             .join(this.FIELD_SEPARATOR_STRING);
                     }
                     break;
@@ -215,18 +215,18 @@ troop.promise(jorder, 'RowSignature', function () {
                         // calculating all possible signatures for row
                         return sntls.Collection.create(row)
                             // reducing row to relevant fields
-                            .select(fieldNames)
+                            .filterByKeys(fieldNames)
                             // discarding field names in row
-                            .asArrayInHash()
+                            .getValuesAsHash()
                             // getting all combinations w/ each field contributing one of their items
                             .toMultiArray()
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEach(this._arrayUriEncoder)
-                            .callEach('join', this.FIELD_SEPARATOR_STRING)
+                            .forEachItem(this._arrayUriEncoder)
+                            .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
-                            .asArray();
+                            .getValues();
                     }
                     break;
 
@@ -239,20 +239,20 @@ troop.promise(jorder, 'RowSignature', function () {
                         // calculating all possible signatures for row
                         return sntls.StringCollection.create(row)
                             // reducing row to relevant fields
-                            .select(fieldNames)
+                            .filterByKeys(fieldNames)
                             // splitting all fields into words
                             .split(this.RE_WORD_DELIMITER)
                             // discarding field names in row
-                            .asArrayInHash()
+                            .getValuesAsHash()
                             // getting all word combinations w/ each field contributing one word
                             .toMultiArray()
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEach(this._arrayUriEncoder)
-                            .callEach('join', this.FIELD_SEPARATOR_STRING)
+                            .forEachItem(this._arrayUriEncoder)
+                            .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
-                            .asArray();
+                            .getValues();
                     }
                     break;
 
