@@ -127,7 +127,7 @@ troop.promise(jorder, 'RowSignature', function () {
                  * Lookup object for field names
                  * @type {object}
                  */
-                this.fieldNameLookup = sntls.Dictionary
+                this.fieldNameLookup = sntls.StringDictionary
                     .create({
                         1: fieldNames
                     })
