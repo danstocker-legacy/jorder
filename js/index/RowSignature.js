@@ -1,7 +1,8 @@
 /**
  * Row Signature
  *
- * Manages
+ * Implements typed primitive representation of a table row,
+ * its validation and generation.
  */
 /*global dessert, troop, sntls, jorder */
 troop.promise(jorder, 'RowSignature', function () {
