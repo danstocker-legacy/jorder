@@ -9,8 +9,8 @@
         var index = jorder.Index.create(['foo', 'bar'], 'number');
 
         ok(index.rowSignature.isA(jorder.RowSignature), "Row signature");
-        ok(index.lookup.isA(sntls.Dictionary), "Index lookup");
-        ok(index.order.isA(sntls.OrderedList), "Index order");
+        ok(index.rowIdLookup.isA(sntls.Dictionary), "Index lookup");
+        ok(index.sortedKeys.isA(sntls.OrderedList), "Index order");
     });
 
     test("Row addition", function () {
@@ -23,7 +23,7 @@
         index.addRow({foo: 5, bar: 7}, 0);
 
         deepEqual(
-            index.lookup.items,
+            index.rowIdLookup.items,
             {
                 '5|7': 0
             },
@@ -31,7 +31,7 @@
         );
 
         deepEqual(
-            index.order.items,
+            index.sortedKeys.items,
             ['5|7'],
             "Order after first row"
         );
@@ -51,7 +51,7 @@
             .addRow({foo: 1, bar: 1}, 9);
 
         deepEqual(
-            index.lookup.items,
+            index.rowIdLookup.items,
             {
                 '5|7': [0, 5],
                 '3|2': [1, 3],
@@ -65,7 +65,7 @@
         );
 
         deepEqual(
-            index.order.items,
+            index.sortedKeys.items,
             [
                 '5|7',
                 '3|2',

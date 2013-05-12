@@ -33,14 +33,14 @@ troop.promise(jorder, 'Index', function () {
                  * One index key may reference more than one row IDs.
                  * @type {sntls.StringDictionary}
                  */
-                this.lookup = sntls.StringDictionary.create();
+                this.rowIdLookup = sntls.StringDictionary.create();
 
                 /**
                  * Holds index keys in ascending order. (With multiplicity)
                  * TODO: investigate no-multiplicity solution
                  * @type {sntls.OrderedList}
                  */
-                this.order = sntls.OrderedStringList.create();
+                this.sortedKeys = sntls.OrderedStringList.create();
             },
 
             /**
@@ -54,10 +54,10 @@ troop.promise(jorder, 'Index', function () {
                 var keys = this.rowSignature.getKeysForRow(row);
 
                 // adding key / rowId pairs to lookup index
-                this.lookup.addItems(keys, rowId);
+                this.rowIdLookup.addItems(keys, rowId);
 
                 // adding keys to ordered index (w/ multiplicity)
-                this.order.addItems(keys);
+                this.sortedKeys.addItems(keys);
 
                 return this;
             },
@@ -73,10 +73,10 @@ troop.promise(jorder, 'Index', function () {
                 var keys = this.rowSignature.getKeysForRow(row);
 
                 // removing key / rowId pairs from lookup index
-                this.lookup.removeItems(keys, rowId);
+                this.rowIdLookup.removeItems(keys, rowId);
 
                 // removing keys from ordered index (w/ multiplicity)
-                this.order.removeItems(keys);
+                this.sortedKeys.removeItems(keys);
 
                 return this;
             },
@@ -88,7 +88,7 @@ troop.promise(jorder, 'Index', function () {
              */
             getRowIdsForKeys: function (keys) {
                 return sntls.StringDictionary.create(keys)
-                    .combineWith(this.lookup)// selecting row IDs for specified keys
+                    .combineWith(this.rowIdLookup)// selecting row IDs for specified keys
                     .reverse()// collapsing unique row IDs
                     .getKeys();
             },
@@ -103,12 +103,12 @@ troop.promise(jorder, 'Index', function () {
              * @return {string[]}
              */
             getRowIdsForKeyRange: function (startValue, endValue, offset, limit) {
-                return this.order.getRangeAsHash(startValue, endValue)
+                return this.sortedKeys.getRangeAsHash(startValue, endValue)
                     .toStringDictionary()
                     .reverse()// collapsing unique index values
                     .getKeysAsHash()// getting unique index values in a hash
                     .toStringDictionary()
-                    .combineWith(this.lookup)// obtaining row IDs from lookup
+                    .combineWith(this.rowIdLookup)// obtaining row IDs from lookup
                     .reverse()// collapsing unique row IDs
                     .getKeys();
             }
