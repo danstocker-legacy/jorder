@@ -114,3 +114,19 @@ troop.promise(jorder, 'Index', function () {
             }
         });
 });
+
+(function () {
+    "use strict";
+
+    dessert.addTypes(/** @lends dessert */{
+        isIndex: function (expr) {
+            return jorder.Index.isBaseOf(expr);
+        },
+
+        isIndexOptional: function (expr) {
+            return typeof expr === 'undefined' ||
+                   jorder.Index.isBaseOf(expr);
+        }
+    });
+}());
+
