@@ -18,6 +18,7 @@ troop.promise(jorder, 'IndexCollection', function () {
              * Sets an index in the collection.
              * Item key is calculated based index signature.
              * @param {jorder.Index} index
+             * @return {jorder.IndexCollection}
              */
             setItem: function (index) {
                 dessert.isIndex(index, "Invalid index");
