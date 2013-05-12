@@ -1,9 +1,9 @@
-jorder
+Jorder
 ======
 
 *Indexed table cache*
 
-**jorder** is being reworked.
+**Jorder** is being reworked.
 
 Version 2 will keep the performance goodness of jOrder 1.2, plus:
 
