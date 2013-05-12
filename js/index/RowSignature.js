@@ -144,6 +144,7 @@ troop.promise(jorder, 'RowSignature', function () {
                 /**
                  * Signature composed of field names
                  * @type {String}
+                 * TODO: should contain signature type, too
                  */
                 this.fieldSignature = this._arrayUriEncoder(fieldNames).join(this.FIELD_SEPARATOR_STRING);
             },
