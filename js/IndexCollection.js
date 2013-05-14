@@ -15,6 +15,11 @@ troop.promise(jorder, 'IndexCollection', function () {
     jorder.IndexCollection = sntls.Collection.of(jorder.Index)
         .addMethod({
             /**
+             * @name jorder.IndexCollection.create
+             * @return {jorder.IndexCollection}
+             */
+
+            /**
              * Sets an index in the collection.
              * Item key is calculated based index signature.
              * @param {jorder.Index} index
