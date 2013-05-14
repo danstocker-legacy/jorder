@@ -46,7 +46,7 @@ troop.promise(jorder, 'Index', function () {
             /**
              * Adds single row to index.
              * @param {object} row Table row
-             * @param {string} rowId Row ID: original index of row in table
+             * @param {string|number} rowId Row ID: original index of row in table
              * @return {jorder.Index}
              */
             addRow: function (row, rowId) {
@@ -77,6 +77,17 @@ troop.promise(jorder, 'Index', function () {
 
                 // removing keys from ordered index (w/ multiplicity)
                 this.sortedKeys.removeItems(keys);
+
+                return this;
+            },
+
+            /**
+             * Clears index.
+             */
+            clear: function () {
+                // clearing lookup buffers
+                this.rowIdLookup.clear();
+                this.sortedKeys.clear();
 
                 return this;
             },

@@ -1,4 +1,4 @@
-/*global module, test, ok, raises, equal, strictEqual, deepEqual */
+/*global module, test, expect, ok, raises, equal, strictEqual, deepEqual */
 /*global sntls, jorder */
 (function () {
     "use strict";
@@ -80,6 +80,36 @@
             ].sort(),
             "Populated order index"
         );
+    });
+
+    test("Clearing", function () {
+        expect(2);
+
+        var index = jorder.Index.create(['foo'], 'number')
+            .addRow({foo: 5}, 0)
+            .addRow({foo: 3}, 1)
+            .addRow({foo: 4}, 2)
+            .addRow({foo: 3}, 3)
+            .addRow({foo: 3}, 4)
+            .addRow({foo: 5}, 5)
+            .addRow({foo: 5}, 6)
+            .addRow({foo: 1}, 7)
+            .addRow({foo: 1}, 8)
+            .addRow({foo: 1}, 9);
+
+        index.rowIdLookup.addMock({
+            clear: function () {
+                ok("Row ID lookup cleared");
+            }
+        });
+
+        index.sortedKeys.addMock({
+            clear: function () {
+                ok("Row ID lookup cleared");
+            }
+        });
+
+        index.clear();
     });
 
     test('Lookup', function () {
