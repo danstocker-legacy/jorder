@@ -36,10 +36,11 @@ troop.promise(jorder, 'IndexCollection', function () {
             /**
              * Retrieves an index matching the specified fields
              * @param {string[]} fieldNames
+             * @param {string} [signatureType]
              * @return {jorder.Index}
              */
-            getIndexForFields: function (fieldNames) {
-                var rowSignature = jorder.RowSignature.create(fieldNames);
+            getIndexForFields: function (fieldNames, signatureType) {
+                var rowSignature = jorder.RowSignature.create(fieldNames, signatureType);
                 return this.getItem(rowSignature.fieldSignature);
             }
         });
