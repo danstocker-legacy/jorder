@@ -14,7 +14,7 @@
         deepEqual(
             indexCollection.items,
             {
-                'foo|bar': index
+                'foo|bar%string': index
             },
             "Index added to collection"
         );

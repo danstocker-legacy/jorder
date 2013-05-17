@@ -40,6 +40,13 @@ troop.promise(jorder, 'RowSignature', function () {
             RE_WORD_DELIMITER: /\s+/g,
 
             /**
+             * Separates signature type in field signature from fields, must be escapable w/ encodeURI
+             * @type {string}
+             * @constant
+             */
+            SIGNATURE_TYPE_SEPARATOR: '%',
+
+            /**
              * Signature must be one of these types
              * @constant
              */
@@ -142,11 +149,16 @@ troop.promise(jorder, 'RowSignature', function () {
                 this.signatureType = signatureType || SIGNATURE_TYPES.string;
 
                 /**
-                 * Signature composed of field names
+                 * Signature composed of field names and type
+                 * This is the signature that may identify an index
+                 * (Row signatures don't contain type info)
                  * @type {String}
-                 * TODO: should contain signature type, too
                  */
-                this.fieldSignature = this._arrayUriEncoder(fieldNames).join(this.FIELD_SEPARATOR_STRING);
+                this.fieldSignature = [
+                    this._arrayUriEncoder(fieldNames)
+                        .join(this.FIELD_SEPARATOR_STRING),
+                    this.signatureType
+                ].join(this.SIGNATURE_TYPE_SEPARATOR);
             },
 
             /**

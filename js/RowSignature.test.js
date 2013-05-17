@@ -1,9 +1,23 @@
-/*global module, test, raises, equal, strictEqual, deepEqual */
+/*global module, test, raises, equal, notEqual, strictEqual, deepEqual */
 /*global jorder */
 (function () {
     "use strict";
 
     module("RowSignature");
+
+    test("Validating constants", function () {
+        notEqual(
+            jorder.RowSignature.FIELD_SEPARATOR_STRING,
+            encodeURI(jorder.RowSignature.FIELD_SEPARATOR_STRING),
+            "Field separator can be URI encoded"
+        );
+
+        notEqual(
+            jorder.RowSignature.SIGNATURE_TYPE_SEPARATOR,
+            encodeURI(jorder.RowSignature.SIGNATURE_TYPE_SEPARATOR),
+            "Type separator can be URI encoded"
+        );
+    });
 
     test("URI encoding array", function () {
         var arr = ["§1.", "`foo`", "foo bar", 5],
@@ -40,7 +54,7 @@
         equal(signature.signatureType, 'string', "Default signature type");
         deepEqual(signature.fieldNames, ['a', 'b'], "Signature fields");
         deepEqual(signature.fieldNameLookup, {a: '1', b: '1'}, "Signature field lookup");
-        equal(signature.fieldSignature, 'a|b', "Static field signature");
+        equal(signature.fieldSignature, 'a|b%string', "Static field signature");
     });
 
     test("Row validation", function () {
