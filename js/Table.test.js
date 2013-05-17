@@ -52,4 +52,28 @@
 
         deepEqual(table.items, [], "Table buffer cleared");
     });
+
+    test("Index addition", function () {
+        var table = jorder.Table.create([
+            {foo: 'bar', hello: 'world'}
+        ])
+            .addIndex(['foo', 'bar']);
+
+        equal(table.indexCollection.count, 1, "Index count increased");
+        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
+        ok(table.indexCollection.items['foo|bar%string'].isA(jorder.Index), "Index instance");
+    });
+
+    test("Fetching index", function () {
+        var table = jorder.Table.create([
+                    {foo: 'bar', hello: 'world'}
+                ])
+                    .addIndex(['foo', 'bar']);
+
+        strictEqual(
+            table.indexCollection.items['foo|bar%string'],
+            table.getIndex(['foo', 'bar']),
+            "Index matching fields 'foo' & 'bar'"
+        );
+    });
 }());

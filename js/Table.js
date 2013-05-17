@@ -34,6 +34,25 @@ troop.promise(jorder, 'Table', function () {
             },
 
             /**
+             * Adds an index to the table.
+             * @param {string[]} fieldNames Names of fields included in the index
+             * @param {string} [signatureType] Index type
+             * @return {jorder.Table}
+             */
+            addIndex: function (fieldNames, signatureType) {
+                this.indexCollection.setItem(jorder.Index.create(fieldNames, signatureType));
+                return this;
+            },
+
+            /**
+             * Fetches an index from the table's index pool.
+             * @return {jorder.Index}
+             */
+            getIndex: function (fieldNames, signatureType) {
+                return this.indexCollection.getIndexForFields(fieldNames, signatureType);
+            },
+
+            /**
              * Re-indexes table by rebuilding all indexes associated with table.
              * @return {jorder.Table}
              */
