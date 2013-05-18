@@ -283,6 +283,7 @@ troop.promise(jorder, 'RowSignature', function () {
              * ie. that the row fits the signature fully.
              * @param {object} row Raw table row
              * @return {boolean}
+             * TODO: adding type check
              */
             containedByRow: function (row) {
                 var fieldNames = this.fieldNames,
