@@ -45,14 +45,6 @@ troop.promise(jorder, 'Table', function () {
             },
 
             /**
-             * Fetches an index from the table's index pool.
-             * @return {jorder.Index}
-             */
-            getIndex: function (fieldNames, signatureType) {
-                return this.indexCollection.getIndexForFields(fieldNames, signatureType);
-            },
-
-            /**
              * Re-indexes table by rebuilding all indexes associated with table.
              * @return {jorder.Table}
              */
