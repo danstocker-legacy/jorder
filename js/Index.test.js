@@ -109,7 +109,7 @@
             }
         });
 
-        index.clear();
+        index.clearBuffers();
     });
 
     test('Lookup', function () {

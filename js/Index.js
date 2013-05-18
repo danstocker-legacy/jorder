@@ -82,9 +82,9 @@ troop.promise(jorder, 'Index', function () {
             },
 
             /**
-             * Clears index.
+             * Clears index buffers.
              */
-            clear: function () {
+            clearBuffers: function () {
                 // clearing lookup buffers
                 this.rowIdLookup.clear();
                 this.sortedKeys.clear();
