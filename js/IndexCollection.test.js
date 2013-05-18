@@ -38,6 +38,40 @@
         );
     });
 
+    test("Fetching index for row", function () {
+        var indexCollection = jorder.IndexCollection.create()
+                .setItem(jorder.Index.create(['foo', 'bar']))
+                .setItem(jorder.Index.create(['foo']))
+                .setItem(jorder.Index.create(['foo', 'baz']))
+                .setItem(jorder.Index.create(['foo', 'moo'])),
+            result;
+
+        // could yield any of the first 3 indexes
+        result = indexCollection.getIndexForRow({foo: 'hello', bar: 'world', baz: '!!!'});
+
+        ok(result.isA(jorder.Index), "Return type");
+        ok(
+            result.rowSignature.fieldSignature === 'foo|bar%string' ||
+            result.rowSignature.fieldSignature === 'foo%string' ||
+            result.rowSignature.fieldSignature === 'foo|baz%string',
+            "Result index signature"
+        );
+    });
+
+    test("Fetching best index for row", function () {
+        var indexCollection = jorder.IndexCollection.create()
+                .setItem(jorder.Index.create(['foo', 'bar']))
+                .setItem(jorder.Index.create(['foo']))
+                .setItem(jorder.Index.create(['foo', 'bar', 'baz'])),
+            result;
+
+        // yields the one with the most matching fields
+        result = indexCollection.getBestIndexForRow({foo: 'hello', bar: 'world', baz: '!!!'});
+
+        ok(result.isA(jorder.Index), "Return type");
+        equal(result.rowSignature.fieldSignature, 'foo|bar|baz%string', "Result index signature");
+    });
+
     test("Row addition", function () {
         var index1 = jorder.Index.create(['foo', 'bar']),
             index2 = jorder.Index.create(['foo', 'moo']),
