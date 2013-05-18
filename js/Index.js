@@ -99,8 +99,10 @@ troop.promise(jorder, 'Index', function () {
              */
             getRowIdsForKeys: function (keys) {
                 return sntls.StringDictionary.create(keys)
-                    .combineWith(this.rowIdLookup)// selecting row IDs for specified keys
-                    .reverse()// collapsing unique row IDs
+                    // selecting row IDs for specified keys
+                    .combineWith(this.rowIdLookup)
+                    // collapsing unique row IDs
+                    .reverse()
                     .getKeys();
             },
 
@@ -115,12 +117,16 @@ troop.promise(jorder, 'Index', function () {
              */
             getRowIdsForKeyRange: function (startValue, endValue, offset, limit) {
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
+                    // collapsing unique index values
                     .toStringDictionary()
-                    .reverse()// collapsing unique index values
-                    .getKeysAsHash()// getting unique index values in a hash
+                    .reverse()
+                    // getting unique index values in a hash
+                    .getKeysAsHash()
+                    // obtaining row IDs from lookup
                     .toStringDictionary()
-                    .combineWith(this.rowIdLookup)// obtaining row IDs from lookup
-                    .reverse()// collapsing unique row IDs
+                    .combineWith(this.rowIdLookup)
+                    // collapsing unique row IDs
+                    .reverse()
                     .getKeys();
             }
         });
