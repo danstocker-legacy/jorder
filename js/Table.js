@@ -40,15 +40,33 @@ troop.promise(jorder, 'Table', function () {
              * @return {jorder.Table}
              */
             addIndex: function (fieldNames, signatureType) {
-                this.indexCollection.setItem(jorder.Index.create(fieldNames, signatureType));
+                var index = jorder.Index.create(fieldNames, signatureType);
+
+                // adding index to collection
+                this.indexCollection.setItem(index);
+
+                // initializing index with table rows
+                this.toCollection()
+                    .forEachItem(index.addRow.bind(index));
+
                 return this;
             },
 
             /**
              * Re-indexes table by rebuilding all indexes associated with table.
+             * TODO: might need performance improvement; perhaps iterate over indexes first, then rows
              * @return {jorder.Table}
              */
             reIndex: function () {
+                var indexCollection = this.indexCollection;
+
+                // clearing index buffer
+                indexCollection.clearBuffers();
+
+                // re-building each index
+                this.toCollection()
+                    .forEachItem(indexCollection.addRow.bind(indexCollection));
+
                 return this;
             },
 

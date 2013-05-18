@@ -35,6 +35,82 @@
         equal(table.indexCollection.count, 0, "No indexes initially");
     });
 
+    test("Index addition", function () {
+        var table = jorder.Table.create([
+            {foo: 'hello', bar: 'world'}
+        ]);
+
+        table
+            .addIndex(['foo', 'bar']);
+
+        equal(table.indexCollection.count, 1, "Index count increased");
+        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
+
+        var index = table.indexCollection.items['foo|bar%string'];
+
+        ok(index.isA(jorder.Index), "Index instance");
+        deepEqual(
+            index.rowIdLookup.items,
+            {
+                'hello|world': '0'
+            },
+            "Lookup of index"
+        );
+        deepEqual(
+            index.sortedKeys.items,
+            ['hello|world'],
+            "Keys in index"
+        );
+    });
+
+    test("Re-indexing", function () {
+        var table = jorder.Table.create([
+            {foo: 'hello', bar: 'world'}
+        ]);
+
+        table.addIndex(['foo', 'bar']);
+
+        var index = table.indexCollection.getItem('foo|bar%string'),
+            result = [];
+
+        // adding row inconsistently
+        table.items.push({foo: 'howdy', bar: 'yall'});
+
+        // index is not updated yet
+        deepEqual(
+            index.rowIdLookup.items,
+            {
+                'hello|world': '0'
+            },
+            "Lookup before reindex"
+        );
+        deepEqual(
+            index.sortedKeys.items,
+            ['hello|world'],
+            "Keys before reindex"
+        );
+
+        table.reIndex();
+
+        // updated indexes
+        deepEqual(
+            index.rowIdLookup.items,
+            {
+                'hello|world': '0',
+                'howdy|yall': '1'
+            },
+            "Lookup after reindex"
+        );
+        deepEqual(
+            index.sortedKeys.items,
+            [
+                'hello|world',
+                'howdy|yall'
+            ],
+            "Keys after reindex"
+        );
+    });
+
     test("Clearing table", function () {
         expect(2);
 
@@ -46,16 +122,5 @@
 
         deepEqual(table.items, [], "Table buffer cleared");
         deepEqual(table.indexCollection.items, {}, "Index collection cleared");
-    });
-
-    test("Index addition", function () {
-        var table = jorder.Table.create([
-            {foo: 'bar', hello: 'world'}
-        ])
-            .addIndex(['foo', 'bar']);
-
-        equal(table.indexCollection.count, 1, "Index count increased");
-        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
-        ok(table.indexCollection.items['foo|bar%string'].isA(jorder.Index), "Index instance");
     });
 }());
