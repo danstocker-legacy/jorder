@@ -71,6 +71,24 @@ troop.promise(jorder, 'Table', function () {
             },
 
             /**
+             * Inserts row into table, updating all relevant indexes
+             * @param row
+             */
+            insertRow: function (row) {
+                // adding row to table
+                var rowId = this.items.push(row);
+
+                // adding row to indexes
+                this.indexCollection
+                    // selecting fitting indexes
+                    .getIndexesForRow(row)
+                    // adding row to fitting indexes
+                    .addRow(row, rowId - 1 + '');
+
+                return this;
+            },
+
+            /**
              * Clears table and associated indexes.
              * @return {jorder.Table}
              */

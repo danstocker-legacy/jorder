@@ -40,13 +40,12 @@
             {foo: 'hello', bar: 'world'}
         ]);
 
-        table
-            .addIndex(['foo', 'bar']);
+        table.addIndex(['foo', 'bar']);
 
         equal(table.indexCollection.count, 1, "Index count increased");
         deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
 
-        var index = table.indexCollection.items['foo|bar%string'];
+        var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
 
         ok(index.isA(jorder.Index), "Index instance");
         deepEqual(
@@ -70,8 +69,7 @@
 
         table.addIndex(['foo', 'bar']);
 
-        var index = table.indexCollection.getItem('foo|bar%string'),
-            result = [];
+        var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
 
         // adding row inconsistently
         table.items.push({foo: 'howdy', bar: 'yall'});
@@ -97,7 +95,7 @@
             index.rowIdLookup.items,
             {
                 'hello|world': '0',
-                'howdy|yall': '1'
+                'howdy|yall' : '1'
             },
             "Lookup after reindex"
         );
@@ -108,6 +106,46 @@
                 'howdy|yall'
             ],
             "Keys after reindex"
+        );
+    });
+
+    test("Insertion", function () {
+        var table = jorder.Table.create(),
+            result;
+
+        table
+            .addIndex(['foo', 'bar'])
+            .addIndex(['foo'])
+            .addIndex(['foo', 'baz']);
+
+        deepEqual(table.items, [], "Table is empty by default");
+
+        result = table.insertRow({foo: 'hello', bar: 'world'});
+
+        strictEqual(result, table, "Insertion is chainable");
+
+        deepEqual(
+            table.items,
+            [
+                {foo: 'hello', bar: 'world'}
+            ],
+            "Row contents added to table"
+        );
+
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo', 'bar']).rowIdLookup.items,
+            {'hello|world': '0'},
+            "First lookup okay"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            {'hello': '0'},
+            "Second lookup okay"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo', 'baz']).rowIdLookup.items,
+            {},
+            "Third index not relevant for row"
         );
     });
 
