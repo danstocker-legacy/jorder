@@ -42,15 +42,10 @@
             {foo: 'bar', hello: 'world'}
         ]);
 
-        table.indexCollection.addMock({
-            clear: function () {
-                ok(true, "Index collection cleared");
-            }
-        });
-
         table.clear();
 
         deepEqual(table.items, [], "Table buffer cleared");
+        deepEqual(table.indexCollection.items, {}, "Index collection cleared");
     });
 
     test("Index addition", function () {
