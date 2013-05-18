@@ -38,7 +38,7 @@ troop.promise(jorder, 'Index', function () {
                 /**
                  * Holds index keys in ascending order. (With multiplicity)
                  * TODO: investigate no-multiplicity solution
-                 * @type {sntls.OrderedList}
+                 * @type {sntls.OrderedStringList}
                  */
                 this.sortedKeys = sntls.OrderedStringList.create();
             },
