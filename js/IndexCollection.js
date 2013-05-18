@@ -13,7 +13,40 @@ troop.promise(jorder, 'IndexCollection', function () {
      * @extends jorder.Index
      */
     jorder.IndexCollection = sntls.Collection.of(jorder.Index)
-        .addMethod({
+        .addPrivateMethod(/** @lends jorder.IndexCollection */{
+            /**
+             * Determines whether the specified index fits the specified row.
+             * @param {object} row Table row
+             * @param {jorder.Index} index
+             * @return {Boolean}
+             * @private
+             */
+            _isIndexContainedByRow: function (row, index) {
+                return index.rowSignature.containedByRow(row);
+            },
+
+            /**
+             * Returns the field count for the specified index.
+             * @param {jorder.Index} index
+             * @return {Number}
+             * @private
+             */
+            _indexFieldCountMapper: function (index) {
+                return index.rowSignature.fieldNames.length;
+            },
+
+            /**
+             * Array.sort() comparator for descending order.
+             * @param {number} a
+             * @param {number} b
+             * @return {Number}
+             * @private
+             */
+            _descNumericComparator: function (a, b) {
+                return a < b ? 1 : a > b ? -1 : 0;
+            }
+        })
+        .addMethod(/** @lends jorder.IndexCollection */{
             /**
              * @name jorder.IndexCollection.create
              * @return {jorder.IndexCollection}
@@ -41,9 +74,7 @@ troop.promise(jorder, 'IndexCollection', function () {
             getIndexForRow: function (row) {
                 return this
                     // keeping indexes that match row
-                    .filterByExpr(function (/**jorder.Index*/index) {
-                        return index.rowSignature.containedByRow(row);
-                    })
+                    .filterByExpr(this._isIndexContainedByRow.bind(this, row))
                     // picking first we can find
                     .getValues()[0];
             },
@@ -56,13 +87,9 @@ troop.promise(jorder, 'IndexCollection', function () {
             getBestIndexForRow: function (row) {
                 return this
                     // keeping indexes that match row
-                    .filterByExpr(function (/**jorder.Index*/index) {
-                        return index.rowSignature.containedByRow(row);
-                    })
+                    .filterByExpr(this._isIndexContainedByRow.bind(this, row))
                     // getting number of matching fields for each
-                    .mapContents(function (/**jorder.Index*/index) {
-                        return index.rowSignature.fieldNames.length;
-                    })
+                    .mapContents(this._indexFieldCountMapper)
                     // flipping to field count -> index ID
                     .toStringDictionary()
                     .reverse()
@@ -70,9 +97,7 @@ troop.promise(jorder, 'IndexCollection', function () {
                     .combineWith(this.toDictionary())
                     // picking index with highest field count
                     .toCollection()
-                    .getSortedValues(function (a, b) {
-                        return a < b ? 1 : a > b ? -1 : 0;
-                    })[0];
+                    .getSortedValues(this._descNumericComparator)[0];
             },
 
             /**

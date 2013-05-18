@@ -1,9 +1,43 @@
-/*global module, test, ok, raises, equal, strictEqual, deepEqual */
+/*global module, test, expect, ok, raises, equal, strictEqual, deepEqual */
 /*global sntls, jorder */
 (function () {
     "use strict";
 
     module("Index Collection");
+
+    test("Index containment", function () {
+        expect(2);
+
+        var myRow = {},
+            index = jorder.Index.create(['foo', 'bar']);
+
+        jorder.RowSignature.addMock({
+            containedByRow: function (row) {
+                strictEqual(row, myRow, "Row passed");
+                strictEqual(this, index.rowSignature, "Index matches");
+            }
+        });
+
+        jorder.IndexCollection._isIndexContainedByRow(myRow, index);
+
+        jorder.RowSignature.removeMocks();
+    });
+
+    test("Field count mapper", function () {
+        var index = jorder.Index.create(['foo', 'bar']);
+
+        equal(
+            jorder.IndexCollection._indexFieldCountMapper(index),
+            index.rowSignature.fieldNames.length,
+            "Index signature field count"
+        );
+    });
+
+    test("DESC Numeric comparator", function () {
+        equal(jorder.IndexCollection._descNumericComparator(1, 2), 1, "First is lower");
+        equal(jorder.IndexCollection._descNumericComparator(3, 2), -1, "First is higher");
+        equal(jorder.IndexCollection._descNumericComparator(3, 3), 0, "Equal");
+    });
 
     test("Index addition", function () {
         var index = jorder.Index.create(['foo', 'bar']),
