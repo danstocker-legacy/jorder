@@ -15,7 +15,8 @@ troop.promise(jorder, 'IndexCollection', function () {
     jorder.IndexCollection = sntls.Collection.of(jorder.Index)
         .addPrivateMethod(/** @lends jorder.IndexCollection */{
             /**
-             * Determines whether the specified index fits the specified row.
+             * Determines whether all fields of the specified index
+             * are present in the specified row.
              * @param {object} row Table row
              * @param {jorder.Index} index
              * @return {Boolean}
@@ -67,6 +68,16 @@ troop.promise(jorder, 'IndexCollection', function () {
             },
 
             /**
+             * Retrieves a collection of indexes that fully match the specified row.
+             * @param {object} row
+             * @return {jorder.IndexCollection}
+             */
+            getIndexesForRow: function (row) {
+                return /** @type {jorder.IndexCollection} */ this
+                    .filterByExpr(this._isIndexContainedByRow.bind(this, row));
+            },
+
+            /**
              * Retrieves the first index matching the specified row.
              * @param {object} row
              * @return {jorder.Index}
@@ -74,7 +85,7 @@ troop.promise(jorder, 'IndexCollection', function () {
             getIndexForRow: function (row) {
                 return this
                     // keeping indexes that match row
-                    .filterByExpr(this._isIndexContainedByRow.bind(this, row))
+                    .getIndexesForRow(row)
                     // picking first we can find
                     .getValues()[0];
             },
@@ -87,7 +98,7 @@ troop.promise(jorder, 'IndexCollection', function () {
             getBestIndexForRow: function (row) {
                 return this
                     // keeping indexes that match row
-                    .filterByExpr(this._isIndexContainedByRow.bind(this, row))
+                    .getIndexesForRow(row)
                     // getting number of matching fields for each
                     .mapContents(this._indexFieldCountMapper)
                     // flipping to field count -> index ID

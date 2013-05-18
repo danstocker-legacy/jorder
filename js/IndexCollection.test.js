@@ -54,7 +54,7 @@
         );
     });
 
-    test("Index lookup", function () {
+    test("Exact index lookup by field names", function () {
         var index1 = jorder.Index.create(['foo', 'bar']),
             index2 = jorder.Index.create(['field1', 'field2']),
             indexCollection = jorder.IndexCollection.create();
@@ -72,6 +72,25 @@
         );
     });
 
+    test("Fetching indexes matching a row", function () {
+        var indexCollection = jorder.IndexCollection.create()
+                .setItem(jorder.Index.create(['foo', 'bar']))
+                .setItem(jorder.Index.create(['foo']))
+                .setItem(jorder.Index.create(['foo', 'baz']))
+                .setItem(jorder.Index.create(['foo', 'moo'])),
+            result;
+
+        // full match (ie. all index fields are present in row)
+        result = indexCollection.getIndexesForRow({foo: 'hello', bar: 'world'});
+
+        ok(result.isA(jorder.IndexCollection), "Return type IndexCollection");
+        deepEqual(
+            result.getKeys().sort(),
+            ['foo%string', 'foo|bar%string'],
+            "Only fully matching indexes returned"
+        );
+    });
+
     test("Fetching index for row", function () {
         var indexCollection = jorder.IndexCollection.create()
                 .setItem(jorder.Index.create(['foo', 'bar']))
@@ -83,7 +102,7 @@
         // could yield any of the first 3 indexes
         result = indexCollection.getIndexForRow({foo: 'hello', bar: 'world', baz: '!!!'});
 
-        ok(result.isA(jorder.Index), "Return type");
+        ok(result.isA(jorder.Index), "Return type Index");
         ok(
             result.rowSignature.fieldSignature === 'foo|bar%string' ||
             result.rowSignature.fieldSignature === 'foo%string' ||
