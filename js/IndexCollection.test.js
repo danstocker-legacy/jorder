@@ -99,11 +99,18 @@
                 .setItem(jorder.Index.create(['foo', 'bar', 'baz'])),
             result;
 
+        result = indexCollection.getBestIndexForRow({hello: 'world'});
+
+        equal(typeof result, 'undefined', "No fitting index");
+
         // yields the one with the most matching fields
         result = indexCollection.getBestIndexForRow({foo: 'hello', bar: 'world', baz: '!!!'});
 
         ok(result.isA(jorder.Index), "Return type");
         equal(result.rowSignature.fieldSignature, 'foo|bar|baz%string', "Result index signature");
+
+        result = indexCollection.getBestIndexForRow({foo: 'hello', bar: 'world'});
+        equal(result.rowSignature.fieldSignature, 'foo|bar%string', "Result index signature");
     });
 
     test("Row addition", function () {
