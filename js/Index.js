@@ -83,6 +83,7 @@ troop.promise(jorder, 'Index', function () {
 
             /**
              * Clears index buffers.
+             * @return {jorder.Index}
              */
             clearBuffers: function () {
                 // clearing lookup buffers
@@ -95,7 +96,7 @@ troop.promise(jorder, 'Index', function () {
             /**
              * Retrieves a list of row ids associated with the specified keys.
              * @param {string[]|number[]} keys
-             * @return {string[]}
+             * @return {sntls.Hash}
              */
             getRowIdsForKeys: function (keys) {
                 return sntls.StringDictionary.create(keys)
@@ -103,7 +104,7 @@ troop.promise(jorder, 'Index', function () {
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
                     .reverse()
-                    .getKeys();
+                    .getKeysAsHash();
             },
 
             /**
@@ -113,7 +114,7 @@ troop.promise(jorder, 'Index', function () {
              * @param {string|number} endValue Upper index bound
              * @param {number} [offset] Starting position of results
              * @param {number} [limit]
-             * @return {string[]}
+             * @return {sntls.Hash}
              */
             getRowIdsForKeyRange: function (startValue, endValue, offset, limit) {
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
@@ -127,7 +128,7 @@ troop.promise(jorder, 'Index', function () {
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
                     .reverse()
-                    .getKeys();
+                    .getKeysAsHash();
             }
         });
 });

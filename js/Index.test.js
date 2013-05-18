@@ -126,7 +126,7 @@
             .addRow({foo: 1}, 9);
 
         deepEqual(
-            index.getRowIdsForKeys(['3', '4']).sort(),
+            index.getRowIdsForKeys(['3', '4']).items.sort(),
             ['1', '2', '3', '4'],
             "Row IDs for index keys 3 and 4"
         );
@@ -146,13 +146,13 @@
             .addRow({foo: 1}, 9);
 
         deepEqual(
-            index.getRowIdsForKeyRange(3, 4).sort(),
+            index.getRowIdsForKeyRange(3, 4).items.sort(),
             ['1', '3', '4'],
             "Row IDs between index key 3 and 4 (excl.)"
         );
 
         deepEqual(
-            index.getRowIdsForKeyRange(4, 6).sort(),
+            index.getRowIdsForKeyRange(4, 6).items.sort(),
             ['0', '2', '5', '6'],
             "Row IDs between index key 4 and 6 (excl.)"
         );
