@@ -10,7 +10,7 @@
     },
     "dependencies": {
         "dessert": "~0.2.7",
-        "troop"  : "~0.3.5",
+        "troop"  : "~0.3.6",
         "sntls"  : "~0.6.0"
     },
     "files"       : ["out/jorder.js"],
