@@ -216,6 +216,11 @@ troop.promise(jorder, 'RowSignature', function () {
              * @return {string[]}
              */
             getKeysForRow: function (row) {
+                if (!row) {
+                    // empty array when no row is given
+                    return [];
+                }
+
                 var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
                     fieldNames = this.fieldNames;
 
