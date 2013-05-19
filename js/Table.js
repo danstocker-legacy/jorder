@@ -5,7 +5,9 @@
 troop.promise(jorder, 'Table', function () {
     "use strict";
 
-    var base = sntls.Hash;
+    var Collection = sntls.Collection,
+        IndexCollection = jorder.IndexCollection,
+        base = sntls.Hash;
 
     /**
      * @class jorder.Table
@@ -30,7 +32,13 @@ troop.promise(jorder, 'Table', function () {
                  * Indexes associated with table
                  * @type {jorder.IndexCollection}
                  */
-                this.indexCollection = jorder.IndexCollection.create();
+                this.indexCollection = IndexCollection.create();
+
+                /**
+                 * Table rows
+                 * @type {sntls.Collection}
+                 */
+                this.rowCollection = Collection.create(this.items);
             },
 
             /**
@@ -46,7 +54,7 @@ troop.promise(jorder, 'Table', function () {
                 this.indexCollection.setItem(index);
 
                 // initializing index with table rows
-                this.toCollection()
+                this.rowCollection
                     .forEachItem(index.addRow.bind(index));
 
                 return this;
@@ -54,7 +62,6 @@ troop.promise(jorder, 'Table', function () {
 
             /**
              * Re-indexes table by rebuilding all indexes associated with table.
-             * TODO: might need performance improvement; perhaps iterate over indexes first, then rows
              * @return {jorder.Table}
              */
             reIndex: function () {
@@ -64,7 +71,7 @@ troop.promise(jorder, 'Table', function () {
                 indexCollection.clearBuffers();
 
                 // re-building each index
-                this.toCollection()
+                this.rowCollection
                     .forEachItem(indexCollection.addRow.bind(indexCollection));
 
                 return this;
@@ -122,37 +129,33 @@ troop.promise(jorder, 'Table', function () {
              */
             deleteRowsByRow: function (row) {
                 // getting an index for the row
-                var index = this.indexCollection.getBestIndexForRow(row),
-                    rowCollection;
+                var index = this.indexCollection.getBestIndexForRow(row);
 
                 dessert.assert(!!index, "No index matches row");
-
-                /**
-                 * Treating table as collection
-                 * TODO: might be slow b/c counts rows
-                 */
-                rowCollection = this.toCollection();
 
                 index
                     // obtaining matching row IDs
                     .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
                     // deleting rows one by one
                     .toCollection()
-                    .forEachItem(rowCollection.deleteItem.bind(rowCollection));
+                    .forEachItem(Collection.deleteItem.bind(this.rowCollection));
 
                 return this;
             },
 
             /**
-             * Clears table and associated indexes.
+             * Clears rows and associated indexes.
              * @return {jorder.Table}
              */
             clear: function () {
-                // clearing table buffer
-                base.clear.call(this);
-
                 // clearing indexes
                 this.indexCollection.clear();
+
+                // clearing rows
+                this.rowCollection.clear();
+
+                // keeping hash and row collection item buffer in sync
+                this.items = this.rowCollection.items;
 
                 return this;
             }

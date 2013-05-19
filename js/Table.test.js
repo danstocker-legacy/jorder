@@ -45,6 +45,7 @@
             {foo: 'bar', hello: 'world'}
         ]);
 
+        strictEqual(table.items, table.rowCollection.items, "Identical buffers in hash & row collection");
         deepEqual(
             table.items,
             [
@@ -252,7 +253,7 @@
     });
 
     test("Clearing table", function () {
-        expect(2);
+        expect(3);
 
         var table = jorder.Table.create([
             {foo: 'bar', hello: 'world'}
@@ -260,6 +261,7 @@
 
         table.clear();
 
+        strictEqual(table.items, table.rowCollection.items, "Row buffer is the same after clearing");
         deepEqual(table.items, [], "Table buffer cleared");
         deepEqual(table.indexCollection.items, {}, "Index collection cleared");
     });
