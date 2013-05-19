@@ -71,6 +71,24 @@ troop.promise(jorder, 'Table', function () {
             },
 
             /**
+             * Fetches table rows that match specified row.
+             * @param {object} row Table row or relevant field w/ value
+             * @return {sntls.Hash}
+             */
+            queryByRow: function (row) {
+                var index = this.indexCollection.getBestIndexForRow(row);
+
+                dessert.assert(index, "No index matches row");
+
+                return index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
              * Inserts row into table, updating all relevant indexes
              * @param row
              */

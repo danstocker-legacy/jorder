@@ -5,6 +5,28 @@
 
     module("Table");
 
+    // for querying only. DO NOT modify from code
+    var json = [
+        {
+            'title'  : 'Lord of the rings',
+            'data'   : [5, 6, 43, 21, 88],
+            'author' : 'Tolkien',
+            'volumes': 3
+        },
+        {
+            'title'  : 'Winnie the Pooh',
+            'data'   : [1, 2, 34, 5],
+            'author' : 'Milne',
+            'volumes': 1
+        },
+        {
+            'title'  : 'Prelude to Foundation',
+            'data'   : [99, 1],
+            'author' : 'Asimov',
+            'volumes': 1
+        }
+    ];
+
     test("Type conversion", function () {
         var hash = sntls.Hash.create([
                 {foo: 'bar', hello: 'world'}
@@ -106,6 +128,32 @@
                 'howdy|yall'
             ],
             "Keys after reindex"
+        );
+    });
+
+    test("Query by single row", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText)
+                .addIndex(['author'], SIGNATURE_TYPES.string)
+                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+
+        deepEqual(
+            table.queryByRow({author: 'Tolkien'}).items,
+            [json[0]],
+            "Fitting rows fetched"
+        );
+
+        deepEqual(
+            table.queryByRow({title: 'the'}).items,
+            [json[0], json[1]],
+            "Fitting rows fetched"
+        );
+
+        deepEqual(
+            table.queryByRow({volumes: 1}).items,
+            [json[1], json[2]],
+            "Fitting rows fetched"
         );
     });
 
