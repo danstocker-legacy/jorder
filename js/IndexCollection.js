@@ -74,7 +74,7 @@ troop.promise(jorder, 'IndexCollection', function () {
              */
             getIndexesForRow: function (row) {
                 return /** @type {jorder.IndexCollection} */ this
-                    .filterByExpr(this._isIndexContainedByRow.bind(this, row));
+                    .filterBySelector(this._isIndexContainedByRow.bind(this, row));
             },
 
             /**
