@@ -37,7 +37,7 @@ troop.promise(jorder, 'RowSignature', function () {
              * @type {RegExp}
              * @constant
              */
-            RE_WORD_DELIMITER: /\s+/g,
+            RE_WORD_DELIMITER: /\s+/,
 
             /**
              * Separates signature type in field signature from fields, must be escapable w/ encodeURI
