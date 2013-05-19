@@ -71,14 +71,14 @@ troop.promise(jorder, 'Table', function () {
             },
 
             /**
-             * Fetches table rows that match specified row.
+             * Fetches table rows that match specified row and wraps them in a hash.
              * @param {object} row Table row or relevant field w/ value
              * @return {sntls.Hash}
              */
-            queryByRow: function (row) {
+            queryByRowAsHash: function (row) {
                 var index = this.indexCollection.getBestIndexForRow(row);
 
-                dessert.assert(index, "No index matches row");
+                dessert.assert(!!index, "No index matches row");
 
                 return index
                     // obtaining matching row IDs
@@ -86,6 +86,15 @@ troop.promise(jorder, 'Table', function () {
                     // joining actual rows that match
                     .toStringDictionary()
                     .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows that match specified row.
+             * @param {object} row Table row or relevant field w/ value
+             * @return {Array}
+             */
+            queryByRow: function (row) {
+                return this.queryByRowAsHash(row).items;
             },
 
             /**

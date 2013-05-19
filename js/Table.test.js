@@ -139,22 +139,32 @@
                 .addIndex(['volumes'], SIGNATURE_TYPES.number);
 
         deepEqual(
-            table.queryByRow({author: 'Tolkien'}).items,
+            table.queryByRowAsHash({author: 'Tolkien'}).items,
             [json[0]],
             "Fitting rows fetched"
         );
 
         deepEqual(
-            table.queryByRow({title: 'the'}).items,
+            table.queryByRowAsHash({title: 'the'}).items,
             [json[0], json[1]],
             "Fitting rows fetched"
         );
 
         deepEqual(
-            table.queryByRow({volumes: 1}).items,
+            table.queryByRowAsHash({volumes: 1}).items,
             [json[1], json[2]],
             "Fitting rows fetched"
         );
+
+        var items = {};
+
+        table.addMock({
+            queryByRowAsHash: function () {
+                return {items:items};
+            }
+        });
+
+        strictEqual(table.queryByRow({}), items, "Items of return value of .queryByRowAsHash");
     });
 
     test("Insertion", function () {
