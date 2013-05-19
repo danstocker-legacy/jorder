@@ -72,7 +72,7 @@ troop.promise(jorder, 'Table', function () {
 
             /**
              * Fetches table rows that match specified row and wraps them in a hash.
-             * @param {object} row Table row or relevant field w/ value
+             * @param {object} row Table row or relevant fields w/ value
              * @return {sntls.Hash}
              */
             queryByRowAsHash: function (row) {
@@ -99,7 +99,7 @@ troop.promise(jorder, 'Table', function () {
 
             /**
              * Inserts row into table, updating all relevant indexes
-             * @param row
+             * @param {object} row Table row
              */
             insertRow: function (row) {
                 // adding row to table
@@ -111,6 +111,34 @@ troop.promise(jorder, 'Table', function () {
                     .getIndexesForRow(row)
                     // adding row to fitting indexes
                     .addRow(row, rowId - 1 + '');
+
+                return this;
+            },
+
+            /**
+             * Removes rows from the table that match the specified row.
+             * @param {object} row Table row or relevant fields w/ value
+             * @return {jorder.Table}
+             */
+            deleteRowsByRow: function (row) {
+                // getting an index for the row
+                var index = this.indexCollection.getBestIndexForRow(row),
+                    rowCollection;
+
+                dessert.assert(!!index, "No index matches row");
+
+                /**
+                 * Treating table as collection
+                 * TODO: might be slow b/c counts rows
+                 */
+                rowCollection = this.toCollection();
+
+                index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
+                    // deleting rows one by one
+                    .toCollection()
+                    .forEachItem(rowCollection.deleteItem.bind(rowCollection));
 
                 return this;
             },

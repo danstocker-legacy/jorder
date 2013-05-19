@@ -207,6 +207,50 @@
         );
     });
 
+    test("Deletion", function () {
+        var table = jorder.Table.create([
+                {foo: "hello", bar: "world", baz: "!!!"},
+                {foo: "howdy", bar: "yall", baz: "!"},
+                {foo: "greetings", bar: "everyone", baz: "."}
+            ]),
+            result;
+
+        table
+            .addIndex(['foo', 'bar'])
+            .addIndex(['foo'])
+            .addIndex(['foo', 'baz']);
+
+        raises(function () {
+            table.deleteRowsByRow({hello: "world"});
+        }, "No index for row");
+
+        result = table.deleteRowsByRow({foo: "hello", bar: "world"});
+
+        strictEqual(result, table, "Deletion is chainable");
+
+        deepEqual(
+            table.items,
+            [
+                undefined,
+                {foo: "howdy", bar: "yall", baz: "!"},
+                {foo: "greetings", bar: "everyone", baz: "."}
+            ],
+            "Row deleted"
+        );
+
+        table.deleteRowsByRow({foo: "greetings"});
+
+        deepEqual(
+            table.items,
+            [
+                undefined,
+                {foo: "howdy", bar: "yall", baz: "!"},
+                undefined
+            ],
+            "Row deleted"
+        );
+    });
+
     test("Clearing table", function () {
         expect(2);
 
