@@ -7,14 +7,14 @@ troop.promise(jorder, 'Table', function () {
 
     var Collection = sntls.Collection,
         IndexCollection = jorder.IndexCollection,
-        base = sntls.Hash;
+        base = sntls.Collection;
 
     /**
      * @class jorder.Table
-     * @extends sntls.Hash
+     * @extends sntls.Collection
      */
     jorder.Table = base.extend()
-        .addMethod({
+        .addMethod(/** @lends jorder.Table */{
             /**
              * @name jorder.Table.create
              * @return {jorder.Table}
@@ -33,12 +33,56 @@ troop.promise(jorder, 'Table', function () {
                  * @type {jorder.IndexCollection}
                  */
                 this.indexCollection = IndexCollection.create();
+            },
 
-                /**
-                 * Table rows
-                 * @type {sntls.Collection}
-                 */
-                this.rowCollection = Collection.create(this.items);
+            /**
+             * Sets row at given row ID.
+             * @param {string|number} rowId
+             * @param {object} row
+             * @return {jorder.Table}
+             */
+            setItem: function (rowId, row) {
+                // updating indexes
+                var indexCollection = this.indexCollection;
+
+                indexCollection.removeRow(this.getItem(rowId), rowId);
+                indexCollection.addRow(row, rowId);
+
+                base.setItem.call(this, rowId, row);
+
+                return this;
+            },
+
+            /**
+             * Deletes a row from the given row ID.
+             * @param {string|number} rowId
+             * @return {jorder.Table}
+             */
+            deleteItem: function (rowId) {
+                // updating indexes
+                this.indexCollection
+                    .removeRow(this.getItem(rowId), rowId);
+
+                base.deleteItem.call(this, rowId);
+
+                return this;
+            },
+
+            /**
+             * Clones table.
+             * @return {jorder.Table}
+             */
+            clone: function () {
+                // cloning collection
+                var result = /** @type jorder.Table */base.clone.call(this);
+
+                // adding table specific properties
+                this.indexCollection.forEachItem(function (/**jorder.Index*/ index) {
+                    var rowSignature = index.rowSignature;
+                    result.addIndex(rowSignature.fieldNames, rowSignature.signatureType);
+                });
+
+                return result;
             },
 
             /**
@@ -54,8 +98,7 @@ troop.promise(jorder, 'Table', function () {
                 this.indexCollection.setItem(index);
 
                 // initializing index with table rows
-                this.rowCollection
-                    .forEachItem(index.addRow.bind(index));
+                this.forEachItem(index.addRow.bind(index));
 
                 return this;
             },
@@ -71,8 +114,7 @@ troop.promise(jorder, 'Table', function () {
                 indexCollection.clearBuffers();
 
                 // re-building each index
-                this.rowCollection
-                    .forEachItem(indexCollection.addRow.bind(indexCollection));
+                this.forEachItem(indexCollection.addRow.bind(indexCollection));
 
                 return this;
             },
@@ -138,7 +180,7 @@ troop.promise(jorder, 'Table', function () {
                     .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
                     // deleting rows one by one
                     .toCollection()
-                    .forEachItem(Collection.deleteItem.bind(this.rowCollection));
+                    .forEachItem(Collection.deleteItem.bind(this));
 
                 return this;
             },
@@ -148,14 +190,10 @@ troop.promise(jorder, 'Table', function () {
              * @return {jorder.Table}
              */
             clear: function () {
+                base.clear.call(this);
+
                 // clearing indexes
                 this.indexCollection.clear();
-
-                // clearing rows
-                this.rowCollection.clear();
-
-                // keeping hash and row collection item buffer in sync
-                this.items = this.rowCollection.items;
 
                 return this;
             }

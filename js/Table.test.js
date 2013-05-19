@@ -1,4 +1,4 @@
-/*global module, test, expect, ok, raises, equal, strictEqual, deepEqual */
+/*global module, test, expect, ok, raises, equal, strictEqual, notStrictEqual, deepEqual */
 /*global sntls, jorder */
 (function () {
     "use strict";
@@ -45,7 +45,6 @@
             {foo: 'bar', hello: 'world'}
         ]);
 
-        strictEqual(table.items, table.rowCollection.items, "Identical buffers in hash & row collection");
         deepEqual(
             table.items,
             [
@@ -56,6 +55,84 @@
 
         ok(table.indexCollection.isA(jorder.IndexCollection), "Index collection");
         equal(table.indexCollection.count, 0, "No indexes initially");
+    });
+
+    test("Item setting", function () {
+        var table = jorder.Table.create()
+            .addIndex(['foo'])
+            .setItem(0, {foo: "hello"});
+
+        deepEqual(
+            table.items,
+            [
+                {foo: "hello"}
+            ],
+            "Table contents"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            {'hello': 0},
+            "Row ID lookup"
+        );
+    });
+
+    test("Item deletion", function () {
+        var table = jorder.Table.create(
+            [
+                {foo: "hello"},
+                {foo: "world"}
+            ])
+            .addIndex(['foo'])
+            .deleteItem(0);
+
+        deepEqual(
+            table.items,
+            [
+                undefined,
+                {foo: "world"}
+            ],
+            "Table contents"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            { 'world': '1' },
+            "Row ID lookup"
+        );
+    });
+
+    test("Cloning", function () {
+        var table = jorder.Table.create(
+                [
+                    {foo: "hello"},
+                    {foo: "world"}
+                ])
+                .addIndex(['foo']),
+            cloneTable;
+
+        cloneTable = table.clone();
+
+        notStrictEqual(table.items, cloneTable.items, "Rows buffer not the same");
+        deepEqual(table.items, cloneTable.items, "Rows match");
+        notStrictEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            cloneTable.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            "Lookup buffers not the same"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            cloneTable.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            "Lookups match"
+        );
+        notStrictEqual(
+            table.indexCollection.getIndexForFields(['foo']).sortedKeys.items,
+            cloneTable.indexCollection.getIndexForFields(['foo']).sortedKeys.items,
+            "Order buffers not the same"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).sortedKeys.items,
+            cloneTable.indexCollection.getIndexForFields(['foo']).sortedKeys.items,
+            "Orders match"
+        );
     });
 
     test("Index addition", function () {
@@ -161,7 +238,7 @@
 
         table.addMock({
             queryByRowAsHash: function () {
-                return {items:items};
+                return {items: items};
             }
         });
 
@@ -253,7 +330,7 @@
     });
 
     test("Clearing table", function () {
-        expect(3);
+        expect(2);
 
         var table = jorder.Table.create([
             {foo: 'bar', hello: 'world'}
@@ -261,7 +338,6 @@
 
         table.clear();
 
-        strictEqual(table.items, table.rowCollection.items, "Row buffer is the same after clearing");
         deepEqual(table.items, [], "Table buffer cleared");
         deepEqual(table.indexCollection.items, {}, "Index collection cleared");
     });
