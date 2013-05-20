@@ -135,6 +135,50 @@
         );
     });
 
+    test("Table merge", function () {
+        var table = jorder.Table.create(
+                [
+                    {foo: "hello"},
+                    {foo: "world"}
+                ])
+                .addIndex(['foo']),
+            result;
+
+        result = /** @type jorder.Table */ table.mergeWith(jorder.Table.create([
+            undefined,
+            {foo: "howdy"},
+            {foo: "yall"}
+        ]));
+
+        deepEqual(
+            result.items,
+            [
+                {foo: "hello"},
+                {foo: "world"},
+                {foo: "yall"}
+            ],
+            "Merged tables w/ conflicting rows discarded"
+        );
+
+        var index = result.indexCollection.getIndexForFields(['foo']);
+
+        deepEqual(
+            index.rowIdLookup.items,
+            {
+                hello: '0',
+                world: '1',
+                yall : '2'
+            },
+            "Merged lookup index"
+        );
+
+        deepEqual(
+            index.sortedKeys.items,
+            ['hello', 'world', 'yall'],
+            "Merged key order"
+        );
+    });
+
     test("Index addition", function () {
         var table = jorder.Table.create([
             {foo: 'hello', bar: 'world'}
