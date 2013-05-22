@@ -12,7 +12,7 @@ troop.promise(jorder, 'IndexCollection', function () {
      * @extends sntls.Collection
      * @extends jorder.Index
      */
-    jorder.IndexCollection = sntls.Collection.of(jorder.Index)
+    jorder.IndexCollection = sntls.Collection.of(jorder.Index).extend()
         .addPrivateMethod(/** @lends jorder.IndexCollection */{
             /**
              * Determines whether all fields of the specified index
