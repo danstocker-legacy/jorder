@@ -1,18 +1,29 @@
 {
-    "name"        : "jorder",
-    "version"     : "0.1.0",
-    "description" : "Indexed table cache",
-    "keywords"    : ["table", "data", "query", "queries", "indexed"],
-    "author"      : "Dan Stocker <dan@kwaia.com>",
-    "repository"  : {
+    "name"           : "jorder",
+    "version"        : "0.1.0",
+    "description"    : "Indexed table cache",
+    "keywords"       : ["table", "data", "query", "queries", "indexed"],
+    "author"         : "Dan Stocker <dan@kwaia.com>",
+    "repository"     : {
         "type": "git",
         "url" : "git://github.com/danstocker/jorder.git"
     },
-    "dependencies": {
+    "dependencies"   : {
         "dessert": "~0.2.7",
         "troop"  : "~0.3.6",
         "sntls"  : "~0.7.0"
     },
-    "files"       : ["out/jorder.js"],
-    "main"        : "out/jorder.js"
+    "devDependencies": {
+        "phil"                : "~0.2.0",
+        "grunt"               : "~0.4.1",
+        "grunt-jstestdriver"  : "git://github.com/danstocker/grunt-jstestdriver.git",
+        "grunt-contrib-concat": "~0.3.0",
+        "grunt-contrib-jshint": "~0.5.4",
+        "grunt-yui-compressor": "~0.3.0",
+        "grunt-contrib-copy"  : "~0.4.1",
+        "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git",
+        "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz"
+    },
+    "files"          : ["out/jorder.js"],
+    "main"           : "out/jorder.js"
 }
