@@ -43,10 +43,9 @@ troop.promise(jorder, 'Table', function () {
              */
             setItem: function (rowId, row) {
                 // updating indexes
-                var indexCollection = this.indexCollection;
-
-                indexCollection.removeRow(this.getItem(rowId), rowId);
-                indexCollection.addRow(row, rowId);
+                this.indexCollection
+                    .removeRow(this.getItem(rowId), rowId)
+                    .addRow(row, rowId);
 
                 base.setItem.call(this, rowId, row);
 

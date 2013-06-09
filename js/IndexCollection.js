@@ -87,7 +87,7 @@ troop.promise(jorder, 'IndexCollection', function () {
                     // keeping indexes that match row
                     .getIndexesForRow(row)
                     // picking first we can find
-                    .getValues()[0];
+                    .getFirstValue();
             },
 
             /**
