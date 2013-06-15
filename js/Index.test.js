@@ -97,13 +97,13 @@
             .addRow({foo: 1}, 8)
             .addRow({foo: 1}, 9);
 
-        index.rowIdLookup.addMock({
+        index.rowIdLookup.addMocks({
             clear: function () {
                 ok("Row ID lookup cleared");
             }
         });
 
-        index.sortedKeys.addMock({
+        index.sortedKeys.addMocks({
             clear: function () {
                 ok("Row ID lookup cleared");
             }

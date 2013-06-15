@@ -2,7 +2,7 @@
  * Datastore Table
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'Table', function () {
+troop.postpone(jorder, 'Table', function () {
     "use strict";
 
     var Collection = sntls.Collection,
@@ -14,7 +14,7 @@ troop.promise(jorder, 'Table', function () {
      * @extends sntls.Collection
      */
     jorder.Table = base.extend()
-        .addMethod(/** @lends jorder.Table */{
+        .addMethods(/** @lends jorder.Table */{
             /**
              * @name jorder.Table.create
              * @return {jorder.Table}
@@ -213,7 +213,7 @@ troop.promise(jorder, 'Table', function () {
         }
     });
 
-    sntls.Hash.addMethod(/** @lends sntls.Hash */{
+    sntls.Hash.addMethods(/** @lends sntls.Hash */{
         /**
          * @return {jorder.Table}
          */

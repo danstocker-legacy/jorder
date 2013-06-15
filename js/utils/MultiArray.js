@@ -7,7 +7,7 @@
  * @example [[1, 2], [3], [4, 5]]
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'MultiArray', function () {
+troop.postpone(jorder, 'MultiArray', function () {
     "use strict";
 
     var base = sntls.Hash;
@@ -17,7 +17,7 @@ troop.promise(jorder, 'MultiArray', function () {
      * @extends sntls.Hash
      */
     jorder.MultiArray = base.extend()
-        .addPrivateMethod(/** @lends jorder.MultiArray */{
+        .addPrivateMethods(/** @lends jorder.MultiArray */{
             /**
              * Measures the number of possibilities for each item
              * and returns the counts in an array
@@ -36,7 +36,7 @@ troop.promise(jorder, 'MultiArray', function () {
                 return result;
             }
         })
-        .addMethod(/** @lends jorder.MultiArray */{
+        .addMethods(/** @lends jorder.MultiArray */{
             /**
              * @name jorder.MultiArray.create
              * @return {jorder.MultiArray}
@@ -103,7 +103,7 @@ troop.promise(jorder, 'MultiArray', function () {
 (function () {
     "use strict";
 
-    sntls.Hash.addMethod(/** @lends sntls.Hash */{
+    sntls.Hash.addMethods(/** @lends sntls.Hash */{
         /**
          * @return {jorder.MultiArray}
          */

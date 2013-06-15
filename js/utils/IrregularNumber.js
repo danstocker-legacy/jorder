@@ -5,7 +5,7 @@
  * where each digit might have a different radix.
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'IrregularNumber', function () {
+troop.postpone(jorder, 'IrregularNumber', function () {
     "use strict";
 
     /**
@@ -13,7 +13,7 @@ troop.promise(jorder, 'IrregularNumber', function () {
      * @extends troop.Base
      */
     jorder.IrregularNumber = troop.Base.extend()
-        .addPrivateMethod(/** @lends jorder.IrregularNumber */{
+        .addPrivateMethods(/** @lends jorder.IrregularNumber */{
             /**
              * Calculates the maximum value possible in this number system
              * @return {Number}
@@ -87,7 +87,7 @@ troop.promise(jorder, 'IrregularNumber', function () {
                 return result;
             }
         })
-        .addMethod(/** @lends jorder.IrregularNumber */{
+        .addMethods(/** @lends jorder.IrregularNumber */{
             /**
              * @name jorder.IrregularNumber.create
              * @return {jorder.IrregularNumber}

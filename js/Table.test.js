@@ -280,7 +280,7 @@
 
         var items = {};
 
-        table.addMock({
+        table.addMocks({
             queryByRowAsHash: function () {
                 return {items: items};
             }

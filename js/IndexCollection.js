@@ -2,7 +2,7 @@
  * Collection of Indexes
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'IndexCollection', function () {
+troop.postpone(jorder, 'IndexCollection', function () {
     "use strict";
 
     var base = sntls.Collection;
@@ -13,7 +13,7 @@ troop.promise(jorder, 'IndexCollection', function () {
      * @extends jorder.Index
      */
     jorder.IndexCollection = sntls.Collection.of(jorder.Index).extend()
-        .addPrivateMethod(/** @lends jorder.IndexCollection */{
+        .addPrivateMethods(/** @lends jorder.IndexCollection */{
             /**
              * Determines whether all fields of the specified index
              * are present in the specified row.
@@ -47,7 +47,7 @@ troop.promise(jorder, 'IndexCollection', function () {
                 return a < b ? 1 : a > b ? -1 : 0;
             }
         })
-        .addMethod(/** @lends jorder.IndexCollection */{
+        .addMethods(/** @lends jorder.IndexCollection */{
             /**
              * @name jorder.IndexCollection.create
              * @return {jorder.IndexCollection}

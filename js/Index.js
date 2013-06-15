@@ -2,7 +2,7 @@
  * Datastore Index
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'Index', function () {
+troop.postpone(jorder, 'Index', function () {
     "use strict";
 
     /**
@@ -10,7 +10,7 @@ troop.promise(jorder, 'Index', function () {
      * @extends troop.Base
      */
     jorder.Index = troop.Base.extend()
-        .addMethod(/** @lends jorder.Index */{
+        .addMethods(/** @lends jorder.Index */{
             /**
              * @name jorder.Index.create
              * @return {jorder.Index}

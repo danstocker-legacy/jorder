@@ -11,7 +11,7 @@
         var myRow = {},
             index = jorder.Index.create(['foo', 'bar']);
 
-        jorder.RowSignature.addMock({
+        jorder.RowSignature.addMocks({
             containedByRow: function (row) {
                 strictEqual(row, myRow, "Row passed");
                 strictEqual(this, index.rowSignature, "Index matches");

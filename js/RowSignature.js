@@ -5,7 +5,7 @@
  * its validation and generation.
  */
 /*global dessert, troop, sntls, jorder */
-troop.promise(jorder, 'RowSignature', function () {
+troop.postpone(jorder, 'RowSignature', function () {
     "use strict";
 
     var hOP = Object.prototype.hasOwnProperty;
@@ -15,7 +15,7 @@ troop.promise(jorder, 'RowSignature', function () {
      * @extends troop.Base
      */
     jorder.RowSignature = troop.Base.extend()
-        .addConstant(/** @lends jorder.RowSignature */{
+        .addConstants(/** @lends jorder.RowSignature */{
             /**
              * Field separator, must be escapable w/ encodeURI
              * @type {string}
@@ -57,7 +57,7 @@ troop.promise(jorder, 'RowSignature', function () {
                 string  : 'string'
             }
         })
-        .addPrivateMethod(/** @lends jorder.RowSignature */{
+        .addPrivateMethods(/** @lends jorder.RowSignature */{
             /**
              * Collection iteration handler URI encoding string items.
              * @param {string} item Collection item
@@ -102,7 +102,7 @@ troop.promise(jorder, 'RowSignature', function () {
                 return item;
             }
         })
-        .addMethod(/** @lends jorder.RowSignature */{
+        .addMethods(/** @lends jorder.RowSignature */{
             /**
              * @name jorder.RowSignature.create
              * @return {jorder.RowSignature}
