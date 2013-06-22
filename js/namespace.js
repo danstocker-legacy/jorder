@@ -4,6 +4,6 @@
 /*global require */
 /** @namespace */
 var jorder = {},
-    dessert = dessert || require('dessert').dessert,
-    troop = troop || require('troop').troop,
-    sntls = sntls || require('sntls').sntls;
+    dessert = dessert || require('dessert'),
+    troop = troop || require('troop'),
+    sntls = sntls || require('sntls');

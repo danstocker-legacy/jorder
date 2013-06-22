@@ -3,7 +3,15 @@ module.exports = function (grunt) {
     "use strict";
 
     var params = {
-        files: [],
+        files: [
+            'js/namespace.js',
+            'js/utils/IrregularNumber.js',
+            'js/utils/MultiArray.js',
+            'js/RowSignature.js',
+            'js/Index.js',
+            'js/IndexCollection.js',
+            'js/Table.js'
+        ],
 
         test: [
             'js/jsTestDriver.conf'
