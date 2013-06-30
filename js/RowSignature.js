@@ -73,7 +73,7 @@ troop.postpone(jorder, 'RowSignature', function () {
              * the specified value at each position.
              * @param {number} length
              * @param {*} value
-             * @return {*[]}
+             * @return {Array}
              * @private
              */
             _createUniformArray: function (length, value) {
@@ -87,8 +87,8 @@ troop.postpone(jorder, 'RowSignature', function () {
 
             /**
              * Collection iteration handler URI encoding string array items.
-             * @param {*[]} item Item in an array collection.
-             * @return {*[]}
+             * @param {Array} item Item in an array collection.
+             * @return {Array}
              * @private
              */
             _arrayUriEncoder: function (item) {
