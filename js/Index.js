@@ -106,8 +106,7 @@ troop.postpone(jorder, 'Index', function () {
                     // selecting row IDs for specified keys
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
-                    .reverse()
-                    .getKeys();
+                    .getUniqueValues();
             },
 
             /**
@@ -130,15 +129,12 @@ troop.postpone(jorder, 'Index', function () {
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
                     // collapsing unique index values
                     .toStringDictionary()
-                    .reverse()
-                    // getting unique index values in a hash
-                    .getKeysAsHash()
+                    .getUniqueValuesAsHash()
                     // obtaining row IDs from lookup
                     .toStringDictionary()
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
-                    .reverse()
-                    .getKeys();
+                    .getUniqueValues();
             },
 
             /**
