@@ -161,6 +161,27 @@ troop.postpone(jorder, 'Index', function () {
              */
             getRowIdsForKeyRangeAsHash: function (startValue, endValue /*, offset, limit*/) {
                 return sntls.Hash.create(this.getRowIdsForKeyRange(startValue, endValue));
+            },
+
+            /**
+             * Retrieves a list of unique row IDs matching index values
+             * that start with the specified prefix.
+             * @param {string} prefix Key prefix to be matched.
+             * @returns {*}
+             */
+            getRowIdsForPrefix: function (prefix /*, offset, limit*/) {
+                return this.sortedKeys.getRangeByPrefixAsHash(prefix)
+                    .passSelfTo(this._getUniqueRowIdsForKeys, this);
+            },
+
+            /**
+             * Retrieves a list of unique row IDs matching index values
+             * that start with the specified prefix, wrapped in a hash.
+             * @param {string} prefix Key prefix to be matched.
+             * @returns {sntls.Hash}
+             */
+            getRowIdsForPrefixAsHash: function (prefix /*, offset, limit*/) {
+                return sntls.Hash.create(this.getRowIdsForPrefix(prefix));
             }
         });
 });

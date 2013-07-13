@@ -188,4 +188,28 @@
 
         strictEqual(index.getRowIdsForKeyRange('foo', 'bar'), result, "Both functions called");
     });
+
+    test("Range retrieval", function () {
+        expect(3);
+
+        var index = jorder.Index.create(['foo'], 'number'),
+            foo = sntls.Hash.create({}),
+            result = [];
+
+        index.sortedKeys.addMocks({
+            getRangeByPrefixAsHash: function (prefix) {
+                equal(prefix, 'foo');
+                return foo;
+            }
+        });
+
+        index.addMocks({
+            _getUniqueRowIdsForKeys: function (keysAsHash) {
+                strictEqual(keysAsHash, foo);
+                return result;
+            }
+        });
+
+        strictEqual(index.getRowIdsForPrefix('foo'), result, "Both functions called");
+    });
 }());
