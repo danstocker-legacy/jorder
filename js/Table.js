@@ -135,6 +135,25 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
+             * Retrieves rows assigned to the specified row IDs, wrapped in a hash.
+             * @param {string[]|number[]} rowIds
+             * @returns {sntls.Hash}
+             */
+            queryByRowIdsAsHash: function (rowIds) {
+                return sntls.StringDictionary.create(rowIds)
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Retrieves rows assigned to the specified row IDs.
+             * @param {string[]|number[]} rowIds
+             * @returns {object[]}
+             */
+            queryByRowIds: function (rowIds) {
+                return /** @type {object[]} */this.queryByRowIdsAsHash(rowIds).items;
+            },
+
+            /**
              * Fetches table rows that match specified row expression and wraps them in a hash.
              * @param {object} rowExpr Row expression.
              * @return {sntls.Hash}

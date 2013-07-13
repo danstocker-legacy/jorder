@@ -282,6 +282,15 @@
         );
     });
 
+    test("Querying by row IDs", function () {
+        var table = jorder.Table.create(json);
+
+        deepEqual(table.queryByRowIds([2]), [json[2]], "Single row match");
+        deepEqual(table.queryByRowIds([0, 2]), [json[0], json[2]], "Multiple row match");
+        deepEqual(table.queryByRowIdsAsHash([2]).items, [json[2]], "Single row match");
+        deepEqual(table.queryByRowIdsAsHash([0, 2]).items, [json[0], json[2]], "Multiple row match");
+    });
+
     test("Query by single row", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
