@@ -13,7 +13,7 @@
     "dependencies"   : {
         "dessert": "~0.3.2",
         "troop"  : "~0.5.1",
-        "sntls"  : "~0.10.1"
+        "sntls"  : "~0.10.3"
     },
     "devDependencies": {
         "phil"                : "~0.2.3",
@@ -24,7 +24,7 @@
         "grunt-yui-compressor": "~0.3.0",
         "grunt-contrib-copy"  : "~0.4.1",
         "grunt-jsdoc"         : "~0.3.3",
-        "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git#0.1.4",
+        "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git#0.1.5",
         "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz"
     },
     "files"          : ["jorder.js"],
