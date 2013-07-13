@@ -135,30 +135,30 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
-             * Fetches table rows that match specified row and wraps them in a hash.
-             * @param {object} row Table row or relevant fields w/ value
+             * Fetches table rows that match specified row expression and wraps them in a hash.
+             * @param {object} rowExpr Row expression.
              * @return {sntls.Hash}
              */
-            queryByRowAsHash: function (row) {
-                var index = this.indexCollection.getBestIndexForRow(row);
+            queryByRowAsHash: function (rowExpr) {
+                var index = this.indexCollection.getBestIndexForRow(rowExpr);
 
                 dessert.assert(!!index, "No index matches row");
 
                 return index
                     // obtaining matching row IDs
-                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(row))
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
                     // joining actual rows that match
                     .toStringDictionary()
                     .combineWith(this.toDictionary());
             },
 
             /**
-             * Fetches table rows that match specified row.
-             * @param {object} row Table row or relevant field w/ value
+             * Fetches table rows that match specified row expression.
+             * @param {object} rowExpr Table row or relevant field w/ value
              * @return {Array}
              */
-            queryByRow: function (row) {
-                return this.queryByRowAsHash(row).items;
+            queryByRow: function (rowExpr) {
+                return this.queryByRowAsHash(rowExpr).items;
             },
 
             /**
