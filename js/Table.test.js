@@ -395,6 +395,40 @@
         );
     });
 
+    test("Update", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(sntls.utils.shallowCopy(json))
+                .addIndex(['volumes'], SIGNATURE_TYPES.number),
+            row = {
+                'order'  : 0,
+                'title'  : 'Green Hills of Africa',
+                'data'   : [9, 4, 22, 34],
+                'author' : 'Hemingway',
+                'volumes': 2
+            };
+
+        raises(function () {
+            table.updateRowsByRow('foo', row);
+        }, "Invalid expression");
+
+        raises(function () {
+            table.updateRowsByRow({volumes: 1}, 'foo');
+        }, "Invalid row");
+
+        raises(function () {
+            table.updateRowsByRow({volumes: 1}, row, 'foo');
+        }, "Invalid index");
+
+        table.updateRowsByRow({volumes: 1}, row);
+
+        deepEqual(table.items, [json[0], row, row], "Matching rows updated updated");
+        deepEqual(
+            table.indexCollection.getIndexForFields(['volumes'], SIGNATURE_TYPES.number).rowIdLookup.items,
+            {3: '0', 2: ['1', '2']},
+            "Index updated"
+        );
+    });
+
     test("Deletion", function () {
         var table = jorder.Table.create([
                 {foo: "hello", bar: "world", baz: "!!!"},

@@ -202,6 +202,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Inserts row into table, updating all relevant indexes
              * @param {object} row Table row
+             * @returns {jorder.Table}
              */
             insertRow: function (row) {
                 // adding row to table
@@ -213,6 +214,34 @@ troop.postpone(jorder, 'Table', function () {
                     .getIndexesForRow(row)
                     // adding row to fitting indexes
                     .addRow(row, rowId - 1 + '');
+
+                return this;
+            },
+
+            /**
+             * Updates rows that match the specified expression. The specified row will be assigned to
+             * the matching row(s) by reference.
+             * @param {object} rowExpr Row expression to be matched.
+             * @param {object} row Row value after update.
+             * @param {jorder.Index} [index]
+             * @returns {jorder.Table}
+             */
+            updateRowsByRow: function (rowExpr, row, index) {
+                dessert
+                    .isObject(rowExpr, "Invalid row expression")
+                    .isObject(row, "Invalid row")
+                    .isIndexOptional(index, "Invalid index");
+
+                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
+                    // changing value to specified row on each row ID
+                    .toCollection()
+                    .passEachItemTo(this.setItem, this, 0, row);
 
                 return this;
             },
