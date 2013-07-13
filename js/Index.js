@@ -37,7 +37,6 @@ troop.postpone(jorder, 'Index', function () {
 
                 /**
                  * Holds index keys in ascending order. (With multiplicity)
-                 * TODO: investigate no-multiplicity solution
                  * @type {sntls.OrderedStringList}
                  */
                 this.sortedKeys = sntls.OrderedStringList.create();
@@ -95,16 +94,29 @@ troop.postpone(jorder, 'Index', function () {
 
             /**
              * Retrieves a list of row ids associated with the specified keys.
-             * @param {string[]|number[]} keys
-             * @return {sntls.Hash}
+             * @param {string[]|number[]|string|number} keys
+             * @return {string[]}
              */
             getRowIdsForKeys: function (keys) {
+                if (!(keys instanceof Array)) {
+                    keys = [keys];
+                }
+
                 return sntls.StringDictionary.create(keys)
                     // selecting row IDs for specified keys
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
                     .reverse()
-                    .getKeysAsHash();
+                    .getKeys();
+            },
+
+            /**
+             * Retrieves a list of row ids associated with the specified keys, wrapped in a hash.
+             * @param {string[]|number[]|string|number} keys
+             * @return {sntls.Hash}
+             */
+            getRowIdsForKeysAsHash: function (keys) {
+                return sntls.Hash.create(this.getRowIdsForKeys(keys));
             },
 
             /**
@@ -112,11 +124,9 @@ troop.postpone(jorder, 'Index', function () {
              * that fall between the specified bounds.
              * @param {string|number} startValue Lower index bound
              * @param {string|number} endValue Upper index bound
-             * @param {number} [offset] Starting position of results
-             * @param {number} [limit]
-             * @return {sntls.Hash}
+             * @return {string[]}
              */
-            getRowIdsForKeyRange: function (startValue, endValue, offset, limit) {
+            getRowIdsForKeyRange: function (startValue, endValue /*, offset, limit*/) {
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
                     // collapsing unique index values
                     .toStringDictionary()
@@ -128,7 +138,18 @@ troop.postpone(jorder, 'Index', function () {
                     .combineWith(this.rowIdLookup)
                     // collapsing unique row IDs
                     .reverse()
-                    .getKeysAsHash();
+                    .getKeys();
+            },
+
+            /**
+             * Retrieves a list of unique row IDs matching index values
+             * that fall between the specified bounds, wrapped in a hash.
+             * @param {string|number} startValue Lower index bound
+             * @param {string|number} endValue Upper index bound
+             * @returns {sntls.Hash}
+             */
+            getRowIdsForKeyRangeAsHash: function (startValue, endValue /*, offset, limit*/) {
+                return sntls.Hash.create(this.getRowIdsForKeyRange(startValue, endValue));
             }
         });
 });

@@ -130,7 +130,7 @@ troop.postpone(jorder, 'Table', function () {
 
                 return index
                     // obtaining matching row IDs
-                    .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(row))
                     // joining actual rows that match
                     .toStringDictionary()
                     .combineWith(this.toDictionary());
@@ -176,7 +176,7 @@ troop.postpone(jorder, 'Table', function () {
 
                 index
                     // obtaining matching row IDs
-                    .getRowIdsForKeys(index.rowSignature.getKeysForRow(row))
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(row))
                     // deleting rows one by one
                     .toCollection()
                     .forEachItem(Collection.deleteItem.bind(this));
