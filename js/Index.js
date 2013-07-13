@@ -17,6 +17,25 @@ troop.postpone(jorder, 'Index', function () {
      * @extends troop.Base
      */
     jorder.Index = troop.Base.extend()
+        .addPrivateMethods(/** @lends jorder.Index# */{
+            /**
+             * Retrieves unique row IDs for non-unique list of keys (row signatures).
+             * @param {sntls.Hash} keysAsHash
+             * @returns {string[]}
+             * @private
+             */
+            _getUniqueRowIdsForKeys: function (keysAsHash) {
+                return keysAsHash
+                    // collapsing unique index values
+                    .toStringDictionary()
+                    .getUniqueValuesAsHash()
+                    // obtaining row IDs from lookup
+                    .toStringDictionary()
+                    .combineWith(this.rowIdLookup)
+                    // collapsing unique row IDs
+                    .getUniqueValues();
+            }
+        })
         .addMethods(/** @lends jorder.Index# */{
             /**
              * @param {string[]} fieldNames Field names
@@ -130,14 +149,7 @@ troop.postpone(jorder, 'Index', function () {
              */
             getRowIdsForKeyRange: function (startValue, endValue /*, offset, limit*/) {
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
-                    // collapsing unique index values
-                    .toStringDictionary()
-                    .getUniqueValuesAsHash()
-                    // obtaining row IDs from lookup
-                    .toStringDictionary()
-                    .combineWith(this.rowIdLookup)
-                    // collapsing unique row IDs
-                    .getUniqueValues();
+                    .passSelfTo(this._getUniqueRowIdsForKeys, this);
             },
 
             /**
