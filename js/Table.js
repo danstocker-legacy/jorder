@@ -1,6 +1,3 @@
-/**
- * Datastore Table
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'Table', function () {
     "use strict";
@@ -10,18 +7,23 @@ troop.postpone(jorder, 'Table', function () {
         base = sntls.Collection;
 
     /**
+     * Instantiates class.
+     * @name jorder.Table.create
+     * @function
+     * @param {object[]} json
+     * @return {jorder.Table}
+     */
+
+    /**
+     * Indexed table. For quick table queries.
      * @class jorder.Table
      * @extends sntls.Collection
      */
     jorder.Table = base.extend()
-        .addMethods(/** @lends jorder.Table */{
-            /**
-             * @name jorder.Table.create
-             * @return {jorder.Table}
-             */
-
+        .addMethods(/** @lends jorder.Table# */{
             /**
              * @param {object[]} json
+             * @ignore
              */
             init: function (json) {
                 dessert.isArrayOptional(json, "Invalid table buffer");
@@ -267,6 +269,7 @@ troop.postpone(jorder, 'Table', function () {
 
     sntls.Hash.addMethods(/** @lends sntls.Hash */{
         /**
+         * Reinterprets hash as table. Hash must contain array buffer.
          * @return {jorder.Table}
          */
         toTable: function () {

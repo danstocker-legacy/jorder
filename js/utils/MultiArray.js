@@ -1,11 +1,3 @@
-/**
- * Multi-Array
- *
- * An array that for each of its items holds an even distribution
- * of possible values (represented as arrays).
- *
- * @example [[1, 2], [3], [4, 5]]
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'MultiArray', function () {
     "use strict";
@@ -13,8 +5,20 @@ troop.postpone(jorder, 'MultiArray', function () {
     var base = sntls.Hash;
 
     /**
+     * Instantiates class.
+     * @name jorder.MultiArray.create
+     * @function
+     * @param {Array[]} items Array of arrays
+     * @return {jorder.MultiArray}
+     */
+
+    /**
+     * An array that for each of its items holds an even distribution
+     * of possible values (represented as arrays).
      * @class jorder.MultiArray
      * @extends sntls.Hash
+     * @example
+     * [[1, 2], [3], [4, 5]]
      */
     jorder.MultiArray = base.extend()
         .addPrivateMethods(/** @lends jorder.MultiArray */{
@@ -36,14 +40,10 @@ troop.postpone(jorder, 'MultiArray', function () {
                 return result;
             }
         })
-        .addMethods(/** @lends jorder.MultiArray */{
-            /**
-             * @name jorder.MultiArray.create
-             * @return {jorder.MultiArray}
-             */
-
+        .addMethods(/** @lends jorder.MultiArray# */{
             /**
              * @param {Array[]} items Array of arrays
+             * @ignore
              */
             init: function (items) {
                 dessert.isArray(items, "Invalid items");

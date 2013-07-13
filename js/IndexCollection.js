@@ -1,6 +1,3 @@
-/**
- * Collection of Indexes
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'IndexCollection', function () {
     "use strict";
@@ -8,6 +5,15 @@ troop.postpone(jorder, 'IndexCollection', function () {
     var base = sntls.Collection;
 
     /**
+     * Instantiates class.
+     * @name jorder.IndexCollection.create
+     * @function
+     * @param {object|Array} [items] Initial contents.
+     * @return {jorder.IndexCollection}
+     */
+
+    /**
+     * Collection of indexes. Selects index(es) contained by the collection that fit data row(s).
      * @class jorder.IndexCollection
      * @extends sntls.Collection
      * @extends jorder.Index
@@ -47,12 +53,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
                 return a < b ? 1 : a > b ? -1 : 0;
             }
         })
-        .addMethods(/** @lends jorder.IndexCollection */{
-            /**
-             * @name jorder.IndexCollection.create
-             * @return {jorder.IndexCollection}
-             */
-
+        .addMethods(/** @lends jorder.IndexCollection# */{
             /**
              * Sets an index in the collection.
              * Item key is calculated based index signature.

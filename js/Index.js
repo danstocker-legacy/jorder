@@ -1,24 +1,27 @@
-/**
- * Datastore Index
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'Index', function () {
     "use strict";
 
     /**
+     * Instantiates class.
+     * @name jorder.Index.create
+     * @function
+     * @param {string[]} fieldNames Field names
+     * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+     * @return {jorder.Index}
+     */
+
+    /**
+     * Table index. Keeps track of single of composite fields, enables binary search in tables.
      * @class jorder.Index
      * @extends troop.Base
      */
     jorder.Index = troop.Base.extend()
-        .addMethods(/** @lends jorder.Index */{
-            /**
-             * @name jorder.Index.create
-             * @return {jorder.Index}
-             */
-
+        .addMethods(/** @lends jorder.Index# */{
             /**
              * @param {string[]} fieldNames Field names
              * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+             * @ignore
              */
             init: function (fieldNames, signatureType) {
                 /**

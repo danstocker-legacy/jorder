@@ -1,9 +1,3 @@
-/**
- * Row Signature
- *
- * Implements typed primitive representation of a table row,
- * its validation and generation.
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'RowSignature', function () {
     "use strict";
@@ -11,6 +5,16 @@ troop.postpone(jorder, 'RowSignature', function () {
     var hOP = Object.prototype.hasOwnProperty;
 
     /**
+     * Instantiates class.
+     * @name jorder.RowSignature.create
+     * @function
+     * @param {string[]} fieldNames Field names
+     * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+     * @return {jorder.RowSignature}
+     */
+
+    /**
+     * Row signature. Typed primitive representation of a table row, with validation and generation.
      * @class jorder.RowSignature
      * @extends troop.Base
      */
@@ -102,15 +106,11 @@ troop.postpone(jorder, 'RowSignature', function () {
                 return item;
             }
         })
-        .addMethods(/** @lends jorder.RowSignature */{
-            /**
-             * @name jorder.RowSignature.create
-             * @return {jorder.RowSignature}
-             */
-
+        .addMethods(/** @lends jorder.RowSignature# */{
             /**
              * @param {string[]} fieldNames Field names
              * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+             * @ignore
              */
             init: function (fieldNames, signatureType) {
                 dessert

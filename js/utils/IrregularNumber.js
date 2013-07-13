@@ -1,14 +1,18 @@
-/**
- * Irregular Number
- *
- * Number represented in an irregular number system,
- * where each digit might have a different radix.
- */
 /*global dessert, troop, sntls, jorder */
 troop.postpone(jorder, 'IrregularNumber', function () {
     "use strict";
 
     /**
+     * Instantiates class.
+     * @name jorder.IrregularNumber.create
+     * @function
+     * @param {number[]} radices
+     * @return {jorder.IrregularNumber}
+     */
+
+    /**
+     * Irregular Number. Number represented in an irregular number system, where each digit
+     * might have a different radix.
      * @class jorder.IrregularNumber
      * @extends troop.Base
      */
@@ -87,15 +91,10 @@ troop.postpone(jorder, 'IrregularNumber', function () {
                 return result;
             }
         })
-        .addMethods(/** @lends jorder.IrregularNumber */{
+        .addMethods(/** @lends jorder.IrregularNumber# */{
             /**
-             * @name jorder.IrregularNumber.create
-             * @return {jorder.IrregularNumber}
-             */
-
-            /**
-             * Initializes number with custom radix
-             * @param {number[]} radices
+             * @param {number[]} radices Array of custom radices for each item.
+             * @ignore
              */
             init: function (radices) {
                 dessert.isArray(radices, "Invalid radices");
