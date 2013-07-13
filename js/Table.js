@@ -173,13 +173,13 @@ troop.postpone(jorder, 'Table', function () {
 
                 return sntls.Collection.create(rows)
                     // getting a collection of all keys fitting expression
-                    .passEachItemTo(index.rowSignature.getKeysForRow.bind(index.rowSignature))
+                    .passEachItemTo(index.rowSignature.getKeysForRow, index.rowSignature)
                     // obtaining unique signatures matching rows
                     .toStringDictionary()
                     .getUniqueValuesAsHash()
                     // obtaining row IDs based on keys
                     .toCollection()
-                    .passEachItemTo(index.getRowIdsForKeys.bind(index))
+                    .passEachItemTo(index.getRowIdsForKeys, index)
                     // obtaining unique row IDs
                     .toStringDictionary()
                     .getUniqueValuesAsHash()
