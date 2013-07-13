@@ -53,6 +53,20 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
+             * Sets multiple rows at once.
+             * @param {object} rowIdRowPairs
+             * @return {jorder.Table}
+             */
+            setItems: function (rowIdRowPairs) {
+                var that = this;
+                sntls.Collection.create(rowIdRowPairs)
+                    .forEachItem(function (row, rowId) {
+                        that.setItem(rowId, row);
+                    });
+                return this;
+            },
+
+            /**
              * Deletes a row from the given row ID.
              * @param {string|number} rowId
              * @return {jorder.Table}

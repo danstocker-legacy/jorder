@@ -79,6 +79,32 @@
         );
     });
 
+    test("Setting multiple items", function () {
+        var table = jorder.Table.create()
+            .addIndex(['foo'])
+            .setItem(0, {foo: "hello"});
+
+        table.setItems({
+            1: {foo: "world"},
+            2: {foo: "bar"}
+        });
+
+        deepEqual(
+            table.items,
+            [
+                {foo: "hello"},
+                {foo: "world"},
+                {foo: "bar"}
+            ],
+            "Table contents"
+        );
+        deepEqual(
+            table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
+            {'hello': 0, 'world': '1', 'bar': '2'},
+            "Row ID lookup"
+        );
+    });
+
     test("Item deletion", function () {
         var table = jorder.Table.create(
                 [
