@@ -165,40 +165,27 @@
     });
 
     test("Range retrieval", function () {
-        var index = jorder.Index.create(['foo'], 'number')
-            .addRow({foo: 5}, 0)
-            .addRow({foo: 3}, 1)
-            .addRow({foo: 4}, 2)
-            .addRow({foo: 3}, 3)
-            .addRow({foo: 3}, 4)
-            .addRow({foo: 5}, 5)
-            .addRow({foo: 5}, 6)
-            .addRow({foo: 1}, 7)
-            .addRow({foo: 1}, 8)
-            .addRow({foo: 1}, 9);
+        expect(4);
 
-        deepEqual(
-            index.getRowIdsForKeyRangeAsHash(3, 4).items.sort(),
-            ['1', '3', '4'],
-            "Row IDs between index key 3 and 4 (excl.)"
-        );
+        var index = jorder.Index.create(['foo'], 'number'),
+            foo = sntls.Hash.create({}),
+            result = [];
 
-        deepEqual(
-            index.getRowIdsForKeyRange(3, 4).sort(),
-            ['1', '3', '4'],
-            "Row IDs between index key 3 and 4 (excl.)"
-        );
+        index.sortedKeys.addMocks({
+            getRangeAsHash: function (startValue, endValue) {
+                equal(startValue, 'foo');
+                equal(endValue, 'bar');
+                return foo;
+            }
+        });
 
-        deepEqual(
-            index.getRowIdsForKeyRangeAsHash(4, 6).items.sort(),
-            ['0', '2', '5', '6'],
-            "Row IDs between index key 4 and 6 (excl.)"
-        );
+        index.addMocks({
+            _getUniqueRowIdsForKeys: function (keysAsHash) {
+                strictEqual(keysAsHash, foo);
+                return result;
+            }
+        });
 
-        deepEqual(
-            index.getRowIdsForKeyRange(4, 6).sort(),
-            ['0', '2', '5', '6'],
-            "Row IDs between index key 4 and 6 (excl.)"
-        );
+        strictEqual(index.getRowIdsForKeyRange('foo', 'bar'), result, "Both functions called");
     });
 }());
