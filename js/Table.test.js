@@ -63,7 +63,7 @@
     test("Item setting", function () {
         var table = jorder.Table.create()
             .addIndex(['foo'])
-            .setItem(0, {foo: "hello"});
+            .setItem('0', {foo: "hello"});
 
         deepEqual(
             table.items,
@@ -74,7 +74,7 @@
         );
         deepEqual(
             table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
-            {'hello': 0},
+            {'hello': '0'},
             "Row ID lookup"
         );
     });
@@ -82,7 +82,7 @@
     test("Setting multiple items", function () {
         var table = jorder.Table.create()
             .addIndex(['foo'])
-            .setItem(0, {foo: "hello"});
+            .setItem('0', {foo: "hello"});
 
         table.setItems({
             1: {foo: "world"},
@@ -100,7 +100,7 @@
         );
         deepEqual(
             table.indexCollection.getIndexForFields(['foo']).rowIdLookup.items,
-            {'hello': 0, 'world': '1', 'bar': '2'},
+            {'hello': '0', 'world': '1', 'bar': '2'},
             "Row ID lookup"
         );
     });
