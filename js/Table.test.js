@@ -8,18 +8,21 @@
     // for querying only. DO NOT modify from code
     var json = [
         {
+            'order'  : 0,
             'title'  : 'Lord of the rings',
             'data'   : [5, 6, 43, 21, 88],
             'author' : 'Tolkien',
             'volumes': 3
         },
         {
+            'order'  : 1,
             'title'  : 'Winnie the Pooh',
             'data'   : [1, 2, 34, 5],
             'author' : 'Milne',
             'volumes': 1
         },
         {
+            'order'  : 2,
             'title'  : 'Prelude to Foundation',
             'data'   : [99, 1],
             'author' : 'Asimov',
@@ -78,10 +81,10 @@
 
     test("Item deletion", function () {
         var table = jorder.Table.create(
-            [
-                {foo: "hello"},
-                {foo: "world"}
-            ])
+                [
+                    {foo: "hello"},
+                    {foo: "world"}
+                ])
             .addIndex(['foo'])
             .deleteItem(0);
 
@@ -102,10 +105,10 @@
 
     test("Cloning", function () {
         var table = jorder.Table.create(
-                [
-                    {foo: "hello"},
-                    {foo: "world"}
-                ])
+                    [
+                        {foo: "hello"},
+                        {foo: "world"}
+                    ])
                 .addIndex(['foo']),
             cloneTable;
 
@@ -137,10 +140,10 @@
 
     test("Table merge", function () {
         var table = jorder.Table.create(
-                [
-                    {foo: "hello"},
-                    {foo: "world"}
-                ])
+                    [
+                        {foo: "hello"},
+                        {foo: "world"}
+                    ])
                 .addIndex(['foo']),
             result;
 
@@ -263,19 +266,19 @@
         deepEqual(
             table.queryByRowAsHash({author: 'Tolkien'}).items,
             [json[0]],
-            "Fitting rows fetched"
+            "Fitting rows fetched (string match)"
         );
 
         deepEqual(
             table.queryByRowAsHash({title: 'the'}).items,
             [json[0], json[1]],
-            "Fitting rows fetched"
+            "Fitting rows fetched (full text)"
         );
 
         deepEqual(
             table.queryByRowAsHash({volumes: 1}).items,
             [json[1], json[2]],
-            "Fitting rows fetched"
+            "Fitting rows fetched (number)"
         );
 
         var items = {};
@@ -287,6 +290,43 @@
         });
 
         strictEqual(table.queryByRow({}), items, "Items of return value of .queryByRowAsHash");
+    });
+
+    test("Query by multiple rows", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText)
+                .addIndex(['author'], SIGNATURE_TYPES.string)
+                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+
+        deepEqual(
+            table.queryByRowsAsHash([
+                {author: 'Tolkien'},
+                {author: 'Milne'}
+            ]).items,
+            [json[0], json[1]],
+            "Fitting rows fetched (string match)"
+        );
+
+        deepEqual(
+            table.queryByRowsAsHash([
+                {title: 'of'},
+                {title: 'to'}
+            ]).items,
+            [json[0], json[2]],
+            "Fitting rows fetched (full text)"
+        );
+
+        deepEqual(
+            table.queryByRowsAsHash([
+                    {volumes: 1},
+                    {volumes: 3}
+                ]).items.sort(function (a, b) {
+                    return a.order - b.order;
+                }),
+            [json[0], json[1], json[2]],
+            "Fitting rows fetched (number)"
+        );
     });
 
     test("Insertion", function () {

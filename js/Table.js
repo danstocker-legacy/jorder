@@ -146,6 +146,44 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
+             * Fetches table rows that match specified rows or row fractions and wraps them in a hash.
+             * @param {object[]} rows Table rows or relevant fields w/ values
+             * @return {sntls.Hash}
+             */
+            queryByRowsAsHash: function (rows) {
+                dessert.isArray(rows, "Invalid rows expression");
+
+                var index = this.indexCollection.getBestIndexForRow(rows[0]);
+
+                dessert.assert(!!index, "No index matches row");
+
+                return sntls.Collection.create(rows)
+                    // getting a collection of all keys fitting expression
+                    .passEachItemTo(index.rowSignature.getKeysForRow.bind(index.rowSignature))
+                    // obtaining unique signatures matching rows
+                    .toStringDictionary()
+                    .getUniqueValuesAsHash()
+                    // obtaining row IDs based on keys
+                    .toCollection()
+                    .passEachItemTo(index.getRowIdsForKeys.bind(index))
+                    // obtaining unique row IDs
+                    .toStringDictionary()
+                    .getUniqueValuesAsHash()
+                    // joining matching rows to selected row IDs
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows that match specified rows or row fractions.
+             * @param {object[]} rows Table rows or relevant fields w/ values
+             * @return {Array}
+             */
+            queryByRows: function (rows) {
+                return this.queryByRowsAsHash(rows).items;
+            },
+
+            /**
              * Inserts row into table, updating all relevant indexes
              * @param {object} row Table row
              */
