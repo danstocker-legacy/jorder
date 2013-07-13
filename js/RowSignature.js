@@ -9,7 +9,7 @@ troop.postpone(jorder, 'RowSignature', function () {
      * @name jorder.RowSignature.create
      * @function
      * @param {string[]} fieldNames Field names
-     * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+     * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES
      * @return {jorder.RowSignature}
      */
 
@@ -109,7 +109,7 @@ troop.postpone(jorder, 'RowSignature', function () {
         .addMethods(/** @lends jorder.RowSignature# */{
             /**
              * @param {string[]} fieldNames Field names
-             * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+             * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES
              * @ignore
              */
             init: function (fieldNames, signatureType) {
