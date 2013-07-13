@@ -443,6 +443,14 @@
             .addIndex(['foo', 'baz']);
 
         raises(function () {
+            table.deleteRowsByRow('foo');
+        }, "Invalid row expression");
+
+        raises(function () {
+            table.deleteRowsByRow({foo: "hello", bar: "world"}, 'foo');
+        }, "Invalid index");
+
+        raises(function () {
             table.deleteRowsByRow({hello: "world"});
         }, "No index for row");
 

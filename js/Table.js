@@ -223,7 +223,7 @@ troop.postpone(jorder, 'Table', function () {
              * the matching row(s) by reference.
              * @param {object} rowExpr Row expression to be matched.
              * @param {object} row Row value after update.
-             * @param {jorder.Index} [index]
+             * @param {jorder.Index} [index] Index to be used for identifying row IDs. (For ambiguous indexes)
              * @returns {jorder.Table}
              */
             updateRowsByRow: function (rowExpr, row, index) {
@@ -248,18 +248,23 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Removes rows from the table that match the specified row.
-             * @param {object} row Table row or relevant fields w/ value
+             * @param {object} rowExpr Row expression to be matched.
+             * @param {jorder.Index} [index] Index to be used for identifying row IDs. (For ambiguous indexes)
              * @return {jorder.Table}
              */
-            deleteRowsByRow: function (row) {
+            deleteRowsByRow: function (rowExpr, index) {
+                dessert
+                    .isObject(rowExpr, "Invalid row expression")
+                    .isIndexOptional(index, "Invalid index");
+
                 // getting an index for the row
-                var index = this.indexCollection.getBestIndexForRow(row);
+                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
 
                 dessert.assert(!!index, "No index matches row");
 
                 index
                     // obtaining matching row IDs
-                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(row))
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
                     // deleting rows one by one
                     .toCollection()
                     .forEachItem(Collection.deleteItem.bind(this));
