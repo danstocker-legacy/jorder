@@ -150,7 +150,7 @@ troop.postpone(jorder, 'Table', function () {
              * @returns {object[]}
              */
             queryByRowIds: function (rowIds) {
-                return /** @type {object[]} */this.queryByRowIdsAsHash(rowIds).items;
+                return this.queryByRowIdsAsHash(rowIds).items;
             },
 
             /**
@@ -216,6 +216,39 @@ troop.postpone(jorder, 'Table', function () {
              */
             queryByRows: function (rows) {
                 return this.queryByRowsAsHash(rows).items;
+            },
+
+            /**
+             * Fetches table rows matching the specified prefix on the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string} prefix Prefix that must be matched.
+             * @returns {sntls.Hash}
+             */
+            queryByPrefixAsHash: function (fieldName, prefix) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = prefix;
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                return index
+                    // obtaining row IDs matching prefix
+                    .getRowIdsForPrefixAsHash(prefix)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows matching the specified prefix on the specified field.
+             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string} prefix Prefix that must be matched.
+             * @returns {object[]}
+             */
+            queryByPrefix: function (fieldName, prefix) {
+                return this.queryByPrefixAsHash(fieldName, prefix).items;
             },
 
             /**

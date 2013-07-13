@@ -364,6 +364,32 @@
         );
     });
 
+    test("Query by prefix", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText)
+                .addIndex(['author'], SIGNATURE_TYPES.string)
+                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+
+        deepEqual(
+            table.queryByPrefixAsHash('author', "Tol").items,
+            [json[0]],
+            "Fitting rows fetched (string)"
+        );
+
+        deepEqual(
+            table.queryByPrefixAsHash('title', "th").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (full text)"
+        );
+
+        deepEqual(
+            table.queryByPrefixAsHash('title', "P").items,
+            [json[1], json[2]],
+            "Fitting rows fetched (full text)"
+        );
+    });
+
     test("Insertion", function () {
         var table = jorder.Table.create(),
             result;
@@ -414,7 +440,10 @@
             }
         });
 
-        table.insertRows([{foo: "hello"}, {foo: "world"}]);
+        table.insertRows([
+            {foo: "hello"},
+            {foo: "world"}
+        ]);
 
         deepEqual(result, ["hello", "world"], "Insertion called for each new row");
 
