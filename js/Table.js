@@ -200,7 +200,7 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
-             * Inserts row into table, updating all relevant indexes
+             * Inserts single row into the table, updating all relevant indexes.
              * @param {object} row Table row
              * @returns {jorder.Table}
              */
@@ -215,6 +215,17 @@ troop.postpone(jorder, 'Table', function () {
                     // adding row to fitting indexes
                     .addRow(row, rowId - 1 + '');
 
+                return this;
+            },
+
+            /**
+             * Inserts multiple rows into the table. Updates all relevant indexes.
+             * @param {object[]} rows Array of table rows.
+             * @return {jorder.Table}
+             */
+            insertRows: function (rows) {
+                sntls.Collection.create(rows)
+                    .passEachItemTo(this.insertRow, this);
                 return this;
             },
 

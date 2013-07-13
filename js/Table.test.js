@@ -395,6 +395,23 @@
         );
     });
 
+    test("Multiple insertion", function () {
+        var table = jorder.Table.create(),
+            result = [];
+
+        table.addMocks({
+            insertRow: function (row) {
+                result.push(row.foo);
+            }
+        });
+
+        table.insertRows([{foo: "hello"}, {foo: "world"}]);
+
+        deepEqual(result, ["hello", "world"], "Insertion called for each new row");
+
+        table.removeMocks();
+    });
+
     test("Update", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(sntls.utils.shallowCopy(json))
