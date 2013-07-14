@@ -100,16 +100,19 @@ troop.postpone(jorder, 'RowSignature', function () {
              * @private
              */
             _arrayUriEncoder: function (item) {
-                var i, elem;
+                var result = [],
+                    i, elem;
                 for (i = 0; i < item.length; i++) {
                     elem = item[i];
                     if (typeof elem === 'string') {
-                        item[i] = this.isCaseInsensitive ?
+                        result.push(this.isCaseInsensitive ?
                             encodeURI(elem.toLowerCase()) :
-                            encodeURI(elem);
+                            encodeURI(elem));
+                    } else {
+                        result.push(String(elem));
                     }
                 }
-                return item;
+                return result;
             }
         })
         .addMethods(/** @lends jorder.RowSignature# */{
@@ -258,9 +261,8 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEachItem(this._arrayUriEncoder, this)
-                            .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
-                            // finalizing results
+                            .mapContents(this._arrayUriEncoder, this, sntls.ArrayCollection)
+                            .join(this.FIELD_SEPARATOR_STRING)
                             .getValues();
                     }
                     break;
@@ -284,9 +286,8 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEachItem(this._arrayUriEncoder, this)
-                            .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
-                            // finalizing results
+                            .mapContents(this._arrayUriEncoder, this, sntls.ArrayCollection)
+                            .join(this.FIELD_SEPARATOR_STRING)
                             .getValues();
                     }
                     break;

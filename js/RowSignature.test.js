@@ -20,16 +20,11 @@
     });
 
     test("URI encoding array", function () {
-        var arr = ["§1.", "`foo`", "foo bar", 5],
-            result;
-
-        result = jorder.RowSignature._arrayUriEncoder(arr);
-
-        strictEqual(result, arr, "URI encoded returns item");
+        var arr = ["§1.", "`foo`", "foo bar", 5];
 
         deepEqual(
-            arr,
-            ["%C2%A71.", "%60foo%60", "foo%20bar", 5],
+            jorder.RowSignature._arrayUriEncoder(arr),
+            ["%C2%A71.", "%60foo%60", "foo%20bar", "5"],
             "Array URI-encoded"
         );
     });
