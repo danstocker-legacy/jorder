@@ -9,7 +9,8 @@ troop.postpone(jorder, 'RowSignature', function () {
      * @name jorder.RowSignature.create
      * @function
      * @param {string[]} fieldNames Field names
-     * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+     * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
+     * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
      * @return {jorder.RowSignature}
      */
 
@@ -61,17 +62,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                 string  : 'string'
             }
         })
-        .addPrivateMethods(/** @lends jorder.RowSignature */{
-            /**
-             * Collection iteration handler URI encoding string items.
-             * @param {string} item Collection item
-             * @return {string}
-             * @private
-             */
-            _uriEncoder: function (item) {
-                return encodeURI(item);
-            },
-
+        .addPrivateMethods(/** @lends jorder.RowSignature# */{
             /**
              * Creates an array of specified length & filled with
              * the specified value at each position.
@@ -79,6 +70,7 @@ troop.postpone(jorder, 'RowSignature', function () {
              * @param {*} value
              * @return {Array}
              * @private
+             * @memberOf jorder.RowSignature
              */
             _createUniformArray: function (length, value) {
                 var result = new Array(length),
@@ -87,6 +79,18 @@ troop.postpone(jorder, 'RowSignature', function () {
                     result[i] = value;
                 }
                 return result;
+            },
+
+            /**
+             * Collection iteration handler URI encoding string items.
+             * @param {string} item Collection item
+             * @return {string}
+             * @private
+             */
+            _uriEncoder: function (item) {
+                return this.isCaseInsensitive ?
+                    encodeURI(item.toLowerCase()) :
+                    encodeURI(item);
             },
 
             /**
@@ -100,7 +104,9 @@ troop.postpone(jorder, 'RowSignature', function () {
                 for (i = 0; i < item.length; i++) {
                     elem = item[i];
                     if (typeof elem === 'string') {
-                        item[i] = encodeURI(elem);
+                        item[i] = this.isCaseInsensitive ?
+                            encodeURI(elem.toLowerCase()) :
+                            encodeURI(elem);
                     }
                 }
                 return item;
@@ -109,14 +115,16 @@ troop.postpone(jorder, 'RowSignature', function () {
         .addMethods(/** @lends jorder.RowSignature# */{
             /**
              * @param {string[]} fieldNames Field names
-             * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+             * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
+             * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
              * @ignore
              */
-            init: function (fieldNames, signatureType) {
+            init: function (fieldNames, signatureType, isCaseInsensitive) {
                 dessert
                     .isArray(fieldNames, "Invalid field names")
                     .assert(!!fieldNames.length, "Empty field name list")
-                    .isStringOptional(signatureType, "Invalid signature type");
+                    .isStringOptional(signatureType, "Invalid signature type")
+                    .isBooleanOptional(isCaseInsensitive, "Invalid case flag");
 
                 var SIGNATURE_TYPES = this.SIGNATURE_TYPES;
 
@@ -147,6 +155,12 @@ troop.postpone(jorder, 'RowSignature', function () {
                  * @default SIGNATURE_TYPES.string
                  */
                 this.signatureType = signatureType || SIGNATURE_TYPES.string;
+
+                /**
+                 * @type {boolean}
+                 * @default false
+                 */
+                this.isCaseInsensitive = !!isCaseInsensitive;
 
                 /**
                  * Signature composed of field names and type
@@ -198,8 +212,10 @@ troop.postpone(jorder, 'RowSignature', function () {
                         return sntls.StringCollection.create(row)
                             // reducing row to relevant fields
                             .filterByKeys(fieldNames)
-                            .forEachItem(this._uriEncoder)
+                            // encoding field values
+                            .mapContents(this._uriEncoder, this)
                             .getValues()
+                            // joining encoded values into signature string
                             .join(this.FIELD_SEPARATOR_STRING);
                     }
                     break;
@@ -242,7 +258,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEachItem(this._arrayUriEncoder)
+                            .forEachItem(this._arrayUriEncoder, this)
                             .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
                             .getValues();
@@ -268,7 +284,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .forEachItem(this._arrayUriEncoder)
+                            .forEachItem(this._arrayUriEncoder, this)
                             .callOnEachItem('join', this.FIELD_SEPARATOR_STRING)
                             // finalizing results
                             .getValues();
