@@ -10,7 +10,8 @@ module.exports = function (grunt) {
             'js/RowSignature.js',
             'js/Index.js',
             'js/IndexCollection.js',
-            'js/Table.js'
+            'js/Table.js',
+            'js/exports.js'
         ],
 
         test: [
