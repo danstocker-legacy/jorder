@@ -104,10 +104,11 @@ troop.postpone(jorder, 'Table', function () {
              * Adds an index to the table.
              * @param {string[]} fieldNames Names of fields included in the index
              * @param {string} [signatureType] Index type
+             * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
              * @return {jorder.Table}
              */
-            addIndex: function (fieldNames, signatureType) {
-                var index = jorder.Index.create(fieldNames, signatureType);
+            addIndex: function (fieldNames, signatureType, isCaseInsensitive) {
+                var index = jorder.Index.create(fieldNames, signatureType, isCaseInsensitive);
 
                 // adding index to collection
                 this.indexCollection.setItem(index);

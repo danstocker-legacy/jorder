@@ -221,6 +221,7 @@
         var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
 
         ok(index.isA(jorder.Index), "Index instance");
+        equal(index.rowSignature.isCaseInsensitive, false, "Case sensitive by default");
         deepEqual(
             index.rowIdLookup.items,
             {
@@ -368,8 +369,7 @@
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
                 .addIndex(['title'], SIGNATURE_TYPES.fullText)
-                .addIndex(['author'], SIGNATURE_TYPES.string)
-                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+                .addIndex(['author'], SIGNATURE_TYPES.string);
 
         deepEqual(
             table.queryByPrefixAsHash('author', "Tol").items,
@@ -385,6 +385,31 @@
 
         deepEqual(
             table.queryByPrefixAsHash('title', "P").items,
+            [json[1], json[2]],
+            "Fitting rows fetched (full text)"
+        );
+    });
+
+    test("Query by prefix (case insensitive)", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText, true)
+                .addIndex(['author'], SIGNATURE_TYPES.string, true);
+
+        deepEqual(
+            table.queryByPrefixAsHash('author', "tol").items,
+            [json[0]],
+            "Fitting rows fetched (string)"
+        );
+
+        deepEqual(
+            table.queryByPrefixAsHash('title', "TH").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (full text)"
+        );
+
+        deepEqual(
+            table.queryByPrefixAsHash('title', "p").items,
             [json[1], json[2]],
             "Fitting rows fetched (full text)"
         );
