@@ -4,7 +4,8 @@ troop.postpone(jorder, 'Table', function () {
 
     var Collection = sntls.Collection,
         IndexCollection = jorder.IndexCollection,
-        base = sntls.Collection;
+        base = sntls.Collection,
+        self = base.extend();
 
     /**
      * Instantiates class.
@@ -19,7 +20,7 @@ troop.postpone(jorder, 'Table', function () {
      * @class jorder.Table
      * @extends sntls.Collection
      */
-    jorder.Table = base.extend()
+    jorder.Table = self
         .addMethods(/** @lends jorder.Table# */{
             /**
              * @param {object[]} json
@@ -382,6 +383,34 @@ troop.postpone(jorder, 'Table', function () {
                 return this;
             }
         });
+
+    // aliases
+    jorder.Table.addMethods(/** @lends jorder.Table# */{
+        /**
+         * @function
+         * @param {string|number} rowId
+         * @param {object} row
+         * @return {jorder.Table}
+         * @see jorder.Table#setItem
+         */
+        setRow: self.setItem,
+
+        /**
+         * @function
+         * @param {object} rowIdRowPairs
+         * @return {jorder.Table}
+         * @see jorder.Table#setItems
+         */
+        setRows: self.setItems,
+
+        /**
+         * @function
+         * @param {string|number} rowId
+         * @return {jorder.Table}
+         * @see jorder.Table#deleteItem
+         */
+        deleteRow: self.deleteItem
+    });
 });
 
 (function () {
