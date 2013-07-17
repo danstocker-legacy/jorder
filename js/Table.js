@@ -2,9 +2,7 @@
 troop.postpone(jorder, 'Table', function () {
     "use strict";
 
-    var Collection = sntls.Collection,
-        IndexCollection = jorder.IndexCollection,
-        base = sntls.Collection,
+    var base = sntls.Collection,
         self = base.extend();
 
     /**
@@ -17,6 +15,7 @@ troop.postpone(jorder, 'Table', function () {
 
     /**
      * Indexed table. For quick table queries.
+     * In technical terms, a table is a collection of rows, therefore it extends the Collection API.
      * @class jorder.Table
      * @extends sntls.Collection
      */
@@ -35,7 +34,7 @@ troop.postpone(jorder, 'Table', function () {
                  * Indexes associated with table
                  * @type {jorder.IndexCollection}
                  */
-                this.indexCollection = IndexCollection.create();
+                this.indexCollection = jorder.IndexCollection.create();
             },
 
             /**
@@ -115,7 +114,7 @@ troop.postpone(jorder, 'Table', function () {
                 this.indexCollection.setItem(index);
 
                 // initializing index with table rows
-                this.forEachItem(index.addRow.bind(index));
+                this.forEachItem(index.addRow, index);
 
                 return this;
             },
@@ -131,7 +130,7 @@ troop.postpone(jorder, 'Table', function () {
                 indexCollection.clearBuffers();
 
                 // re-building each index
-                this.forEachItem(indexCollection.addRow.bind(indexCollection));
+                this.forEachItem(indexCollection.addRow, indexCollection);
 
                 return this;
             },
@@ -365,7 +364,7 @@ troop.postpone(jorder, 'Table', function () {
                     .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
                     // deleting rows one by one
                     .toCollection()
-                    .forEachItem(Collection.deleteItem.bind(this));
+                    .forEachItem(base.deleteItem, this);
 
                 return this;
             },
