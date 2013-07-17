@@ -138,6 +138,46 @@
         );
     });
 
+    test('Case sensitive lookup', function () {
+        var index = jorder.Index.create(['foo'], 'string')
+            .addRow({foo: "e"}, 0)
+            .addRow({foo: "C"}, 1)
+            .addRow({foo: "D"}, 2)
+            .addRow({foo: "c"}, 3)
+            .addRow({foo: "c"}, 4)
+            .addRow({foo: "e"}, 5)
+            .addRow({foo: "E"}, 6)
+            .addRow({foo: "A"}, 7)
+            .addRow({foo: "a"}, 8)
+            .addRow({foo: "A"}, 9);
+
+        deepEqual(
+            index.getRowIdsForKeys(['c', 'd']).sort(),
+            ['3', '4'],
+            "Row IDs for index keys 'c' and 'd'"
+        );
+    });
+
+    test('Case insensitive lookup', function () {
+        var index = jorder.Index.create(['foo'], 'string', true)
+            .addRow({foo: "e"}, 0)
+            .addRow({foo: "C"}, 1)
+            .addRow({foo: "D"}, 2)
+            .addRow({foo: "c"}, 3)
+            .addRow({foo: "c"}, 4)
+            .addRow({foo: "e"}, 5)
+            .addRow({foo: "E"}, 6)
+            .addRow({foo: "A"}, 7)
+            .addRow({foo: "a"}, 8)
+            .addRow({foo: "A"}, 9);
+
+        deepEqual(
+            index.getRowIdsForKeys(['c', 'd']).sort(),
+            ['1', '2', '3', '4'],
+            "Row IDs for index keys 'c' and 'd'"
+        );
+    });
+
     test("Unique row IDs", function () {
         var index = jorder.Index.create(['foo'], 'number')
                 .addRow({foo: 5}, 0)
@@ -164,7 +204,59 @@
         deepEqual(rowIds.sort(), ['1', '3', '4', '7', '8', '9'], "Unique Row Ids");
     });
 
-    test("Range retrieval", function () {
+    test("Case sensitive unique row IDs", function () {
+        var index = jorder.Index.create(['foo'], 'string')
+                .addRow({foo: "e"}, 0)
+                .addRow({foo: "C"}, 1)
+                .addRow({foo: "D"}, 2)
+                .addRow({foo: "c"}, 3)
+                .addRow({foo: "c"}, 4)
+                .addRow({foo: "e"}, 5)
+                .addRow({foo: "E"}, 6)
+                .addRow({foo: "A"}, 7)
+                .addRow({foo: "a"}, 8)
+                .addRow({foo: "A"}, 9),
+            range,
+            rowIds;
+
+        range = index.sortedKeys.getRangeAsHash('c', 'e');
+        deepEqual(range.items, ['c', 'c'], "Initial keys");
+        rowIds = index._getUniqueRowIdsForKeys(range);
+        deepEqual(rowIds.sort(), ['3', '4'], "Unique Row Ids");
+
+        range = index.sortedKeys.getRangeAsHash('a', 'd');
+        deepEqual(range.items, ['a', 'c', 'c'], "Initial keys");
+        rowIds = index._getUniqueRowIdsForKeys(range);
+        deepEqual(rowIds.sort(), ['3', '4', '8'], "Unique Row Ids");
+    });
+
+    test("Case insensitive unique row IDs", function () {
+        var index = jorder.Index.create(['foo'], 'string', true)
+                .addRow({foo: "e"}, 0)
+                .addRow({foo: "C"}, 1)
+                .addRow({foo: "D"}, 2)
+                .addRow({foo: "c"}, 3)
+                .addRow({foo: "c"}, 4)
+                .addRow({foo: "e"}, 5)
+                .addRow({foo: "E"}, 6)
+                .addRow({foo: "A"}, 7)
+                .addRow({foo: "a"}, 8)
+                .addRow({foo: "A"}, 9),
+            range,
+            rowIds;
+
+        range = index.sortedKeys.getRangeAsHash('c', 'e');
+        deepEqual(range.items, ['c', 'c', 'c', 'd'], "Initial keys");
+        rowIds = index._getUniqueRowIdsForKeys(range);
+        deepEqual(rowIds.sort(), ['1', '2', '3', '4'], "Unique Row Ids");
+
+        range = index.sortedKeys.getRangeAsHash('a', 'd');
+        deepEqual(range.items, ['a', 'a', 'a', 'c', 'c', 'c'], "Initial keys");
+        rowIds = index._getUniqueRowIdsForKeys(range);
+        deepEqual(rowIds.sort(), ['1', '3', '4', '7', '8', '9'], "Unique Row Ids");
+    });
+
+    test("Row ID retrieval by range", function () {
         expect(4);
 
         var index = jorder.Index.create(['foo'], 'number'),
@@ -189,7 +281,32 @@
         strictEqual(index.getRowIdsForKeyRange('foo', 'bar'), result, "Both functions called");
     });
 
-    test("Range retrieval", function () {
+    test("Row ID retrieval by range (case insensitive)", function () {
+        expect(4);
+
+        var index = jorder.Index.create(['foo'], 'string', true),
+            foo = sntls.Hash.create({}),
+            result = [];
+
+        index.sortedKeys.addMocks({
+            getRangeAsHash: function (startValue, endValue) {
+                equal(startValue, 'foo');
+                equal(endValue, 'bar');
+                return foo;
+            }
+        });
+
+        index.addMocks({
+            _getUniqueRowIdsForKeys: function (keysAsHash) {
+                strictEqual(keysAsHash, foo);
+                return result;
+            }
+        });
+
+        strictEqual(index.getRowIdsForKeyRange('FOO', 'BAR'), result, "Both functions called");
+    });
+
+    test("Row ID retrieval by prefix", function () {
         expect(3);
 
         var index = jorder.Index.create(['foo'], 'number'),
@@ -211,5 +328,29 @@
         });
 
         strictEqual(index.getRowIdsForPrefix('foo'), result, "Both functions called");
+    });
+
+    test("Row ID retrieval by prefix (case insensitive)", function () {
+        expect(3);
+
+        var index = jorder.Index.create(['foo'], 'string', true),
+            foo = sntls.Hash.create({}),
+            result = [];
+
+        index.sortedKeys.addMocks({
+            getRangeByPrefixAsHash: function (prefix) {
+                equal(prefix, 'foo');
+                return foo;
+            }
+        });
+
+        index.addMocks({
+            _getUniqueRowIdsForKeys: function (keysAsHash) {
+                strictEqual(keysAsHash, foo);
+                return result;
+            }
+        });
+
+        strictEqual(index.getRowIdsForPrefix('FOO'), result, "Both functions called");
     });
 }());

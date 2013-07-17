@@ -7,7 +7,8 @@ troop.postpone(jorder, 'Index', function () {
      * @name jorder.Index.create
      * @function
      * @param {string[]} fieldNames Field names
-     * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+     * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
+     * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
      * @return {jorder.Index}
      */
 
@@ -39,16 +40,17 @@ troop.postpone(jorder, 'Index', function () {
         .addMethods(/** @lends jorder.Index# */{
             /**
              * @param {string[]} fieldNames Field names
-             * @param {number} [signatureType='string'] Signature type, see SIGNATURE_TYPES
+             * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
+             * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
              * @ignore
              */
-            init: function (fieldNames, signatureType) {
+            init: function (fieldNames, signatureType, isCaseInsensitive) {
                 /**
                  * Row signature associated with index.
                  * Provides validation and index key generation.
                  * @type {jorder.RowSignature}
                  */
-                this.rowSignature = jorder.RowSignature.create(fieldNames, signatureType);
+                this.rowSignature = jorder.RowSignature.create(fieldNames, signatureType, isCaseInsensitive);
 
                 /**
                  * Holds index key -> row ID associations.
@@ -116,7 +118,8 @@ troop.postpone(jorder, 'Index', function () {
 
             /**
              * Retrieves a list of row ids associated with the specified keys.
-             * @param {string[]|number[]|string|number} keys
+             * @param {string[]|number[]|string|number} keys Index keys to be looked up, expected to be
+             * in correct case (ie. lowercase when index is case insensitive).
              * @return {string[]}
              */
             getRowIdsForKeys: function (keys) {
@@ -148,6 +151,12 @@ troop.postpone(jorder, 'Index', function () {
              * @return {string[]}
              */
             getRowIdsForKeyRange: function (startValue, endValue /*, offset, limit*/) {
+                if (this.rowSignature.isCaseInsensitive) {
+                    // preparing key bounds for case insensitivity
+                    startValue = startValue.toLowerCase();
+                    endValue = endValue.toLowerCase();
+                }
+
                 return this.sortedKeys.getRangeAsHash(startValue, endValue)
                     .passSelfTo(this._getUniqueRowIdsForKeys, this);
             },
@@ -170,6 +179,11 @@ troop.postpone(jorder, 'Index', function () {
              * @returns {*}
              */
             getRowIdsForPrefix: function (prefix /*, offset, limit*/) {
+                if (this.rowSignature.isCaseInsensitive) {
+                    // preparing key prefix for case insensitivity
+                    prefix = prefix.toLowerCase();
+                }
+
                 return this.sortedKeys.getRangeByPrefixAsHash(prefix)
                     .passSelfTo(this._getUniqueRowIdsForKeys, this);
             },
