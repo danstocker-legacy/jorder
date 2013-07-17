@@ -365,6 +365,46 @@
         );
     });
 
+    test("Query by range", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText)
+                .addIndex(['author'], SIGNATURE_TYPES.string);
+
+        deepEqual(
+            table.queryByRangeAsHash('author', "M", "Z").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (string)"
+        );
+
+        // matches "of" and "the"
+        deepEqual(
+            table.queryByRangeAsHash('title', "o", "ti").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (full text)"
+        );
+    });
+
+    test("Query by range (case insensitive)", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.fullText, true)
+                .addIndex(['author'], SIGNATURE_TYPES.string, true);
+
+        deepEqual(
+            table.queryByRangeAsHash('author', "m", "z").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (string)"
+        );
+
+        // matches "of" and "Pooh"
+        deepEqual(
+            table.queryByRangeAsHash('title', "O", "POP").items,
+            [json[0], json[1]],
+            "Fitting rows fetched (full text)"
+        );
+    });
+
     test("Query by prefix", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)

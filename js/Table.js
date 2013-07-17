@@ -220,6 +220,39 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
+             * Fetches table rows matching value range on the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string|number} startValue Start of value range
+             * @param {string|number} endValue End of value range
+             * @returns {sntls.Dictionary}
+             */
+            queryByRangeAsHash: function (fieldName, startValue, endValue) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = '';
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                return index
+                    // obtaining row IDs matching interval
+                    .getRowIdsForKeyRangeAsHash(startValue, endValue)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows matching value range on the specified field.
+             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string|number} startValue Start of value range
+             * @param {string|number} endValue End of value range
+             * @returns {Object[]}
+             */
+            queryByRange: function (fieldName, startValue, endValue) {
+                return this.queryByRangeAsHash(fieldName, startValue, endValue).items;
+            },
+
+            /**
              * Fetches table rows matching the specified prefix on the specified field, and wraps it in a hash.
              * @param {string} fieldName Name of field in which the prefix must be matched.
              * @param {string} prefix Prefix that must be matched.
@@ -229,7 +262,7 @@ troop.postpone(jorder, 'Table', function () {
                 var rowExpr = {},
                     index;
 
-                rowExpr[fieldName] = prefix;
+                rowExpr[fieldName] = '';
                 index = this.indexCollection.getBestIndexForRow(rowExpr);
 
                 dessert.assert(!!index, "No index matches row");
@@ -375,5 +408,3 @@ troop.postpone(jorder, 'Table', function () {
         }
     });
 }());
-
-
