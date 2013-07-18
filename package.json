@@ -13,7 +13,7 @@
     "dependencies"   : {
         "dessert": "~0.3.2",
         "troop"  : "~0.5.1",
-        "sntls"  : "~0.11.0"
+        "sntls"  : "~0.12.0"
     },
     "devDependencies": {
         "phil"                : "~0.2.3",

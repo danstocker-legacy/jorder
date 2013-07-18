@@ -101,7 +101,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
                     // keeping indexes that match row
                     .getIndexesForRow(row)
                     // getting number of matching fields for each
-                    .mapContents(this._indexFieldCountMapper)
+                    .mapValues(this._indexFieldCountMapper)
                     // flipping to field count -> index ID
                     .toStringDictionary()
                     .reverse()

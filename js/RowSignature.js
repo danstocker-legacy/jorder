@@ -216,7 +216,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                             // reducing row to relevant fields
                             .filterByKeys(fieldNames)
                             // encoding field values
-                            .mapContents(this._uriEncoder, this)
+                            .mapValues(this._uriEncoder, this)
                             .getValues()
                             // joining encoded values into signature string
                             .join(this.FIELD_SEPARATOR_STRING);
@@ -261,7 +261,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .mapContents(this._arrayUriEncoder, this, sntls.ArrayCollection)
+                            .mapValues(this._arrayUriEncoder, this, sntls.ArrayCollection)
                             .join(this.FIELD_SEPARATOR_STRING)
                             .getValues();
                     }
@@ -286,7 +286,7 @@ troop.postpone(jorder, 'RowSignature', function () {
                             .getCombinationsAsHash()
                             // joining combinations to make strings
                             .toCollection()
-                            .mapContents(this._arrayUriEncoder, this, sntls.ArrayCollection)
+                            .mapValues(this._arrayUriEncoder, this, sntls.ArrayCollection)
                             .join(this.FIELD_SEPARATOR_STRING)
                             .getValues();
                     }

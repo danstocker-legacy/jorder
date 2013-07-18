@@ -517,7 +517,7 @@
 
     test("Update", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
-            table = jorder.Table.create(sntls.utils.shallowCopy(json))
+            table = jorder.Table.create(sntls.Utils.shallowCopy(json))
                 .addIndex(['volumes'], SIGNATURE_TYPES.number),
             row = {
                 'order'  : 0,
