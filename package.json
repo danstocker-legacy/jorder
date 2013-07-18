@@ -24,6 +24,7 @@
         "grunt-yui-compressor": "~0.3.0",
         "grunt-contrib-copy"  : "~0.4.1",
         "grunt-jsdoc"         : "~0.3.3",
+        "grunt-regex-replace" : "~0.2.5",
         "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git#0.1.5",
         "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz"
     },
