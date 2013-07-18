@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: IndexCollection.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: IndexCollection.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/*global dessert, troop, sntls, jorder */
+troop.postpone(jorder, 'IndexCollection', function () {
+    "use strict";
+
+    var base = sntls.Collection;
+
+    /**
+     * Instantiates class.
+     * @name jorder.IndexCollection.create
+     * @function
+     * @param {object|Array} [items] Initial contents.
+     * @return {jorder.IndexCollection}
+     */
+
+    /**
+     * Collection of indexes. Selects index(es) contained by the collection that fit data row(s).
+     * @class jorder.IndexCollection
+     * @extends sntls.Collection
+     * @extends jorder.Index
+     */
+    jorder.IndexCollection = sntls.Collection.of(jorder.Index).extend()
+        .addPrivateMethods(/** @lends jorder.IndexCollection */{
+            /**
+             * Determines whether all fields of the specified index
+             * are present in the specified row.
+             * @param {object} row Table row
+             * @param {jorder.Index} index
+             * @return {Boolean}
+             * @private
+             */
+            _isIndexContainedByRow: function (row, index) {
+                return index.rowSignature.containedByRow(row);
+            },
+
+            /**
+             * Returns the field count for the specified index.
+             * @param {jorder.Index} index
+             * @return {Number}
+             * @private
+             */
+            _indexFieldCountMapper: function (index) {
+                return index.rowSignature.fieldNames.length;
+            },
+
+            /**
+             * Array.sort() comparator for descending order.
+             * @param {number} a
+             * @param {number} b
+             * @return {Number}
+             * @private
+             */
+            _descNumericComparator: function (a, b) {
+                return a &lt; b ? 1 : a > b ? -1 : 0;
+            }
+        })
+        .addMethods(/** @lends jorder.IndexCollection# */{
+            /**
+             * Sets an index in the collection.
+             * Item key is calculated based index signature.
+             * @param {jorder.Index} index
+             * @return {jorder.IndexCollection}
+             */
+            setItem: function (index) {
+                dessert.isIndex(index, "Invalid index");
+
+                base.setItem.call(this, index.rowSignature.fieldSignature, index);
+
+                return this;
+            },
+
+            /**
+             * Retrieves a collection of indexes that fully match the specified row.
+             * @param {object} row
+             * @return {jorder.IndexCollection}
+             */
+            getIndexesForRow: function (row) {
+                return /** @type {jorder.IndexCollection} */ this
+                    .filterBySelector(this._isIndexContainedByRow.bind(this, row));
+            },
+
+            /**
+             * Retrieves the first index matching the specified row.
+             * @param {object} row
+             * @return {jorder.Index}
+             */
+            getIndexForRow: function (row) {
+                return this
+                    // keeping indexes that match row
+                    .getIndexesForRow(row)
+                    // picking first we can find
+                    .getFirstValue();
+            },
+
+            /**
+             * Retrieves the index best matching the specified row
+             * @param {object} row
+             * @return {jorder.Index}
+             */
+            getBestIndexForRow: function (row) {
+                return this
+                    // keeping indexes that match row
+                    .getIndexesForRow(row)
+                    // getting number of matching fields for each
+                    .mapValues(this._indexFieldCountMapper)
+                    // flipping to field count -> index ID
+                    .toStringDictionary()
+                    .reverse()
+                    // assigning indexes to field counts
+                    .combineWith(this.toDictionary())
+                    // picking index with highest field count
+                    .toCollection()
+                    .getSortedValues(this._descNumericComparator)[0];
+            },
+
+            /**
+             * Retrieves an index matching the specified fields
+             * @param {string[]} fieldNames
+             * @param {string} [signatureType]
+             * @return {jorder.Index}
+             */
+            getIndexForFields: function (fieldNames, signatureType) {
+                var rowSignature = jorder.RowSignature.create(fieldNames, signatureType);
+                return this.getItem(rowSignature.fieldSignature);
+            }
+        });
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="jorder.Index.html">Index</a></li><li><a href="jorder.IndexCollection.html">IndexCollection</a></li><li><a href="jorder.IrregularNumber.html">IrregularNumber</a></li><li><a href="jorder.MultiArray.html">MultiArray</a></li><li><a href="jorder.RowSignature.html">RowSignature</a></li><li><a href="jorder.Table.html">Table</a></li></ul><h3>Namespaces</h3><ul><li><a href="jorder.html">jorder</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Thu Jul 18 2013 16:45:52 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+</body>
+</html>

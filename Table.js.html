@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Table.js</title>
+    
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+    
+    <h1 class="page-title">Source: Table.js</h1>
+    
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source"><code>/*global dessert, troop, sntls, jorder */
+troop.postpone(jorder, 'Table', function () {
+    "use strict";
+
+    var base = sntls.Collection,
+        self = base.extend();
+
+    /**
+     * Instantiates class.
+     * @name jorder.Table.create
+     * @function
+     * @param {object[]} json
+     * @return {jorder.Table}
+     */
+
+    /**
+     * Indexed table. For quick table queries.
+     * In technical terms, a table is a collection of rows, therefore it extends the Collection API.
+     * @class jorder.Table
+     * @extends sntls.Collection
+     */
+    jorder.Table = self
+        .addMethods(/** @lends jorder.Table# */{
+            /**
+             * @param {object[]} json
+             * @ignore
+             */
+            init: function (json) {
+                dessert.isArrayOptional(json, "Invalid table buffer");
+
+                base.init.call(this, json || []);
+
+                /**
+                 * Indexes associated with table
+                 * @type {jorder.IndexCollection}
+                 */
+                this.indexCollection = jorder.IndexCollection.create();
+            },
+
+            /**
+             * Sets row at given row ID.
+             * @param {string|number} rowId
+             * @param {object} row
+             * @return {jorder.Table}
+             */
+            setItem: function (rowId, row) {
+                // updating indexes
+                this.indexCollection
+                    .removeRow(this.getItem(rowId), rowId)
+                    .addRow(row, rowId);
+
+                base.setItem.call(this, rowId, row);
+
+                return this;
+            },
+
+            /**
+             * Sets multiple rows at once.
+             * @param {object} rowIdRowPairs
+             * @return {jorder.Table}
+             */
+            setItems: function (rowIdRowPairs) {
+                var that = this;
+                sntls.Collection.create(rowIdRowPairs)
+                    .forEachItem(function (row, rowId) {
+                        that.setItem(rowId, row);
+                    });
+                return this;
+            },
+
+            /**
+             * Deletes a row from the given row ID.
+             * @param {string|number} rowId
+             * @return {jorder.Table}
+             */
+            deleteItem: function (rowId) {
+                // updating indexes
+                this.indexCollection
+                    .removeRow(this.getItem(rowId), rowId);
+
+                base.deleteItem.call(this, rowId);
+
+                return this;
+            },
+
+            /**
+             * Clones table.
+             * @return {jorder.Table}
+             */
+            clone: function () {
+                // cloning collection
+                var result = /** @type jorder.Table */base.clone.call(this);
+
+                // adding table specific properties
+                this.indexCollection.forEachItem(function (/**jorder.Index*/ index) {
+                    var rowSignature = index.rowSignature;
+                    result.addIndex(rowSignature.fieldNames, rowSignature.signatureType);
+                });
+
+                return result;
+            },
+
+            /**
+             * Adds an index to the table.
+             * @param {string[]} fieldNames Names of fields included in the index
+             * @param {string} [signatureType] Index type
+             * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
+             * @return {jorder.Table}
+             */
+            addIndex: function (fieldNames, signatureType, isCaseInsensitive) {
+                var index = jorder.Index.create(fieldNames, signatureType, isCaseInsensitive);
+
+                // adding index to collection
+                this.indexCollection.setItem(index);
+
+                // initializing index with table rows
+                this.forEachItem(index.addRow, index);
+
+                return this;
+            },
+
+            /**
+             * Re-indexes table by rebuilding all indexes associated with table.
+             * @return {jorder.Table}
+             */
+            reIndex: function () {
+                var indexCollection = this.indexCollection;
+
+                // clearing index buffer
+                indexCollection.clearBuffers();
+
+                // re-building each index
+                this.forEachItem(indexCollection.addRow, indexCollection);
+
+                return this;
+            },
+
+            /**
+             * Retrieves rows assigned to the specified row IDs, wrapped in a hash.
+             * @param {string[]|number[]} rowIds
+             * @returns {sntls.Hash}
+             */
+            queryByRowIdsAsHash: function (rowIds) {
+                return sntls.StringDictionary.create(rowIds)
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Retrieves rows assigned to the specified row IDs.
+             * @param {string[]|number[]} rowIds
+             * @returns {object[]}
+             */
+            queryByRowIds: function (rowIds) {
+                return this.queryByRowIdsAsHash(rowIds).items;
+            },
+
+            /**
+             * Fetches table rows that match specified row expression and wraps them in a hash.
+             * @param {object} rowExpr Row expression.
+             * @return {sntls.Hash}
+             */
+            queryByRowAsHash: function (rowExpr) {
+                var index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                return index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows that match specified row expression.
+             * @param {object} rowExpr Table row or relevant field w/ value
+             * @return {Array}
+             */
+            queryByRow: function (rowExpr) {
+                return this.queryByRowAsHash(rowExpr).items;
+            },
+
+            /**
+             * Fetches table rows that match specified rows or row fractions and wraps them in a hash.
+             * @param {object[]} rows Table rows or relevant fields w/ values
+             * @return {sntls.Hash}
+             */
+            queryByRowsAsHash: function (rows) {
+                dessert.isArray(rows, "Invalid rows expression");
+
+                var index = this.indexCollection.getBestIndexForRow(rows[0]);
+
+                dessert.assert(!!index, "No index matches row");
+
+                return sntls.Collection.create(rows)
+                    // getting a collection of all keys fitting expression
+                    .passEachItemTo(index.rowSignature.getKeysForRow, index.rowSignature)
+                    // obtaining unique signatures matching rows
+                    .toStringDictionary()
+                    .getUniqueValuesAsHash()
+                    // obtaining row IDs based on keys
+                    .toCollection()
+                    .passEachItemTo(index.getRowIdsForKeys, index)
+                    // obtaining unique row IDs
+                    .toStringDictionary()
+                    .getUniqueValuesAsHash()
+                    // joining matching rows to selected row IDs
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows that match specified rows or row fractions.
+             * @param {object[]} rows Table rows or relevant fields w/ values
+             * @return {Array}
+             */
+            queryByRows: function (rows) {
+                return this.queryByRowsAsHash(rows).items;
+            },
+
+            /**
+             * Fetches table rows matching value range on the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string|number} startValue Start of value range
+             * @param {string|number} endValue End of value range
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
+             * @returns {sntls.Dictionary}
+             */
+            queryByRangeAsHash: function (fieldName, startValue, endValue, offset, limit) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = '';
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                return index
+                    // obtaining row IDs matching interval
+                    .getRowIdsForKeyRangeAsHash(startValue, endValue, offset, limit)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows matching value range on the specified field.
+             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string|number} startValue Start of value range
+             * @param {string|number} endValue End of value range
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
+             * @returns {Object[]}
+             */
+            queryByRange: function (fieldName, startValue, endValue, offset, limit) {
+                return this.queryByRangeAsHash(fieldName, startValue, endValue, offset, limit).items;
+            },
+
+            /**
+             * Fetches table rows matching the specified prefix on the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string} prefix Prefix that must be matched.
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
+             * @returns {sntls.Hash}
+             */
+            queryByPrefixAsHash: function (fieldName, prefix, offset, limit) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = '';
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                return index
+                    // obtaining row IDs matching prefix
+                    .getRowIdsForPrefixAsHash(prefix, offset, limit)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows matching the specified prefix on the specified field.
+             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string} prefix Prefix that must be matched.
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
+             * @returns {object[]}
+             */
+            queryByPrefix: function (fieldName, prefix, offset, limit) {
+                return this.queryByPrefixAsHash(fieldName, prefix, offset, limit).items;
+            },
+
+            /**
+             * Inserts single row into the table, updating all relevant indexes.
+             * @param {object} row Table row
+             * @returns {jorder.Table}
+             */
+            insertRow: function (row) {
+                // adding row to table
+                var rowId = this.items.push(row);
+
+                // adding row to indexes
+                this.indexCollection
+                    // selecting fitting indexes
+                    .getIndexesForRow(row)
+                    // adding row to fitting indexes
+                    .addRow(row, rowId - 1 + '');
+
+                return this;
+            },
+
+            /**
+             * Inserts multiple rows into the table. Updates all relevant indexes.
+             * @param {object[]} rows Array of table rows.
+             * @return {jorder.Table}
+             */
+            insertRows: function (rows) {
+                sntls.Collection.create(rows)
+                    .passEachItemTo(this.insertRow, this);
+                return this;
+            },
+
+            /**
+             * Updates rows that match the specified expression. The specified row will be assigned to
+             * the matching row(s) by reference.
+             * @param {object} rowExpr Row expression to be matched.
+             * @param {object} row Row value after update.
+             * @param {jorder.Index} [index] Index to be used for identifying row IDs. (For ambiguous indexes)
+             * @returns {jorder.Table}
+             */
+            updateRowsByRow: function (rowExpr, row, index) {
+                dessert
+                    .isObject(rowExpr, "Invalid row expression")
+                    .isObject(row, "Invalid row")
+                    .isIndexOptional(index, "Invalid index");
+
+                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
+                    // changing value to specified row on each row ID
+                    .toCollection()
+                    .passEachItemTo(this.setItem, this, 0, row);
+
+                return this;
+            },
+
+            /**
+             * Removes rows from the table that match the specified row.
+             * @param {object} rowExpr Row expression to be matched.
+             * @param {jorder.Index} [index] Index to be used for identifying row IDs. (For ambiguous indexes)
+             * @return {jorder.Table}
+             */
+            deleteRowsByRow: function (rowExpr, index) {
+                dessert
+                    .isObject(rowExpr, "Invalid row expression")
+                    .isIndexOptional(index, "Invalid index");
+
+                // getting an index for the row
+                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
+
+                dessert.assert(!!index, "No index matches row");
+
+                index
+                    // obtaining matching row IDs
+                    .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
+                    // deleting rows one by one
+                    .toCollection()
+                    .forEachItem(base.deleteItem, this);
+
+                return this;
+            },
+
+            /**
+             * Clears rows and associated indexes.
+             * @return {jorder.Table}
+             */
+            clear: function () {
+                base.clear.call(this);
+
+                // clearing indexes
+                this.indexCollection.clear();
+
+                return this;
+            }
+        });
+
+    // aliases
+    jorder.Table.addMethods(/** @lends jorder.Table# */{
+        /**
+         * @function
+         * @param {string|number} rowId
+         * @param {object} row
+         * @return {jorder.Table}
+         * @see jorder.Table#setItem
+         */
+        setRow: self.setItem,
+
+        /**
+         * @function
+         * @param {object} rowIdRowPairs
+         * @return {jorder.Table}
+         * @see jorder.Table#setItems
+         */
+        setRows: self.setItems,
+
+        /**
+         * @function
+         * @param {string|number} rowId
+         * @return {jorder.Table}
+         * @see jorder.Table#deleteItem
+         */
+        deleteRow: self.deleteItem
+    });
+});
+
+(function () {
+    "use strict";
+
+    dessert.addTypes(/** @lends dessert */{
+        isTable: function (expr) {
+            return jorder.Table.isBaseOf(expr);
+        },
+
+        isTableOptional: function (expr) {
+            return typeof expr === 'undefined' ||
+                   jorder.Table.isBaseOf(expr);
+        }
+    });
+
+    sntls.Hash.addMethods(/** @lends sntls.Hash */{
+        /**
+         * Reinterprets hash as table. Hash must contain array buffer.
+         * @return {jorder.Table}
+         */
+        toTable: function () {
+            return jorder.Table.create(this.items);
+        }
+    });
+}());
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Classes</h3><ul><li><a href="jorder.Index.html">Index</a></li><li><a href="jorder.IndexCollection.html">IndexCollection</a></li><li><a href="jorder.IrregularNumber.html">IrregularNumber</a></li><li><a href="jorder.MultiArray.html">MultiArray</a></li><li><a href="jorder.RowSignature.html">RowSignature</a></li><li><a href="jorder.Table.html">Table</a></li></ul><h3>Namespaces</h3><ul><li><a href="jorder.html">jorder</a></li></ul>
+</nav>
+
+<br clear="both">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Thu Jul 18 2013 16:45:52 GMT+0200 (CEST)
+</footer>
+
+<script> prettyPrint(); </script>
+</body>
+</html>
