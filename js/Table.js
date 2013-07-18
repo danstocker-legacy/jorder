@@ -224,9 +224,11 @@ troop.postpone(jorder, 'Table', function () {
              * @param {string} fieldName Name of field in which the value range must be matched.
              * @param {string|number} startValue Start of value range
              * @param {string|number} endValue End of value range
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {sntls.Dictionary}
              */
-            queryByRangeAsHash: function (fieldName, startValue, endValue) {
+            queryByRangeAsHash: function (fieldName, startValue, endValue, offset, limit) {
                 var rowExpr = {},
                     index;
 
@@ -235,7 +237,7 @@ troop.postpone(jorder, 'Table', function () {
 
                 return index
                     // obtaining row IDs matching interval
-                    .getRowIdsForKeyRangeAsHash(startValue, endValue)
+                    .getRowIdsForKeyRangeAsHash(startValue, endValue, offset, limit)
                     // joining actual rows that match
                     .toStringDictionary()
                     .combineWith(this.toDictionary());
@@ -246,19 +248,23 @@ troop.postpone(jorder, 'Table', function () {
              * @param {string} fieldName Name of field in which the value range must be matched.
              * @param {string|number} startValue Start of value range
              * @param {string|number} endValue End of value range
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {Object[]}
              */
-            queryByRange: function (fieldName, startValue, endValue) {
-                return this.queryByRangeAsHash(fieldName, startValue, endValue).items;
+            queryByRange: function (fieldName, startValue, endValue, offset, limit) {
+                return this.queryByRangeAsHash(fieldName, startValue, endValue, offset, limit).items;
             },
 
             /**
              * Fetches table rows matching the specified prefix on the specified field, and wraps it in a hash.
              * @param {string} fieldName Name of field in which the prefix must be matched.
              * @param {string} prefix Prefix that must be matched.
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {sntls.Hash}
              */
-            queryByPrefixAsHash: function (fieldName, prefix) {
+            queryByPrefixAsHash: function (fieldName, prefix, offset, limit) {
                 var rowExpr = {},
                     index;
 
@@ -269,7 +275,7 @@ troop.postpone(jorder, 'Table', function () {
 
                 return index
                     // obtaining row IDs matching prefix
-                    .getRowIdsForPrefixAsHash(prefix)
+                    .getRowIdsForPrefixAsHash(prefix, offset, limit)
                     // joining actual rows that match
                     .toStringDictionary()
                     .combineWith(this.toDictionary());
@@ -279,10 +285,12 @@ troop.postpone(jorder, 'Table', function () {
              * Fetches table rows matching the specified prefix on the specified field.
              * @param {string} fieldName Name of field in which the prefix must be matched.
              * @param {string} prefix Prefix that must be matched.
+             * @param {number} [offset=0] Number of items to skip at the start of the result set.
+             * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {object[]}
              */
-            queryByPrefix: function (fieldName, prefix) {
-                return this.queryByPrefixAsHash(fieldName, prefix).items;
+            queryByPrefix: function (fieldName, prefix, offset, limit) {
+                return this.queryByPrefixAsHash(fieldName, prefix, offset, limit).items;
             },
 
             /**

@@ -365,6 +365,28 @@
         );
     });
 
+    test("Query by range (call stack)", function () {
+        expect(4);
+
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['author'], SIGNATURE_TYPES.string);
+
+        jorder.Index.addMocks({
+            getRowIdsForKeyRangeAsHash: function (startValue, endValue, offset, limit) {
+                equal(startValue, "M");
+                equal(endValue, "Z");
+                equal(offset, 1);
+                equal(limit, 2);
+                return sntls.Hash.create();
+            }
+        });
+
+        table.queryByRangeAsHash('author', "M", "Z", 1, 2);
+
+        jorder.Index.removeMocks();
+    });
+
     test("Query by range", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
@@ -403,6 +425,27 @@
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
         );
+    });
+
+    test("Query by prefix (call stack)", function () {
+        expect(3);
+
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['author'], SIGNATURE_TYPES.string);
+
+        jorder.Index.addMocks({
+            getRowIdsForPrefixAsHash: function (prefix, offset, limit) {
+                equal(prefix, "M");
+                equal(offset, 1);
+                equal(limit, 2);
+                return sntls.Hash.create();
+            }
+        });
+
+        table.queryByPrefixAsHash('author', "M", 1, 2);
+
+        jorder.Index.removeMocks();
     });
 
     test("Query by prefix", function () {
