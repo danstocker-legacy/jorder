@@ -257,16 +257,18 @@
     });
 
     test("Row ID retrieval by range", function () {
-        expect(4);
+        expect(6);
 
         var index = jorder.Index.create(['foo'], 'number'),
             foo = sntls.Hash.create({}),
             result = [];
 
         index.sortedKeys.addMocks({
-            getRangeAsHash: function (startValue, endValue) {
+            getRangeAsHash: function (startValue, endValue, offset, limit) {
                 equal(startValue, 'foo');
                 equal(endValue, 'bar');
+                equal(offset, 1);
+                equal(limit, 2);
                 return foo;
             }
         });
@@ -278,7 +280,7 @@
             }
         });
 
-        strictEqual(index.getRowIdsForKeyRange('foo', 'bar'), result, "Both functions called");
+        strictEqual(index.getRowIdsForKeyRange('foo', 'bar', 1, 2), result, "Both functions called");
     });
 
     test("Row ID retrieval by range (case insensitive)", function () {
@@ -307,15 +309,18 @@
     });
 
     test("Row ID retrieval by prefix", function () {
-        expect(3);
+        expect(6);
 
         var index = jorder.Index.create(['foo'], 'number'),
             foo = sntls.Hash.create({}),
             result = [];
 
         index.sortedKeys.addMocks({
-            getRangeByPrefixAsHash: function (prefix) {
+            getRangeByPrefixAsHash: function (prefix, excludeOrig, offset, limit) {
                 equal(prefix, 'foo');
+                equal(excludeOrig, false);
+                equal(offset, 1);
+                equal(limit, 2);
                 return foo;
             }
         });
@@ -327,7 +332,7 @@
             }
         });
 
-        strictEqual(index.getRowIdsForPrefix('foo'), result, "Both functions called");
+        strictEqual(index.getRowIdsForPrefix('foo', 1, 2), result, "Both functions called");
     });
 
     test("Row ID retrieval by prefix (case insensitive)", function () {

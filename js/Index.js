@@ -148,16 +148,18 @@ troop.postpone(jorder, 'Index', function () {
              * that fall between the specified bounds.
              * @param {string|number} startValue Lower index bound
              * @param {string|number} endValue Upper index bound
+             * @param {number} [offset=0] Number of index entries to skip at start.
+             * @param {number} [limit=Infinity] Maximum number of index entries to fetch.
              * @return {string[]}
              */
-            getRowIdsForKeyRange: function (startValue, endValue /*, offset, limit*/) {
+            getRowIdsForKeyRange: function (startValue, endValue, offset, limit) {
                 if (this.rowSignature.isCaseInsensitive) {
                     // preparing key bounds for case insensitivity
                     startValue = startValue.toLowerCase();
                     endValue = endValue.toLowerCase();
                 }
 
-                return this.sortedKeys.getRangeAsHash(startValue, endValue)
+                return this.sortedKeys.getRangeAsHash(startValue, endValue, offset, limit)
                     .passSelfTo(this._getUniqueRowIdsForKeys, this);
             },
 
@@ -166,25 +168,29 @@ troop.postpone(jorder, 'Index', function () {
              * that fall between the specified bounds, wrapped in a hash.
              * @param {string|number} startValue Lower index bound
              * @param {string|number} endValue Upper index bound
+             * @param {number} [offset=0] Number of index entries to skip at start.
+             * @param {number} [limit=Infinity] Maximum number of index entries to fetch.
              * @returns {sntls.Hash}
              */
-            getRowIdsForKeyRangeAsHash: function (startValue, endValue /*, offset, limit*/) {
-                return sntls.Hash.create(this.getRowIdsForKeyRange(startValue, endValue));
+            getRowIdsForKeyRangeAsHash: function (startValue, endValue, offset, limit) {
+                return sntls.Hash.create(this.getRowIdsForKeyRange(startValue, endValue, offset, limit));
             },
 
             /**
              * Retrieves a list of unique row IDs matching index values
              * that start with the specified prefix.
              * @param {string} prefix Key prefix to be matched.
+             * @param {number} [offset=0] Number of index entries to skip at start.
+             * @param {number} [limit=Infinity] Maximum number of index entries to fetch.
              * @returns {*}
              */
-            getRowIdsForPrefix: function (prefix /*, offset, limit*/) {
+            getRowIdsForPrefix: function (prefix, offset, limit) {
                 if (this.rowSignature.isCaseInsensitive) {
                     // preparing key prefix for case insensitivity
                     prefix = prefix.toLowerCase();
                 }
 
-                return this.sortedKeys.getRangeByPrefixAsHash(prefix)
+                return this.sortedKeys.getRangeByPrefixAsHash(prefix, false, offset, limit)
                     .passSelfTo(this._getUniqueRowIdsForKeys, this);
             },
 
@@ -192,10 +198,12 @@ troop.postpone(jorder, 'Index', function () {
              * Retrieves a list of unique row IDs matching index values
              * that start with the specified prefix, wrapped in a hash.
              * @param {string} prefix Key prefix to be matched.
+             * @param {number} [offset=0] Number of index entries to skip at start.
+             * @param {number} [limit=Infinity] Maximum number of index entries to fetch.
              * @returns {sntls.Hash}
              */
-            getRowIdsForPrefixAsHash: function (prefix /*, offset, limit*/) {
-                return sntls.Hash.create(this.getRowIdsForPrefix(prefix));
+            getRowIdsForPrefixAsHash: function (prefix, offset, limit) {
+                return sntls.Hash.create(this.getRowIdsForPrefix(prefix, offset, limit));
             }
         });
 });
