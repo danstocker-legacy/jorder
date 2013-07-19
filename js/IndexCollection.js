@@ -100,15 +100,9 @@ troop.postpone(jorder, 'IndexCollection', function () {
                 return this
                     // keeping indexes that match row
                     .getIndexesForRow(row)
-                    // getting number of matching fields for each
-                    .mapValues(this._indexFieldCountMapper)
-                    // flipping to field count -> index ID
-                    .toStringDictionary()
-                    .reverse()
-                    // assigning indexes to field counts
-                    .combineWith(this.toDictionary())
+                    // assigning number of matching fields to each value
+                    .mapKeys(this._indexFieldCountMapper)
                     // picking index with highest field count
-                    .toCollection()
                     .getSortedValues(this._descNumericComparator)[0];
             },
 
