@@ -23,10 +23,13 @@ Also, the new Jorder leaves the following jQuery-inspired features behind:
 Examples
 --------
 
+[JSFiddle](http://jsfiddle.net/danstocker/hYm2X/)
+
 Assume that `tableJson` holds an array of personal records.
 
     var table = jorder.Table.create(tableJson)
         .addIndex(['lastName', 'firstName'], 'string', true);
 
     // fetching records where name starts with "sm"
-    table.queryByPrefix('name', "sm"); // [{lastName: "Smith", firstName: "John"}, {lastName: "Small", firstName: "Bradley"}]
+    table.queryByPrefix('name', "sm");
+    // [{lastName: "Smith", firstName: "John"}, {lastName: "Small", firstName: "Bradley"}]
