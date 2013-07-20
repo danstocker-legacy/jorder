@@ -57,7 +57,7 @@
         );
 
         ok(table.indexCollection.isA(jorder.IndexCollection), "Index collection");
-        equal(table.indexCollection.count, 0, "No indexes initially");
+        equal(table.indexCollection.getKeyCount(), 0, "No indexes initially");
     });
 
     test("Item setting", function () {
@@ -215,7 +215,7 @@
 
         table.addIndex(['foo', 'bar']);
 
-        equal(table.indexCollection.count, 1, "Index count increased");
+        equal(table.indexCollection.getKeyCount(), 1, "Index count increased");
         deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
 
         var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
