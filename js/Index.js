@@ -27,9 +27,6 @@ troop.postpone(jorder, 'Index', function () {
              */
             _getUniqueRowIdsForKeys: function (keysAsHash) {
                 return keysAsHash
-                    // collapsing unique index values
-                    .toStringDictionary()
-                    .getUniqueValuesAsHash()
                     // obtaining row IDs from lookup
                     .toStringDictionary()
                     .combineWith(this.rowIdLookup)
