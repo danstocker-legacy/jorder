@@ -30,6 +30,10 @@
         }
     ];
 
+    function order(a, b) {
+        return a.order > b.order ? 1 : a.order < b.order ? -1 : 0;
+    }
+
     test("Type conversion", function () {
         var hash = sntls.Hash.create([
                 {foo: 'bar', hello: 'world'}
@@ -394,14 +398,16 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string);
 
         deepEqual(
-            table.queryByRangeAsHash('author', "M", "Z").items,
+            table.queryByRangeAsHash('author', "M", "Z").items
+                .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (string)"
         );
 
         // matches "of" and "the"
         deepEqual(
-            table.queryByRangeAsHash('title', "o", "ti").items,
+            table.queryByRangeAsHash('title', "o", "ti").items
+                .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
         );
@@ -414,14 +420,16 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string, true);
 
         deepEqual(
-            table.queryByRangeAsHash('author', "m", "z").items,
+            table.queryByRangeAsHash('author', "m", "z").items
+                .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (string)"
         );
 
         // matches "of" and "Pooh"
         deepEqual(
-            table.queryByRangeAsHash('title', "O", "POP").items,
+            table.queryByRangeAsHash('title', "O", "POP").items
+                .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
         );
