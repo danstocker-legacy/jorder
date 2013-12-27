@@ -420,6 +420,20 @@ troop.postpone(jorder, 'Table', function () {
     });
 });
 
+troop.amendPostponed(sntls, 'Hash', function () {
+    "use strict";
+
+    sntls.Hash.addMethods(/** @lends sntls.Hash */{
+        /**
+         * Reinterprets hash as table. Hash must contain array buffer.
+         * @return {jorder.Table}
+         */
+        toTable: function () {
+            return jorder.Table.create(this.items);
+        }
+    });
+});
+
 (function () {
     "use strict";
 
@@ -431,16 +445,6 @@ troop.postpone(jorder, 'Table', function () {
         isTableOptional: function (expr) {
             return typeof expr === 'undefined' ||
                    jorder.Table.isBaseOf(expr);
-        }
-    });
-
-    sntls.Hash.addMethods(/** @lends sntls.Hash */{
-        /**
-         * Reinterprets hash as table. Hash must contain array buffer.
-         * @return {jorder.Table}
-         */
-        toTable: function () {
-            return jorder.Table.create(this.items);
         }
     });
 }());
