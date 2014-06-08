@@ -23,8 +23,8 @@
         var arr = ["§1.", "`foo`", "foo bar", 5];
 
         deepEqual(
-            jorder.RowSignature._arrayUriEncoder(arr),
-            ["%C2%A71.", "%60foo%60", "foo%20bar", "5"],
+            jorder.RowSignature._arrayUriEncoder(arr).sort(),
+            ["%C2%A71.", "%60foo%60", "foo%20bar", "5"].sort(),
             "Array URI-encoded"
         );
     });
