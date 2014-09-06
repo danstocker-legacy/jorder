@@ -226,11 +226,7 @@ troop.postpone(jorder, 'Table', function () {
              * @returns {sntls.Dictionary}
              */
             queryByOffsetAsHash: function (fieldName, offset) {
-                var rowExpr = {},
-                    index;
-
-                rowExpr[fieldName] = '';
-                index = this.indexCollection.getBestIndexForRow(rowExpr);
+                var index = this.indexCollection.getBestIndexForField(fieldName);
 
                 return index
                     // obtaining row IDs matching offset
@@ -258,11 +254,7 @@ troop.postpone(jorder, 'Table', function () {
              * @returns {sntls.Dictionary}
              */
             queryByOffsetRangeAsHash: function (fieldName, startOffset, endOffset) {
-                var rowExpr = {},
-                    index;
-
-                rowExpr[fieldName] = '';
-                index = this.indexCollection.getBestIndexForRow(rowExpr);
+                var index = this.indexCollection.getBestIndexForField(fieldName);
 
                 return index
                     // obtaining row IDs matching offset
@@ -293,11 +285,7 @@ troop.postpone(jorder, 'Table', function () {
              * @returns {sntls.Dictionary}
              */
             queryByRangeAsHash: function (fieldName, startValue, endValue, offset, limit) {
-                var rowExpr = {},
-                    index;
-
-                rowExpr[fieldName] = '';
-                index = this.indexCollection.getBestIndexForRow(rowExpr);
+                var index = this.indexCollection.getBestIndexForField(fieldName);
 
                 return index
                     // obtaining row IDs matching interval
@@ -329,11 +317,7 @@ troop.postpone(jorder, 'Table', function () {
              * @returns {sntls.Hash}
              */
             queryByPrefixAsHash: function (fieldName, prefix, offset, limit) {
-                var rowExpr = {},
-                    index;
-
-                rowExpr[fieldName] = '';
-                index = this.indexCollection.getBestIndexForRow(rowExpr);
+                var index = this.indexCollection.getBestIndexForField(fieldName);
 
                 dessert.assert(!!index, "No index matches row");
 

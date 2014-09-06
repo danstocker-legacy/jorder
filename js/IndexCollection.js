@@ -107,6 +107,17 @@ troop.postpone(jorder, 'IndexCollection', function () {
             },
 
             /**
+             * Retrieves the index best matching for the specified field.
+             * @param {string} fieldName
+             * @returns {jorder.Index}
+             */
+            getBestIndexForField: function (fieldName) {
+                var rowExpr = {};
+                rowExpr[fieldName] = '';
+                return this.getBestIndexForRow(rowExpr);
+            },
+
+            /**
              * Retrieves an index matching the specified fields
              * @param {string[]} fieldNames
              * @param {string} [signatureType]
