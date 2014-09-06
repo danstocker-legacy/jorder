@@ -220,6 +220,70 @@ troop.postpone(jorder, 'Table', function () {
             },
 
             /**
+             * Fetches table rows at the specified offset on the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the offset must be matched.
+             * @param {number} offset Position of row inside the table, in the order of the specified field.
+             * @returns {sntls.Dictionary}
+             */
+            queryByOffsetAsHash: function (fieldName, offset) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = '';
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                return index
+                    // obtaining row IDs matching offset
+                    .getRowIdsBetweenAsHash(offset, offset + 1)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows at the specified offset on the specified field.
+             * @param {string} fieldName Name of field in which the offset must be matched.
+             * @param {number} offset Position of row inside the table, in the order of the specified field.
+             * @returns {object[]}
+             */
+            queryByOffset: function (fieldName, offset) {
+                return this.queryByOffsetAsHash(fieldName, offset).items;
+            },
+
+            /**
+             * Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the offset range must be matched.
+             * @param {number} startOffset Start of offset range
+             * @param {number} endOffset End of offset range
+             * @returns {sntls.Dictionary}
+             */
+            queryByOffsetRangeAsHash: function (fieldName, startOffset, endOffset) {
+                var rowExpr = {},
+                    index;
+
+                rowExpr[fieldName] = '';
+                index = this.indexCollection.getBestIndexForRow(rowExpr);
+
+                return index
+                    // obtaining row IDs matching offset
+                    .getRowIdsBetweenAsHash(startOffset, endOffset)
+                    // joining actual rows that match
+                    .toStringDictionary()
+                    .combineWith(this.toDictionary());
+            },
+
+            /**
+             * Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
+             * @param {string} fieldName Name of field in which the offset range must be matched.
+             * @param {number} startOffset Start of offset range
+             * @param {number} endOffset End of offset range
+             * @returns {object[]}
+             */
+            queryByOffsetRange: function (fieldName, startOffset, endOffset) {
+                return this.queryByOffsetRangeAsHash(fieldName, startOffset, endOffset).items;
+            },
+
+            /**
              * Fetches table rows matching value range on the specified field, and wraps it in a hash.
              * @param {string} fieldName Name of field in which the value range must be matched.
              * @param {string|number} startValue Start of value range

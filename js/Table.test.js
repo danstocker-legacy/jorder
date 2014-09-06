@@ -369,6 +369,64 @@
         );
     });
 
+    test("Querying by offset", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.string),
+            result;
+
+        result = table.queryByOffsetAsHash('title', 1);
+
+        ok(result.isA(sntls.Hash), "should return Hash instance");
+        strictEqual(result.getFirstValue(), json[2], "should return table row at specified offset");
+    });
+
+    test("Hash-less querying by offset", function () {
+        var table = jorder.Table.create(json),
+            hashBuffer = {};
+
+        table.addMocks({
+            queryByOffsetAsHash: function (fieldName, offset) {
+                equal(fieldName, 'foo', "should pass field name to hash getter");
+                equal(offset, 100, "should pass offset to hash getter");
+                return sntls.Hash.create(hashBuffer);
+            }
+        });
+
+        strictEqual(table.queryByOffset('foo', 100), hashBuffer, "should return hash buffer");
+    });
+
+    test("Querying by offset range", function () {
+        var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
+            table = jorder.Table.create(json)
+                .addIndex(['title'], SIGNATURE_TYPES.string),
+            result;
+
+        result = table.queryByOffsetRangeAsHash('title', 1, 3);
+
+        ok(result.isA(sntls.Hash), "should return Hash instance");
+        deepEqual(
+            result.items,
+            [ json[2], json[1] ],
+            "should return table rows between specified offsets");
+    });
+
+    test("Hash-less querying by offset range", function () {
+        var table = jorder.Table.create(json),
+            hashBuffer = {};
+
+        table.addMocks({
+            queryByOffsetRangeAsHash: function (fieldName, startOffset, endOffset) {
+                equal(fieldName, 'foo', "should pass field name to hash getter");
+                equal(startOffset, 1, "should pass start offset to hash getter");
+                equal(endOffset, 100, "should pass end offset to hash getter");
+                return sntls.Hash.create(hashBuffer);
+            }
+        });
+
+        strictEqual(table.queryByOffsetRange('foo', 1, 100), hashBuffer, "should return hash buffer");
+    });
+
     test("Query by range (call stack)", function () {
         expect(4);
 
