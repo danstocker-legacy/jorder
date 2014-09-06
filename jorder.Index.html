@@ -879,6 +879,452 @@ Provides validation and index key generation.
         
             
 <dt>
+    <h4 class="name" id="getRowIdAt"><span class="type-signature"></span>getRowIdAt<span class="signature">(offset)</span><span class="type-signature"> &rarr; {number|Array.&lt;number>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Retrieves a row ID (or row IDs if index is not unique) associated with the specified offset in the index.
+Supposed to be used on unique indexes, where position in the index is unambiguous.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>offset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Index.js.html">Index.js</a>, line 122
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">number</span>
+|
+
+<span class="param-type">Array.&lt;number></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getRowIdsBetween"><span class="type-signature"></span>getRowIdsBetween<span class="signature">(startOffset, endOffset)</span><span class="type-signature"> &rarr; {number[]}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Retrieves a list of row ids that are associated with the index entries between the specified positions,
+wrapped in a hash.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>startOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>endOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Index.js.html">Index.js</a>, line 150
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">number[]</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="getRowIdsBetweenAsHash"><span class="type-signature"></span>getRowIdsBetweenAsHash<span class="signature">(startOffset, endOffset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Retrieves a list of row IDs that are associated with the index entries between the specified positions,
+wrapped in a hash. Result may contain array items in case the index is not unique.
+Supposed to be used on unique indexes, where position in the index is unambiguous.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>startOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>endOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last"></td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Index.js.html">Index.js</a>, line 137
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">sntls.Dictionary</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
     <h4 class="name" id="getRowIdsForKeyRange"><span class="type-signature"></span>getRowIdsForKeyRange<span class="signature">(startValue, endValue, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {string[]}</span></h4>
     
     
@@ -1104,7 +1550,7 @@ that fall between the specified bounds.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 152
+        <a href="Index.js.html">Index.js</a>, line 190
     </li></ul></dd>
     
     
@@ -1371,7 +1817,7 @@ that fall between the specified bounds, wrapped in a hash.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 172
+        <a href="Index.js.html">Index.js</a>, line 210
     </li></ul></dd>
     
     
@@ -1512,7 +1958,7 @@ in correct case (ie. lowercase when index is case insensitive).</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 122
+        <a href="Index.js.html">Index.js</a>, line 160
     </li></ul></dd>
     
     
@@ -1652,7 +2098,7 @@ in correct case (ie. lowercase when index is case insensitive).</td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 139
+        <a href="Index.js.html">Index.js</a>, line 177
     </li></ul></dd>
     
     
@@ -1878,7 +2324,7 @@ that start with the specified prefix.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 184
+        <a href="Index.js.html">Index.js</a>, line 222
     </li></ul></dd>
     
     
@@ -2104,7 +2550,7 @@ that start with the specified prefix, wrapped in a hash.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Index.js.html">Index.js</a>, line 202
+        <a href="Index.js.html">Index.js</a>, line 240
     </li></ul></dd>
     
     
@@ -2319,7 +2765,7 @@ that start with the specified prefix, wrapped in a hash.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Fri Dec 27 2013 23:32:18 GMT-0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sat Sep 06 2014 11:24:38 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -573,7 +573,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 384
+        <a href="Table.js.html">Table.js</a>, line 432
     </li></ul></dd>
     
     
@@ -920,7 +920,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 419
+        <a href="Table.js.html">Table.js</a>, line 467
     </li></ul></dd>
     
     
@@ -1101,7 +1101,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 360
+        <a href="Table.js.html">Table.js</a>, line 408
     </li></ul></dd>
     
     
@@ -1232,7 +1232,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 301
+        <a href="Table.js.html">Table.js</a>, line 349
     </li></ul></dd>
     
     
@@ -1363,7 +1363,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 320
+        <a href="Table.js.html">Table.js</a>, line 368
     </li></ul></dd>
     
     
@@ -1392,6 +1392,668 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	<dd>
 		
 <span class="param-type"><a href="jorder.Table.html">jorder.Table</a></span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="queryByOffset"><span class="type-signature"></span>queryByOffset<span class="signature">(fieldName, offset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Fetches table rows at the specified offset on the specified field.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fieldName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Name of field in which the offset must be matched.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>offset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Position of row inside the table, in the order of the specified field.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Table.js.html">Table.js</a>, line 245
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">object[]</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="queryByOffsetAsHash"><span class="type-signature"></span>queryByOffsetAsHash<span class="signature">(fieldName, offset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Fetches table rows at the specified offset on the specified field, and wraps it in a hash.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fieldName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Name of field in which the offset must be matched.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>offset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Position of row inside the table, in the order of the specified field.</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Table.js.html">Table.js</a>, line 228
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">sntls.Dictionary</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="queryByOffsetRange"><span class="type-signature"></span>queryByOffsetRange<span class="signature">(fieldName, startOffset, endOffset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fieldName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Name of field in which the offset range must be matched.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>startOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Start of offset range</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>endOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">End of offset range</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Table.js.html">Table.js</a>, line 274
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">object[]</span>
+
+
+	</dd>
+</dl>
+
+        
+    
+    
+</dd>
+
+        
+            
+<dt>
+    <h4 class="name" id="queryByOffsetRangeAsHash"><span class="type-signature"></span>queryByOffsetRangeAsHash<span class="signature">(fieldName, startOffset, endOffset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+		
+		<th>Type</th>
+		
+		
+		
+		
+		
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+	
+	<tbody>
+	
+	
+        <tr>
+            
+                <td class="name"><code>fieldName</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Name of field in which the offset range must be matched.</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>startOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">Start of offset range</td>
+        </tr>
+	
+	
+	
+        <tr>
+            
+                <td class="name"><code>endOffset</code></td>
+            
+            
+            <td class="type">
+            
+                
+<span class="param-type">number</span>
+
+
+            
+            </td>
+            
+            
+            
+            
+            
+            <td class="description last">End of offset range</td>
+        </tr>
+	
+	
+	</tbody>
+</table>
+    
+    
+    
+<dl class="details">
+    
+        
+    
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="Table.js.html">Table.js</a>, line 256
+    </li></ul></dd>
+    
+    
+    
+    
+    
+    
+    
+</dl>
+
+    
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">sntls.Dictionary</span>
 
 
 	</dd>
@@ -1623,7 +2285,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 292
+        <a href="Table.js.html">Table.js</a>, line 340
     </li></ul></dd>
     
     
@@ -1883,7 +2545,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 267
+        <a href="Table.js.html">Table.js</a>, line 319
     </li></ul></dd>
     
     
@@ -2184,7 +2846,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 255
+        <a href="Table.js.html">Table.js</a>, line 307
     </li></ul></dd>
     
     
@@ -2485,7 +3147,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 231
+        <a href="Table.js.html">Table.js</a>, line 287
     </li></ul></dd>
     
     
@@ -3801,7 +4463,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 403
+        <a href="Table.js.html">Table.js</a>, line 451
     </li></ul></dd>
     
     
@@ -3935,7 +4597,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 411
+        <a href="Table.js.html">Table.js</a>, line 459
     </li></ul></dd>
     
     
@@ -4148,7 +4810,7 @@ the matching row(s) by reference.
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="Table.js.html">Table.js</a>, line 334
+        <a href="Table.js.html">Table.js</a>, line 382
     </li></ul></dd>
     
     
@@ -4209,7 +4871,7 @@ the matching row(s) by reference.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Fri Dec 27 2013 23:32:18 GMT-0000 (GMT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sat Sep 06 2014 11:24:39 GMT+0100 (BST)
 </footer>
 
 <script> prettyPrint(); </script>
