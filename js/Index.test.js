@@ -256,6 +256,88 @@
         deepEqual(rowIds.sort(), ['1', '3', '4', '7', '8', '9'], "Unique Row Ids");
     });
 
+    test("Row ID retrieval by position", function () {
+        expect(5);
+
+        var index = jorder.Index.create(['foo'], 'number')
+                .addRow({foo: 5}, 1)
+                .addRow({foo: 3}, 2)
+                .addRow({foo: 2}, 3)
+                .addRow({foo: 1}, 4)
+                .addRow({foo: 3}, 5)
+                .addRow({foo: 4}, 6),
+            combineResult = sntls.Dictionary.create({foo: 'bar'});
+
+        sntls.StringDictionary.addMocks({
+            combineWith: function (stringDictionary) {
+                strictEqual(stringDictionary, index.rowIdLookup, "should join matching keys w/ row ID lookup");
+                return combineResult;
+            }
+        });
+
+        equal(index.getRowIdAt(1), 'bar', "should return first value in combined data");
+
+        sntls.StringDictionary.removeMocks();
+
+        deepEqual(index.getRowIdAt(1), 3, "should return correct row ID");
+        deepEqual(index.getRowIdAt(2), [2, 5], "should return correct row ID list");
+        deepEqual(index.getRowIdAt(3), [2, 5], "should return correct row ID list");
+    });
+
+    test("Row ID retrieval between positions", function () {
+        expect(5);
+
+        var index = jorder.Index.create(['foo'], 'number')
+                .addRow({foo: 5}, 1)
+                .addRow({foo: 3}, 2)
+                .addRow({foo: 2}, 3)
+                .addRow({foo: 1}, 4)
+                .addRow({foo: 3}, 5)
+                .addRow({foo: 4}, 6),
+            combineResult = sntls.Dictionary.create({foo: 'bar'}),
+            result;
+
+        sntls.StringDictionary.addMocks({
+            combineWith: function (stringDictionary) {
+                deepEqual(this.items, [2, 3], "should join specified slice of sorted keys");
+                strictEqual(stringDictionary, index.rowIdLookup, "should join with row ID lookup");
+                return combineResult;
+            }
+        });
+
+        result = index.getRowIdsBetweenAsHash(1, 3);
+        ok(result.isA(sntls.Hash), "should return Hash instance");
+        strictEqual(result, combineResult, "should return joined sorted keys joined with row ID lookup");
+
+        sntls.StringDictionary.removeMocks();
+
+        deepEqual(
+            index.getRowIdsBetweenAsHash(1, 3).items,
+            [3, [2, 5]],
+            "should return correct row IDs");
+    });
+
+    test("Hash-less row ID retrieval between positions", function () {
+        expect(3);
+
+        var index = jorder.Index.create(['foo'], 'number'),
+            hashBuffer = {},
+            hash = sntls.Hash.create(hashBuffer);
+
+        index.addMocks({
+            getRowIdsBetweenAsHash: function (start, end) {
+                equal(start, 1, "should pass start position to hash getter");
+                equal(end, 100, "should pass end position to hash getter");
+                return hash;
+            }
+        });
+
+        strictEqual(
+            index.getRowIdsBetween(1, 100),
+            hashBuffer,
+            "should return buffer of hash returned by hash getter");
+    });
+
     test("Row ID retrieval by range", function () {
         expect(6);
 

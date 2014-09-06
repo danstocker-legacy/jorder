@@ -114,6 +114,44 @@ troop.postpone(jorder, 'Index', function () {
             },
 
             /**
+             * Retrieves a row ID (or row IDs if index is not unique) associated with the specified offset in the index.
+             * Supposed to be used on unique indexes, where position in the index is unambiguous.
+             * @param {number} offset
+             * @returns {number|number[]}
+             */
+            getRowIdAt: function (offset) {
+                return this.sortedKeys.items.slice(offset, offset + 1)
+                    .toStringDictionary()
+                    .combineWith(this.rowIdLookup)
+                    .getFirstValue();
+            },
+
+            /**
+             * Retrieves a list of row IDs that are associated with the index entries between the specified positions,
+             * wrapped in a hash. Result may contain array items in case the index is not unique.
+             * Supposed to be used on unique indexes, where position in the index is unambiguous.
+             * @param {number} startOffset
+             * @param {number} endOffset
+             * @returns {sntls.Dictionary}
+             */
+            getRowIdsBetweenAsHash: function (startOffset, endOffset) {
+                return this.sortedKeys.items.slice(startOffset, endOffset)
+                    .toStringDictionary()
+                    .combineWith(this.rowIdLookup);
+            },
+
+            /**
+             * Retrieves a list of row ids that are associated with the index entries between the specified positions,
+             * wrapped in a hash.
+             * @param {number} startOffset
+             * @param {number} endOffset
+             * @returns {number[]}
+             */
+            getRowIdsBetween: function (startOffset, endOffset) {
+                return this.getRowIdsBetweenAsHash(startOffset, endOffset).items;
+            },
+
+            /**
              * Retrieves a list of row ids associated with the specified keys.
              * @param {string[]|number[]|string|number} keys Index keys to be looked up, expected to be
              * in correct case (ie. lowercase when index is case insensitive).
