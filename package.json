@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.1.6",
+    "version": "0.1.7",
     "description"    : "Indexed table cache",
     "keywords"       : ["table", "data", "query", "queries", "indexed"],
     "author"         : "Dan Stocker <dan@kwaia.com>",
