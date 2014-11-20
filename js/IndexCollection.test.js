@@ -132,25 +132,6 @@
         equal(result.rowSignature.fieldSignature, 'foo|bar%string', "Result index signature");
     });
 
-    test("Fetching best index for single field", function () {
-        expect(2);
-
-        var indexCollection = jorder.IndexCollection.create(),
-            bestIndex = {};
-
-        indexCollection.addMocks({
-            getBestIndexForRow: function (row) {
-                deepEqual(row, {foo: ''}, "should pass dummy row to index-by-row getter");
-                return bestIndex;
-            }
-        });
-
-        strictEqual(
-            indexCollection.getBestIndexForField('foo'),
-            bestIndex,
-            "should return index returned by by-row getter");
-    });
-
     test("Fetching best index for multiple fields", function () {
         expect(2);
 

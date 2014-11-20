@@ -375,7 +375,7 @@
                 .addIndex(['title'], SIGNATURE_TYPES.string),
             result;
 
-        result = table.queryByOffsetAsHash('title', 1);
+        result = table.queryByOffsetAsHash(['title'], 1);
 
         ok(result.isA(sntls.Hash), "should return Hash instance");
         strictEqual(result.getFirstValue(), json[2], "should return table row at specified offset");
@@ -393,7 +393,7 @@
             }
         });
 
-        strictEqual(table.queryByOffset('foo', 100), hashBuffer, "should return hash buffer");
+        strictEqual(table.queryByOffset(['foo'], 100), hashBuffer, "should return hash buffer");
     });
 
     test("Querying by offset range", function () {
@@ -402,7 +402,7 @@
                 .addIndex(['title'], SIGNATURE_TYPES.string),
             result;
 
-        result = table.queryByOffsetRangeAsHash('title', 1, 3);
+        result = table.queryByOffsetRangeAsHash(['title'], 1, 3);
 
         ok(result.isA(sntls.Hash), "should return Hash instance");
         deepEqual(
@@ -424,7 +424,7 @@
             }
         });
 
-        strictEqual(table.queryByOffsetRange('foo', 1, 100), hashBuffer, "should return hash buffer");
+        strictEqual(table.queryByOffsetRange(['foo'], 1, 100), hashBuffer, "should return hash buffer");
     });
 
     test("Query by range (call stack)", function () {
@@ -444,7 +444,7 @@
             }
         });
 
-        table.queryByRangeAsHash('author', "M", "Z", 1, 2);
+        table.queryByRangeAsHash(['author'], "M", "Z", 1, 2);
 
         jorder.Index.removeMocks();
     });
@@ -456,7 +456,7 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string);
 
         deepEqual(
-            table.queryByRangeAsHash('author', "M", "Z").items
+            table.queryByRangeAsHash(['author'], "M", "Z").items
                 .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (string)"
@@ -464,7 +464,7 @@
 
         // matches "of" and "the"
         deepEqual(
-            table.queryByRangeAsHash('title', "o", "ti").items
+            table.queryByRangeAsHash(['title'], "o", "ti").items
                 .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
@@ -478,7 +478,7 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string, true);
 
         deepEqual(
-            table.queryByRangeAsHash('author', "m", "z").items
+            table.queryByRangeAsHash(['author'], "m", "z").items
                 .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (string)"
@@ -486,7 +486,7 @@
 
         // matches "of" and "Pooh"
         deepEqual(
-            table.queryByRangeAsHash('title', "O", "POP").items
+            table.queryByRangeAsHash(['title'], "O", "POP").items
                 .sort(order),
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
@@ -509,7 +509,7 @@
             }
         });
 
-        table.queryByPrefixAsHash('author', "M", 1, 2);
+        table.queryByPrefixAsHash(['author'], "M", 1, 2);
 
         jorder.Index.removeMocks();
     });
@@ -521,19 +521,19 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string);
 
         deepEqual(
-            table.queryByPrefixAsHash('author', "Tol").items,
+            table.queryByPrefixAsHash(['author'], "Tol").items,
             [json[0]],
             "Fitting rows fetched (string)"
         );
 
         deepEqual(
-            table.queryByPrefixAsHash('title', "th").items,
+            table.queryByPrefixAsHash(['title'], "th").items,
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
         );
 
         deepEqual(
-            table.queryByPrefixAsHash('title', "P").items,
+            table.queryByPrefixAsHash(['title'], "P").items,
             [json[1], json[2]],
             "Fitting rows fetched (full text)"
         );
@@ -546,19 +546,19 @@
                 .addIndex(['author'], SIGNATURE_TYPES.string, true);
 
         deepEqual(
-            table.queryByPrefixAsHash('author', "tol").items,
+            table.queryByPrefixAsHash(['author'], "tol").items,
             [json[0]],
             "Fitting rows fetched (string)"
         );
 
         deepEqual(
-            table.queryByPrefixAsHash('title', "TH").items,
+            table.queryByPrefixAsHash(['title'], "TH").items,
             [json[0], json[1]],
             "Fitting rows fetched (full text)"
         );
 
         deepEqual(
-            table.queryByPrefixAsHash('title', "p").items,
+            table.queryByPrefixAsHash(['title'], "p").items,
             [json[1], json[2]],
             "Fitting rows fetched (full text)"
         );

@@ -221,12 +221,12 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Fetches table rows at the specified offset on the specified field, and wraps it in a hash.
-             * @param {string} fieldName Name of field in which the offset must be matched.
+             * @param {string[]} fieldNames Names of fields in which the offset must be matched.
              * @param {number} offset Position of row inside the table, in the order of the specified field.
              * @returns {sntls.Dictionary}
              */
-            queryByOffsetAsHash: function (fieldName, offset) {
-                var index = this.indexCollection.getBestIndexForField(fieldName);
+            queryByOffsetAsHash: function (fieldNames, offset) {
+                var index = this.indexCollection.getBestIndexForFields(fieldNames);
 
                 return index
                     // obtaining row IDs matching offset
@@ -238,23 +238,23 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Fetches table rows at the specified offset on the specified field.
-             * @param {string} fieldName Name of field in which the offset must be matched.
+             * @param {string[]} fieldNames Name of field in which the offset must be matched.
              * @param {number} offset Position of row inside the table, in the order of the specified field.
              * @returns {object[]}
              */
-            queryByOffset: function (fieldName, offset) {
-                return this.queryByOffsetAsHash(fieldName, offset).items;
+            queryByOffset: function (fieldNames, offset) {
+                return this.queryByOffsetAsHash(fieldNames, offset).items;
             },
 
             /**
              * Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
-             * @param {string} fieldName Name of field in which the offset range must be matched.
+             * @param {string[]} fieldNames Names of fields in which the offset range must be matched.
              * @param {number} startOffset Start of offset range
              * @param {number} endOffset End of offset range
              * @returns {sntls.Dictionary}
              */
-            queryByOffsetRangeAsHash: function (fieldName, startOffset, endOffset) {
-                var index = this.indexCollection.getBestIndexForField(fieldName);
+            queryByOffsetRangeAsHash: function (fieldNames, startOffset, endOffset) {
+                var index = this.indexCollection.getBestIndexForFields(fieldNames);
 
                 return index
                     // obtaining row IDs matching offset
@@ -266,26 +266,26 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Fetches table rows falling between the specified offsets by the specified field, and wraps it in a hash.
-             * @param {string} fieldName Name of field in which the offset range must be matched.
+             * @param {string[]} fieldNames Names of fields in which the offset range must be matched.
              * @param {number} startOffset Start of offset range
              * @param {number} endOffset End of offset range
              * @returns {object[]}
              */
-            queryByOffsetRange: function (fieldName, startOffset, endOffset) {
-                return this.queryByOffsetRangeAsHash(fieldName, startOffset, endOffset).items;
+            queryByOffsetRange: function (fieldNames, startOffset, endOffset) {
+                return this.queryByOffsetRangeAsHash(fieldNames, startOffset, endOffset).items;
             },
 
             /**
              * Fetches table rows matching value range on the specified field, and wraps it in a hash.
-             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string[]} fieldNames Names of fields in which the value range must be matched.
              * @param {string|number} startValue Start of value range
              * @param {string|number} endValue End of value range
              * @param {number} [offset=0] Number of items to skip at the start of the result set.
              * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {sntls.Dictionary}
              */
-            queryByRangeAsHash: function (fieldName, startValue, endValue, offset, limit) {
-                var index = this.indexCollection.getBestIndexForField(fieldName);
+            queryByRangeAsHash: function (fieldNames, startValue, endValue, offset, limit) {
+                var index = this.indexCollection.getBestIndexForFields(fieldNames);
 
                 return index
                     // obtaining row IDs matching interval
@@ -297,27 +297,27 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Fetches table rows matching value range on the specified field.
-             * @param {string} fieldName Name of field in which the value range must be matched.
+             * @param {string[]} fieldNames Names of fields in which the value range must be matched.
              * @param {string|number} startValue Start of value range
              * @param {string|number} endValue End of value range
              * @param {number} [offset=0] Number of items to skip at the start of the result set.
              * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {Object[]}
              */
-            queryByRange: function (fieldName, startValue, endValue, offset, limit) {
-                return this.queryByRangeAsHash(fieldName, startValue, endValue, offset, limit).items;
+            queryByRange: function (fieldNames, startValue, endValue, offset, limit) {
+                return this.queryByRangeAsHash(fieldNames, startValue, endValue, offset, limit).items;
             },
 
             /**
              * Fetches table rows matching the specified prefix on the specified field, and wraps it in a hash.
-             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string[]} fieldNames Names of fields in which the prefix must be matched.
              * @param {string} prefix Prefix that must be matched.
              * @param {number} [offset=0] Number of items to skip at the start of the result set.
              * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {sntls.Hash}
              */
-            queryByPrefixAsHash: function (fieldName, prefix, offset, limit) {
-                var index = this.indexCollection.getBestIndexForField(fieldName);
+            queryByPrefixAsHash: function (fieldNames, prefix, offset, limit) {
+                var index = this.indexCollection.getBestIndexForFields(fieldNames);
 
                 dessert.assert(!!index, "No index matches row");
 
@@ -331,14 +331,14 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Fetches table rows matching the specified prefix on the specified field.
-             * @param {string} fieldName Name of field in which the prefix must be matched.
+             * @param {string[]} fieldNames Names of fields in which the prefix must be matched.
              * @param {string} prefix Prefix that must be matched.
              * @param {number} [offset=0] Number of items to skip at the start of the result set.
              * @param {number} [limit=Infinity] Maximum number of items in result set.
              * @returns {object[]}
              */
-            queryByPrefix: function (fieldName, prefix, offset, limit) {
-                return this.queryByPrefixAsHash(fieldName, prefix, offset, limit).items;
+            queryByPrefix: function (fieldNames, prefix, offset, limit) {
+                return this.queryByPrefixAsHash(fieldNames, prefix, offset, limit).items;
             },
 
             /**
@@ -486,10 +486,12 @@ troop.amendPostponed(sntls, 'Hash', function () {
     "use strict";
 
     dessert.addTypes(/** @lends dessert */{
+        /** @param {jorder.Table} expr */
         isTable: function (expr) {
             return jorder.Table.isBaseOf(expr);
         },
 
+        /** @param {jorder.Table} [expr] */
         isTableOptional: function (expr) {
             return typeof expr === 'undefined' ||
                    jorder.Table.isBaseOf(expr);
