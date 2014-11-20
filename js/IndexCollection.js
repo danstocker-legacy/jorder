@@ -107,7 +107,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             },
 
             /**
-             * Retrieves the index best matching for the specified field.
+             * Retrieves the index best matching the specified field.
              * @param {string} fieldName
              * @returns {jorder.Index}
              */
@@ -115,6 +115,16 @@ troop.postpone(jorder, 'IndexCollection', function () {
                 var rowExpr = {};
                 rowExpr[fieldName] = '';
                 return this.getBestIndexForRow(rowExpr);
+            },
+
+            /**
+             * Retrieves rge index best matching the specified field names.
+             * @param {string[]} fieldNames
+             * @returns {jorder.Index}
+             */
+            getBestIndexForFields: function (fieldNames) {
+                var rowExpr = fieldNames.toStringDictionary().reverse();
+                return this.getBestIndexForRow(rowExpr.items);
             },
 
             /**

@@ -136,8 +136,7 @@
         expect(2);
 
         var indexCollection = jorder.IndexCollection.create(),
-            bestIndex = {},
-            result;
+            bestIndex = {};
 
         indexCollection.addMocks({
             getBestIndexForRow: function (row) {
@@ -148,6 +147,25 @@
 
         strictEqual(
             indexCollection.getBestIndexForField('foo'),
+            bestIndex,
+            "should return index returned by by-row getter");
+    });
+
+    test("Fetching best index for multiple fields", function () {
+        expect(2);
+
+        var indexCollection = jorder.IndexCollection.create(),
+            bestIndex = {};
+
+        indexCollection.addMocks({
+            getBestIndexForRow: function (row) {
+                deepEqual(row, {foo: '0', 'bar': '1', baz: '2'}, "should pass dummy row to index-by-row getter");
+                return bestIndex;
+            }
+        });
+
+        strictEqual(
+            indexCollection.getBestIndexForFields(['foo', 'bar', 'baz']),
             bestIndex,
             "should return index returned by by-row getter");
     });
