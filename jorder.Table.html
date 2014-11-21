@@ -1405,7 +1405,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByOffset"><span class="type-signature"></span>queryByOffset<span class="signature">(fieldName, offset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
+    <h4 class="name" id="queryByOffset"><span class="type-signature"></span>queryByOffset<span class="signature">(fieldNames, offset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
     
     
 </dt>
@@ -1447,13 +1447,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -1559,7 +1559,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByOffsetAsHash"><span class="type-signature"></span>queryByOffsetAsHash<span class="signature">(fieldName, offset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    <h4 class="name" id="queryByOffsetAsHash"><span class="type-signature"></span>queryByOffsetAsHash<span class="signature">(fieldNames, offset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
     
     
 </dt>
@@ -1601,13 +1601,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -1617,7 +1617,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
             
             
             
-            <td class="description last">Name of field in which the offset must be matched.</td>
+            <td class="description last">Names of fields in which the offset must be matched.</td>
         </tr>
 	
 	
@@ -1713,7 +1713,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByOffsetRange"><span class="type-signature"></span>queryByOffsetRange<span class="signature">(fieldName, startOffset, endOffset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
+    <h4 class="name" id="queryByOffsetRange"><span class="type-signature"></span>queryByOffsetRange<span class="signature">(fieldNames, startOffset, endOffset)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
     
     
 </dt>
@@ -1755,13 +1755,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -1771,7 +1771,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
             
             
             
-            <td class="description last">Name of field in which the offset range must be matched.</td>
+            <td class="description last">Names of fields in which the offset range must be matched.</td>
         </tr>
 	
 	
@@ -1890,7 +1890,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByOffsetRangeAsHash"><span class="type-signature"></span>queryByOffsetRangeAsHash<span class="signature">(fieldName, startOffset, endOffset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    <h4 class="name" id="queryByOffsetRangeAsHash"><span class="type-signature"></span>queryByOffsetRangeAsHash<span class="signature">(fieldNames, startOffset, endOffset)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
     
     
 </dt>
@@ -1932,13 +1932,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -1948,7 +1948,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
             
             
             
-            <td class="description last">Name of field in which the offset range must be matched.</td>
+            <td class="description last">Names of fields in which the offset range must be matched.</td>
         </tr>
 	
 	
@@ -2067,7 +2067,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByPrefix"><span class="type-signature"></span>queryByPrefix<span class="signature">(fieldName, prefix, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
+    <h4 class="name" id="queryByPrefix"><span class="type-signature"></span>queryByPrefix<span class="signature">(fieldNames, prefix, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {object[]}</span></h4>
     
     
 </dt>
@@ -2113,13 +2113,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -2141,7 +2141,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
                 </td>
             
             
-            <td class="description last">Name of field in which the prefix must be matched.</td>
+            <td class="description last">Names of fields in which the prefix must be matched.</td>
         </tr>
 	
 	
@@ -2327,7 +2327,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByPrefixAsHash"><span class="type-signature"></span>queryByPrefixAsHash<span class="signature">(fieldName, prefix, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {<a href="sntls.Hash.html">sntls.Hash</a>}</span></h4>
+    <h4 class="name" id="queryByPrefixAsHash"><span class="type-signature"></span>queryByPrefixAsHash<span class="signature">(fieldNames, prefix, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {<a href="sntls.Hash.html">sntls.Hash</a>}</span></h4>
     
     
 </dt>
@@ -2373,13 +2373,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -2401,7 +2401,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
                 </td>
             
             
-            <td class="description last">Name of field in which the prefix must be matched.</td>
+            <td class="description last">Names of fields in which the prefix must be matched.</td>
         </tr>
 	
 	
@@ -2587,7 +2587,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByRange"><span class="type-signature"></span>queryByRange<span class="signature">(fieldName, startValue, endValue, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {Object[]}</span></h4>
+    <h4 class="name" id="queryByRange"><span class="type-signature"></span>queryByRange<span class="signature">(fieldNames, startValue, endValue, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {Object[]}</span></h4>
     
     
 </dt>
@@ -2633,13 +2633,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -2661,7 +2661,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
                 </td>
             
             
-            <td class="description last">Name of field in which the value range must be matched.</td>
+            <td class="description last">Names of fields in which the value range must be matched.</td>
         </tr>
 	
 	
@@ -2888,7 +2888,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
         
             
 <dt>
-    <h4 class="name" id="queryByRangeAsHash"><span class="type-signature"></span>queryByRangeAsHash<span class="signature">(fieldName, startValue, endValue, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
+    <h4 class="name" id="queryByRangeAsHash"><span class="type-signature"></span>queryByRangeAsHash<span class="signature">(fieldNames, startValue, endValue, <span class="optional">offset</span>, <span class="optional">limit</span>)</span><span class="type-signature"> &rarr; {sntls.Dictionary}</span></h4>
     
     
 </dt>
@@ -2934,13 +2934,13 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
 	
         <tr>
             
-                <td class="name"><code>fieldName</code></td>
+                <td class="name"><code>fieldNames</code></td>
             
             
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">string[]</span>
 
 
             
@@ -2962,7 +2962,7 @@ In technical terms, a table is a collection of rows, therefore it extends the Co
                 </td>
             
             
-            <td class="description last">Name of field in which the value range must be matched.</td>
+            <td class="description last">Names of fields in which the value range must be matched.</td>
         </tr>
 	
 	
@@ -4871,7 +4871,7 @@ the matching row(s) by reference.
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Sat Sep 06 2014 11:24:39 GMT+0100 (BST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.2.0-dev</a> on Fri Nov 21 2014 07:59:29 GMT-0000 (GMT)
 </footer>
 
 <script> prettyPrint(); </script>
