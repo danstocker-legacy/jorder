@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.0",
+    "version"        : "0.2.1",
     "description"    : "Indexed table cache",
     "keywords"       : ["table", "data", "query", "queries", "indexed"],
     "author"         : "Dan Stocker <dan@kwaia.com>",
@@ -12,7 +12,7 @@
     },
     "dependencies"   : {
         "dessert": "~0.3.2",
-        "troop"  : "~0.7.2",
+        "troop"  : "~0.7.2 || ~0.8.0",
         "sntls"  : "~0.17.1"
     },
     "devDependencies": {
@@ -28,6 +28,8 @@
         "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git#0.1.5",
         "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz"
     },
-    "files"          : ["jorder.js"],
+    "files"          : [
+        "jorder.js"
+    ],
     "main"           : "jorder.js"
 }
