@@ -9,6 +9,7 @@ troop.postpone(jorder, 'Index', function () {
      * @param {string[]} fieldNames Field names
      * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
      * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
+     * @param {string} [orderType='ascending'] Order type. Either 'ascending' or 'descending'.
      * @return {jorder.Index}
      */
 
@@ -39,9 +40,10 @@ troop.postpone(jorder, 'Index', function () {
              * @param {string[]} fieldNames Field names
              * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
              * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
+             * @param {string} [orderType='ascending'] Order type. Either 'ascending' or 'descending'.
              * @ignore
              */
-            init: function (fieldNames, signatureType, isCaseInsensitive) {
+            init: function (fieldNames, signatureType, isCaseInsensitive, orderType) {
                 /**
                  * Row signature associated with index.
                  * Provides validation and index key generation.
@@ -60,7 +62,7 @@ troop.postpone(jorder, 'Index', function () {
                  * Holds index keys in ascending order. (With multiplicity)
                  * @type {sntls.OrderedStringList}
                  */
-                this.sortedKeys = sntls.OrderedStringList.create();
+                this.sortedKeys = sntls.OrderedStringList.create([], orderType);
             },
 
             /**

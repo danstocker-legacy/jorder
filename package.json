@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.1",
+    "version"        : "0.2.2",
     "description"    : "Indexed table cache",
     "keywords"       : ["table", "data", "query", "queries", "indexed"],
     "author"         : "Dan Stocker <dan@kwaia.com>",
@@ -13,7 +13,7 @@
     "dependencies"   : {
         "dessert": "~0.3.2",
         "troop"  : "~0.7.2 || ~0.8.0",
-        "sntls"  : "~0.17.1"
+        "sntls"  : "~0.17.3"
     },
     "devDependencies": {
         "phil"                : "~0.2.3",

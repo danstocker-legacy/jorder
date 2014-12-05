@@ -48,7 +48,7 @@
         deepEqual(
             indexCollection.items,
             {
-                'foo|bar%string': index
+                'foo|bar%string%ascending': index
             },
             "Index added to collection"
         );
@@ -86,7 +86,7 @@
         ok(result.isA(jorder.IndexCollection), "Return type IndexCollection");
         deepEqual(
             result.getKeys().sort(),
-            ['foo%string', 'foo|bar%string'],
+            ['foo%string%ascending', 'foo|bar%string%ascending'],
             "Only fully matching indexes returned"
         );
     });

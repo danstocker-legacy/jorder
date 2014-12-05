@@ -217,12 +217,13 @@
             {foo: 'hello', bar: 'world'}
         ]);
 
-        table.addIndex(['foo', 'bar']);
+        table.addIndex(['foo', 'bar'], 'string', false, 'descending');
 
-        equal(table.indexCollection.getKeyCount(), 1, "Index count increased");
-        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string'], "Index keys");
+        equal(table.indexCollection.getKeyCount(), 1, "should increase index collection count");
+        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string%descending'],
+            "should set index in collection by the signature as key");
 
-        var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
+        var index = table.indexCollection.getIndexForFields(['foo', 'bar'], 'string', 'descending');
 
         ok(index.isA(jorder.Index), "Index instance");
         equal(index.rowSignature.isCaseInsensitive, false, "Case sensitive by default");

@@ -6,11 +6,15 @@
     module("Index");
 
     test("Instantiation", function () {
-        var index = jorder.Index.create(['foo', 'bar'], 'number');
+        var index = jorder.Index.create(['foo', 'bar'], 'number', false, 'descending');
 
-        ok(index.rowSignature.isA(jorder.RowSignature), "Row signature");
-        ok(index.rowIdLookup.isA(sntls.Dictionary), "Index lookup");
-        ok(index.sortedKeys.isA(sntls.OrderedList), "Index order");
+        ok(index.rowSignature.isA(jorder.RowSignature), "should add rowSignature property");
+        deepEqual(index.rowSignature.fieldNames, ['foo', 'bar'], "should set field names on row signature");
+        equal(index.rowSignature.signatureType, 'number', "should set signature type on row signature");
+        equal(index.rowSignature.isCaseInsensitive, false, "should set case sensitivity flag on row signature");
+        ok(index.rowIdLookup.isA(sntls.Dictionary), "should add rowIdLookup property");
+        ok(index.sortedKeys.isA(sntls.OrderedList), "should add sortedKeys property");
+        equal(index.sortedKeys.orderType, 'descending', "should set order type on sortedKeys");
     });
 
     test("Row addition", function () {

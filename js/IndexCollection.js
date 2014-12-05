@@ -51,6 +51,24 @@ troop.postpone(jorder, 'IndexCollection', function () {
              */
             _descNumericComparator: function (a, b) {
                 return a < b ? 1 : a > b ? -1 : 0;
+            },
+
+            /**
+             * @param {jorder.Index} index
+             * @private
+             */
+            _getIndexSignature: function (index) {
+                return index.rowSignature.fieldSignature + '%' + index.sortedKeys.orderType;
+            },
+
+            /**
+             * @param {jorder.RowSignature} rowSignature
+             * @param {string} orderType
+             * @returns {string}
+             * @private
+             */
+            _getIndexSignatureFromRowSignature: function (rowSignature, orderType) {
+                return rowSignature.fieldSignature + '%' + (orderType || sntls.OrderedList.orderTypes.ascending);
             }
         })
         .addMethods(/** @lends jorder.IndexCollection# */{
@@ -63,7 +81,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             setItem: function (index) {
                 dessert.isIndex(index, "Invalid index");
 
-                base.setItem.call(this, index.rowSignature.fieldSignature, index);
+                base.setItem.call(this, this._getIndexSignature(index), index);
 
                 return this;
             },
@@ -107,7 +125,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             },
 
             /**
-             * Retrieves rge index best matching the specified field names.
+             * Retrieves the index best matching the specified field names.
              * @param {string[]} fieldNames
              * @returns {jorder.Index}
              */
@@ -120,11 +138,12 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * Retrieves an index matching the specified fields
              * @param {string[]} fieldNames
              * @param {string} [signatureType]
+             * @param {string} [orderType]
              * @return {jorder.Index}
              */
-            getIndexForFields: function (fieldNames, signatureType) {
+            getIndexForFields: function (fieldNames, signatureType, orderType) {
                 var rowSignature = jorder.RowSignature.create(fieldNames, signatureType);
-                return this.getItem(rowSignature.fieldSignature);
+                return this.getItem(this._getIndexSignatureFromRowSignature(rowSignature, orderType));
             }
         });
 });
