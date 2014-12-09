@@ -73,27 +73,41 @@
         var signature;
 
         signature = jorder.RowSignature.create(['foo'], 'number');
-        equal(signature.getKeyForRow({foo: 4}), 4, "Single-field numeric signature");
+        equal(typeof signature.getKeyForRow({bar: 4}), 'undefined',
+            "should return undefined for non-matching row expression on single-field signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'number');
-        equal(signature.getKeyForRow({foo: 4, bar: 3, etc: 5}), 4 * signature.FIELD_SEPARATOR_NUMBER + 3, "Multi-field numeric signature");
+        equal(typeof signature.getKeyForRow({}), 'undefined',
+            "should return undefined for non-matching row expression on multi-field signature");
+
+        signature = jorder.RowSignature.create(['foo'], 'number');
+        equal(signature.getKeyForRow({foo: 4}), 4,
+            "should return field value on single-field numeric signature");
+
+        signature = jorder.RowSignature.create(['foo', 'bar'], 'number');
+        equal(signature.getKeyForRow({foo: 4, bar: 3, etc: 5}), 4 * signature.FIELD_SEPARATOR_NUMBER + 3,
+            "should return combined field values on multi-field numeric signature");
 
         signature = jorder.RowSignature.create(['foo'], 'string');
-        equal(signature.getKeyForRow({foo: "A", bar: "B", etc: "C"}), "A", "Single-field string signature");
+        equal(signature.getKeyForRow({foo: "A", bar: "B", etc: "C"}), "A",
+            "should return field value on single-field string signature");
 
         signature = jorder.RowSignature.create(['foo'], 'string', true);
-        equal(signature.getKeyForRow({foo: "A", bar: "B", etc: "C"}), "a", "Single-field string signature (case insensitive)");
+        equal(signature.getKeyForRow({foo: "A", bar: "B", etc: "C"}), "a",
+            "should return lowercase field value on single-field cae insensitive string signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
-        equal(signature.getKeyForRow({foo: "A|", bar: "B", etc: "C"}), 'A%7C|B', "Multi-field string signature");
+        equal(signature.getKeyForRow({foo: "A|", bar: "B", etc: "C"}), 'A%7C|B',
+            "should URI encode and return combined field values for string signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string', true);
-        equal(signature.getKeyForRow({foo: "A|", bar: "B", etc: "C"}), 'a%7C|b', "Multi-field string signature (case insensitive)");
+        equal(signature.getKeyForRow({foo: "A|", bar: "B", etc: "C"}), 'a%7C|b',
+            "should URI encode and return lowercase combined field values for case-insensitive string signature");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText');
         raises(function () {
             signature.getKeyForRow({foo: 'hello world'});
-        }, "Non-string and non-numeric signature");
+        }, "should raise exception on signature types other than number or string");
     });
 
     test("Multi-key extraction", function () {
@@ -102,80 +116,80 @@
 
         signature = jorder.RowSignature.create(['foo'], 'number');
         deepEqual(
+            signature.getKeysForRow({bar: 3, hello: 'world'}),
+            [],
+            "should return empty array on non-matching row expression");
+
+        signature = jorder.RowSignature.create(['foo'], 'number');
+        deepEqual(
             signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}),
             [4],
-            "Numeric signature"
-        );
+            "should return singular array with extracted key on single-field numeric signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'string');
         deepEqual(
             signature.getKeysForRow({foo: 4, bar: 3, hello: 'world'}),
             ['4|3'],
-            "String signature"
-        );
+            "should return singular array with extracted key on multi-field string signature");
 
         signature = jorder.RowSignature.create(['foo'], 'array');
         deepEqual(
             signature.getKeysForRow({foo: ['Hello|', 'World'], bar: 'Etc'}),
             ['Hello%7C', 'World'],
-            "Single-field array signature"
-        );
+            "should return array with extracted keys on single-field array signature");
 
         signature = jorder.RowSignature.create(['foo'], 'array', true);
         deepEqual(
             signature.getKeysForRow({foo: ['Hello|', 'World'], bar: 'Etc'}),
             ['hello%7C', 'world'],
-            "Single-field array signature (case insensitive)"
-        );
+            "should return array with extracted lowercase keys on single-field case-insensitive array signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'array');
         row = {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'};
         deepEqual(
             signature.getKeysForRow(row),
             ['Hello%7C|One', 'Hello%7C|Two', 'World|One', 'World|Two'],
-            "Multi-field array signature"
-        );
-        deepEqual(row, {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'}, "Row remains intact");
+            "should return array with extracted keys on multi-field array signature");
+        deepEqual(row, {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'},
+            "should not alter original row expression on multi-field array signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'array', true);
         row = {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'};
         deepEqual(
             signature.getKeysForRow(row),
             ['hello%7C|one', 'hello%7C|two', 'world|one', 'world|two'],
-            "Multi-field array signature (case insensitive)"
-        );
-        deepEqual(row, {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'}, "Row remains intact");
+            "should return array with extracted lowercase keys on multi-field case-insensitive array signature");
+        deepEqual(row, {foo: ['Hello|', 'World'], bar: ['One', 'Two'], etc: 'Etc'},
+            "should not alter original row expression on multi-field case-insensitive array signature");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText');
         deepEqual(
             signature.getKeysForRow({foo: 'Hello| World', bar: 'Etc'}),
             ['Hello%7C', 'World'],
-            "Single-field full text signature"
-        );
+            "should return array with extracted keys on single-field full text signature");
 
         signature = jorder.RowSignature.create(['foo'], 'fullText', true);
         deepEqual(
             signature.getKeysForRow({foo: 'Hello| World', bar: 'Etc'}),
             ['hello%7C', 'world'],
-            "Single-field full text signature (case insensitive)"
-        );
+            "should return array with extracted lowercase keys on single-field case-insensitive full text signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'fullText');
         row = {foo: "Hello| World", bar: "Howdy All", etc: 5};
         deepEqual(
             signature.getKeysForRow(row),
             ['Hello%7C|Howdy', 'Hello%7C|All', 'World|Howdy', 'World|All'],
-            "Multi-field full text signature"
-        );
-        deepEqual(row, {foo: "Hello| World", bar: "Howdy All", etc: 5}, "Row remains intact");
+            "should return array with extracted keys on multi-field full text signature");
+        deepEqual(row, {foo: "Hello| World", bar: "Howdy All", etc: 5},
+            "should not alter original row expression on multi-field full text signature");
 
         signature = jorder.RowSignature.create(['foo', 'bar'], 'fullText', true);
         row = {foo: "Hello| World", bar: "Howdy All", etc: 5};
         deepEqual(
             signature.getKeysForRow(row),
             ['hello%7C|howdy', 'hello%7C|all', 'world|howdy', 'world|all'],
-            "Multi-field full text signature (case insensitive)"
-        );
-        deepEqual(row, {foo: "Hello| World", bar: "Howdy All", etc: 5}, "Row remains intact");
+            "should return array with extracted lowercase keys on multi-field case-insensitive full text signature");
+        deepEqual(row, {foo: "Hello| World", bar: "Howdy All", etc: 5},
+            "should not alter original row expression on multi-field case-insensitive full text signature");
     });
 }());

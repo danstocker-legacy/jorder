@@ -184,48 +184,53 @@ troop.postpone(jorder, 'RowSignature', function () {
              * @return {string|number}
              */
             getKeyForRow: function (row) {
-                dessert.assert(this.containedByRow(row), "Row doesn't fit signature");
-
                 var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
                     fieldNames = this.fieldNames,
                     radices, digits;
 
-                switch (this.signatureType) {
-                case SIGNATURE_TYPES.number:
-                    // extracting numeric key
-                    if (fieldNames.length === 1) {
-                        return row[fieldNames[0]];
-                    } else {
-                        radices = this._createUniformArray(fieldNames.length, this.FIELD_SEPARATOR_NUMBER);
-                        digits = sntls.Collection.create(row)
-                            .filterByKeys(fieldNames)
-                            .getValues();
+                if (this.containedByRow(row)) {
+                    // row matches signature
 
-                        return jorder.IrregularNumber.create(radices)
-                            .setDigits(digits)
-                            .asScalar;
+                    switch (this.signatureType) {
+                    case SIGNATURE_TYPES.number:
+                        // extracting numeric key
+                        if (fieldNames.length === 1) {
+                            return row[fieldNames[0]];
+                        } else {
+                            radices = this._createUniformArray(fieldNames.length, this.FIELD_SEPARATOR_NUMBER);
+                            digits = sntls.Collection.create(row)
+                                .filterByKeys(fieldNames)
+                                .getValues();
+
+                            return jorder.IrregularNumber.create(radices)
+                                .setDigits(digits)
+                                .asScalar;
+                        }
+                        break;
+
+                    case SIGNATURE_TYPES.string:
+                        // extracting string key
+                        if (fieldNames.length === 1) {
+                            return this._uriEncoder(row[fieldNames[0]]);
+                        } else {
+                            return sntls.StringCollection.create(row)
+                                // reducing row to relevant fields
+                                .filterByKeys(fieldNames)
+                                // encoding field values
+                                .mapValues(this._uriEncoder, this)
+                                .getValues()
+                                // joining encoded values into signature string
+                                .join(this.FIELD_SEPARATOR_STRING);
+                        }
+                        break;
+
+                    default:
+                        dessert.assert(false, "Invalid signature type");
+                        return ''; // will never be reached
                     }
-                    break;
-
-                case SIGNATURE_TYPES.string:
-                    // extracting string key
-                    if (fieldNames.length === 1) {
-                        return this._uriEncoder(row[fieldNames[0]]);
-                    } else {
-                        return sntls.StringCollection.create(row)
-                            // reducing row to relevant fields
-                            .filterByKeys(fieldNames)
-                            // encoding field values
-                            .mapValues(this._uriEncoder, this)
-                            .getValues()
-                            // joining encoded values into signature string
-                            .join(this.FIELD_SEPARATOR_STRING);
-                    }
-                    break;
-
-                default:
-                    dessert.assert(false, "Invalid signature type");
-                    return ''; // will never be reached
+                } else {
+                    // row does not match signature
+                    return undefined;
                 }
             },
 
@@ -241,7 +246,8 @@ troop.postpone(jorder, 'RowSignature', function () {
                 }
 
                 var SIGNATURE_TYPES = this.SIGNATURE_TYPES,
-                    fieldNames = this.fieldNames;
+                    fieldNames = this.fieldNames,
+                    key;
 
                 switch (this.signatureType) {
                 case SIGNATURE_TYPES.array:
@@ -296,7 +302,8 @@ troop.postpone(jorder, 'RowSignature', function () {
                 case SIGNATURE_TYPES.number:
                 case SIGNATURE_TYPES.string:
                     // extracting single key wrapped in array
-                    return [this.getKeyForRow(row)];
+                    key = this.getKeyForRow(row);
+                    return key ? [key] : [];
                 }
             },
 

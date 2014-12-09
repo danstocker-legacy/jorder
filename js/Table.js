@@ -386,16 +386,26 @@ troop.postpone(jorder, 'Table', function () {
                     .isObject(row, "Invalid row")
                     .isIndexOptional(index, "Invalid index");
 
-                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
+                var indexCollection = this.indexCollection;
+
+                // getting an index for the row
+                index = index || indexCollection.getBestIndexForRow(rowExpr);
 
                 dessert.assert(!!index, "No index matches row");
 
-                index
-                    // obtaining matching row IDs
+                var affectedRowIds = index
                     .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
-                    // changing value to specified row on each row ID
-                    .toCollection()
-                    .passEachItemTo(this.setItem, this, 0, row);
+                    .toCollection();
+
+                // updating affected rows in indexes
+                affectedRowIds.forEachItem(function (rowId) {
+                    indexCollection
+                        .removeRow(rowExpr, rowId)
+                        .addRow(row, rowId);
+                });
+
+                // updating row in table
+                affectedRowIds.passEachItemTo(base.setItem, this, 0, row);
 
                 return this;
             },
@@ -411,17 +421,22 @@ troop.postpone(jorder, 'Table', function () {
                     .isObject(rowExpr, "Invalid row expression")
                     .isIndexOptional(index, "Invalid index");
 
+                var indexCollection = this.indexCollection;
+
                 // getting an index for the row
-                index = index || this.indexCollection.getBestIndexForRow(rowExpr);
+                index = index || indexCollection.getBestIndexForRow(rowExpr);
 
                 dessert.assert(!!index, "No index matches row");
 
-                index
-                    // obtaining matching row IDs
+                var affectedRowIds = index
                     .getRowIdsForKeysAsHash(index.rowSignature.getKeysForRow(rowExpr))
-                    // deleting rows one by one
-                    .toCollection()
-                    .forEachItem(base.deleteItem, this);
+                    .toCollection();
+
+                // removing affected rows from affected indexes
+                affectedRowIds.passEachItemTo(indexCollection.removeRow, indexCollection, 1, rowExpr);
+
+                // removing row from table
+                affectedRowIds.passEachItemTo(base.deleteItem, this);
 
                 return this;
             },

@@ -1,8 +1,12 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.2",
+    "version"        : "0.2.3",
     "description"    : "Indexed table cache",
-    "keywords"       : ["table", "data", "query", "queries", "indexed"],
+    "keywords"       : [
+        "table", "indexed",
+        "data",
+        "query", "queries"
+    ],
     "author"         : "Dan Stocker <dan@kwaia.com>",
     "copyright"      : "Copyright (c) 2010-2014 Dan Stocker",
     "license"        : "MIT",

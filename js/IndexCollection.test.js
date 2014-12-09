@@ -175,9 +175,5 @@
             },
             "Second lookup index"
         );
-
-        raises(function () {
-            indexCollection.addRow({foo: 'hello', bar: 'world'}, 1);
-        }, "Row doesn't fit all indexes");
     });
 }());

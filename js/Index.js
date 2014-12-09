@@ -75,11 +75,15 @@ troop.postpone(jorder, 'Index', function () {
                 // calculating index keys based on row
                 var keys = this.rowSignature.getKeysForRow(row);
 
-                // adding key / rowId pairs to lookup index
-                this.rowIdLookup.addItems(keys, rowId);
+                if (keys.length) {
+                    // only when suitable keys can be extracted from row
 
-                // adding keys to ordered index (w/ multiplicity)
-                this.sortedKeys.addItems(keys);
+                    // adding key / rowId pairs to lookup index
+                    this.rowIdLookup.addItems(keys, rowId);
+
+                    // adding keys to ordered index (w/ multiplicity)
+                    this.sortedKeys.addItems(keys);
+                }
 
                 return this;
             },
@@ -94,11 +98,15 @@ troop.postpone(jorder, 'Index', function () {
                 // calculating index keys based on row
                 var keys = this.rowSignature.getKeysForRow(row);
 
-                // removing key / rowId pairs from lookup index
-                this.rowIdLookup.removeItems(keys, rowId);
+                if (keys.length) {
+                    // only when suitable keys can be extracted from row
 
-                // removing keys from ordered index (w/ multiplicity)
-                this.sortedKeys.removeItems(keys);
+                    // removing key / rowId pairs from lookup index
+                    this.rowIdLookup.removeItems(keys, rowId);
+
+                    // removing keys from ordered index (w/ multiplicity)
+                    this.sortedKeys.removeItems(keys);
+                }
 
                 return this;
             },
@@ -249,10 +257,12 @@ troop.postpone(jorder, 'Index', function () {
     "use strict";
 
     dessert.addTypes(/** @lends dessert */{
+        /** @param {jorder.Index} expr */
         isIndex: function (expr) {
             return jorder.Index.isBaseOf(expr);
         },
 
+        /** @param {jorder.Index} [expr] */
         isIndexOptional: function (expr) {
             return typeof expr === 'undefined' ||
                    jorder.Index.isBaseOf(expr);

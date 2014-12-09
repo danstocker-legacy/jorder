@@ -625,7 +625,7 @@
         table.removeMocks();
     });
 
-    test("Update", function () {
+    test("Updating rows matching row expression", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(sntls.Utils.shallowCopy(json))
                 .addIndex(['volumes'], SIGNATURE_TYPES.number),
@@ -635,58 +635,91 @@
                 'data'   : [9, 4, 22, 34],
                 'author' : 'Hemingway',
                 'volumes': 2
-            };
+            },
+            rowsRemoved = [],
+            rowsAdded = [];
 
         raises(function () {
             table.updateRowsByRow('foo', row);
-        }, "Invalid expression");
+        }, "should raise exception on invalid row expression argument");
 
         raises(function () {
             table.updateRowsByRow({volumes: 1}, 'foo');
-        }, "Invalid row");
+        }, "should raise exception on invalid row argument");
 
         raises(function () {
             table.updateRowsByRow({volumes: 1}, row, 'foo');
-        }, "Invalid index");
+        }, "should raise exception on invalid index argument");
 
-        table.updateRowsByRow({volumes: 1}, row);
+        jorder.Index.addMocks({
+            removeRow: function (row, rowId) {
+                rowsRemoved.push([row, rowId]);
+                return this;
+            },
 
-        deepEqual(table.items, [json[0], row, row], "Matching rows updated updated");
-        deepEqual(
-            table.indexCollection.getIndexForFields(['volumes'], SIGNATURE_TYPES.number).rowIdLookup.items,
-            {3: '0', 2: ['1', '2']},
-            "Index updated"
-        );
+            addRow: function (row, rowId) {
+                rowsAdded.push([row, rowId]);
+                return this;
+            }
+        });
+
+        strictEqual(table.updateRowsByRow({volumes: 1}, row), table, "should be chainable");
+
+        jorder.Index.removeMocks();
+
+        deepEqual(table.items, [json[0], row, row],
+            "should update all matching rows");
+
+        deepEqual(rowsRemoved, [
+            [{volumes: 1}, '1'],
+            [{volumes: 1}, '2']
+        ], "should remove matching rows from affected indexes");
+
+        deepEqual(rowsAdded, [
+            [row, '1'],
+            [row, '2']
+        ], "should add row to affected indexes");
     });
 
-    test("Deletion", function () {
-        var table = jorder.Table.create([
-                {foo: "hello", bar: "world", baz: "!!!"},
-                {foo: "howdy", bar: "yall", baz: "!"},
-                {foo: "greetings", bar: "everyone", baz: "."}
-            ]),
-            result;
+    test("Deleting rows matching row expression", function () {
+        expect(12);
 
-        table
-            .addIndex(['foo', 'bar'])
-            .addIndex(['foo'])
-            .addIndex(['foo', 'baz']);
+        var table = jorder.Table.create([
+                    {foo: "hello", bar: "world", baz: "!!!"},
+                    {foo: "howdy", bar: "yall", baz: "!"},
+                    {foo: "greetings", bar: "everyone", baz: "."}
+                ])
+                .addIndex(['foo', 'bar'])
+                .addIndex(['foo'])
+                .addIndex(['foo', 'baz']),
+            rowExpression = {foo: "hello", bar: "world"},
+            affectedSignatures = [];
 
         raises(function () {
             table.deleteRowsByRow('foo');
-        }, "Invalid row expression");
+        }, "should raise exception on invalid row expression argument");
 
         raises(function () {
             table.deleteRowsByRow({foo: "hello", bar: "world"}, 'foo');
-        }, "Invalid index");
+        }, "should raise exception on invalid index argument");
 
         raises(function () {
             table.deleteRowsByRow({hello: "world"});
-        }, "No index for row");
+        }, "should raise exception when no index fits specified row");
 
-        result = table.deleteRowsByRow({foo: "hello", bar: "world"});
+        jorder.Index.addMocks({
+            removeRow: function (row, rowId) {
+                // will be called 3x (for each index)
+                affectedSignatures.push(this.rowSignature.getKeysForRow(row));
+                strictEqual(row, rowExpression, "should remove row from affected index");
+                equal(rowId, 0, "should pass row ID to removal from index");
+            }
+        });
 
-        strictEqual(result, table, "Deletion is chainable");
+        strictEqual(table.deleteRowsByRow(rowExpression), table,
+            "should be chainable");
+
+        jorder.Index.removeMocks();
 
         deepEqual(
             table.items,
@@ -695,20 +728,14 @@
                 {foo: "howdy", bar: "yall", baz: "!"},
                 {foo: "greetings", bar: "everyone", baz: "."}
             ],
-            "Row deleted"
+            "should set affected row(s) to undefined in table buffer"
         );
 
-        table.deleteRowsByRow({foo: "greetings"});
-
-        deepEqual(
-            table.items,
-            [
-                undefined,
-                {foo: "howdy", bar: "yall", baz: "!"},
-                undefined
-            ],
-            "Row deleted"
-        );
+        deepEqual(affectedSignatures, [
+            ['hello|world'],
+            ['hello'],
+            []
+        ], "should remove row from all affected indexes");
     });
 
     test("Clearing table", function () {

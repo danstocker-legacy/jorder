@@ -20,25 +20,15 @@
     test("Row addition", function () {
         var index = jorder.Index.create(['foo', 'bar']);
 
-        raises(function () {
-            index.addRow({invalid: 1}, 0);
-        }, "Row doesn't match signature");
-
         index.addRow({foo: 5, bar: 7}, 0);
 
-        deepEqual(
-            index.rowIdLookup.items,
-            {
-                '5|7': 0
-            },
-            "Lookup after first row"
-        );
+        deepEqual(index.rowIdLookup.items, {
+            '5|7': 0
+        }, "should add signature to row ID lookup");
 
-        deepEqual(
-            index.sortedKeys.items,
+        deepEqual(index.sortedKeys.items,
             ['5|7'],
-            "Order after first row"
-        );
+            "should add signature to sorted keys");
     });
 
     test("Index population", function () {
@@ -84,6 +74,40 @@
             ].sort(),
             "Populated order index"
         );
+    });
+
+    test("Row removal", function () {
+        var index = jorder.Index.create(['foo', 'bar'])
+            .addRow({foo: 5, bar: 7}, 0)
+            .addRow({foo: 3, bar: 2}, 1);
+
+        strictEqual(index.removeRow({foo: 5, bar: 7}, 0), index, "should be chainable");
+
+        deepEqual(index.rowIdLookup.items, {
+            '3|2': 1
+        }, "should remove signature from row ID lookup");
+
+        deepEqual(index.sortedKeys.items, [
+            '3|2'
+        ].sort(), "should remove signature from sorted keys");
+    });
+
+    test("Failed row removal", function () {
+        var index = jorder.Index.create(['foo', 'bar'])
+            .addRow({foo: 5, bar: 7}, 0)
+            .addRow({foo: 3, bar: 2}, 1);
+
+        strictEqual(index.removeRow({foo: 5}, 0), index, "should be chainable");
+
+        deepEqual(index.rowIdLookup.items, {
+            '5|7': 0,
+            '3|2': 1
+        }, "should leave row ID lookup unchanged");
+
+        deepEqual(index.sortedKeys.items, [
+            '5|7',
+            '3|2'
+        ].sort(), "should leave sorted keys unchanged");
     });
 
     test("Clearing", function () {
