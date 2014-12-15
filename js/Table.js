@@ -449,7 +449,7 @@ troop.postpone(jorder, 'Table', function () {
                 base.clear.call(this);
 
                 // clearing indexes
-                this.indexCollection.clear();
+                this.indexCollection.clearBuffers();
 
                 return this;
             }
