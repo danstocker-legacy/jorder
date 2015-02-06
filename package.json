@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.4",
+    "version"        : "0.2.5",
     "description"    : "Indexed table cache",
     "keywords"       : [
         "table", "indexed",
@@ -16,8 +16,8 @@
     },
     "dependencies"   : {
         "dessert": "~0.3.2",
-        "troop"  : "~0.7.2 || ~0.8.0",
-        "sntls"  : "~0.17.3"
+        "troop"  : "~0.8.0",
+        "sntls"  : "~0.18.0"
     },
     "devDependencies": {
         "phil"                : "~0.2.3",
