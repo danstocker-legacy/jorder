@@ -9,7 +9,7 @@ troop.postpone(jorder, 'Table', function () {
      * Instantiates class.
      * @name jorder.Table.create
      * @function
-     * @param {object[]} json
+     * @param {object[]} [json]
      * @return {jorder.Table}
      */
 
@@ -22,7 +22,7 @@ troop.postpone(jorder, 'Table', function () {
     jorder.Table = self
         .addMethods(/** @lends jorder.Table# */{
             /**
-             * @param {object[]} json
+             * @param {object[]} [json]
              * @ignore
              */
             init: function (json) {

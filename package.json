@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.5",
+    "version"        : "0.2.6",
     "description"    : "Indexed table cache",
     "keywords"       : [
         "table", "indexed",
@@ -8,7 +8,7 @@
         "query", "queries"
     ],
     "author"         : "Dan Stocker <dan@kwaia.com>",
-    "copyright"      : "Copyright (c) 2010-2014 Dan Stocker",
+    "copyright"      : "Copyright (c) 2010-2015 Dan Stocker",
     "license"        : "MIT",
     "repository"     : {
         "type": "git",
@@ -17,7 +17,7 @@
     "dependencies"   : {
         "dessert": "~0.3.2",
         "troop"  : "~0.8.0",
-        "sntls"  : "~0.18.0"
+        "sntls": "~0.18.0 || ~0.18.0"
     },
     "devDependencies": {
         "phil"                : "~0.2.3",
