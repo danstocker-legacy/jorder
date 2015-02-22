@@ -268,5 +268,21 @@ troop.postpone(jorder, 'Index', function () {
                    jorder.Index.isBaseOf(expr);
         }
     });
+
+    troop.Properties.addProperties.call(
+        Array.prototype,
+        /** @lends Array# */{
+            /**
+             * Creates a new Index instance based on the current array, as a list of field names.
+             * @param {string} [signatureType='string'] Signature type, see SIGNATURE_TYPES.
+             * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
+             * @param {string} [orderType='ascending'] Order type. Either 'ascending' or 'descending'.
+             * @returns {jorder.Index}
+             */
+            toIndex: function (signatureType, isCaseInsensitive, orderType) {
+                return jorder.Index.create(this, signatureType, isCaseInsensitive, orderType);
+            }
+        },
+        false, false, false);
 }());
 

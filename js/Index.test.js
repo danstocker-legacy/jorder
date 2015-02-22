@@ -17,6 +17,16 @@
         equal(index.sortedKeys.orderType, 'descending', "should set order type on sortedKeys");
     });
 
+    test("Array conversion", function () {
+        var index = ['foo', 'bar'].toIndex('number', false, 'descending');
+
+        ok(index.isA(jorder.Index), "should return Index instance");
+        deepEqual(index.rowSignature.fieldNames, ['foo', 'bar'], "should set field names on row signature");
+        equal(index.rowSignature.signatureType, 'number', "should set signature type on row signature");
+        equal(index.rowSignature.isCaseInsensitive, false, "should set case sensitivity flag on row signature");
+        equal(index.sortedKeys.orderType, 'descending', "should set order type on sortedKeys");
+    });
+
     test("Row addition", function () {
         var index = jorder.Index.create(['foo', 'bar']);
 
