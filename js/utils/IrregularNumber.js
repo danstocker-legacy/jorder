@@ -7,7 +7,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
      * @name jorder.IrregularNumber.create
      * @function
      * @param {number[]} radices
-     * @return {jorder.IrregularNumber}
+     * @returns {jorder.IrregularNumber}
      */
 
     /**
@@ -20,7 +20,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
         .addPrivateMethods(/** @lends jorder.IrregularNumber */{
             /**
              * Calculates the maximum value possible in this number system
-             * @return {Number}
+             * @returns {Number}
              * @private
              */
             _getMaxValue: function () {
@@ -37,7 +37,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
 
             /**
              * Calculates cumulative product of radices
-             * @return {Array}
+             * @returns {Array}
              * @private
              */
             _getRadixProducts: function () {
@@ -56,7 +56,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
             /**
              * Converts scalar value to digits according to radices
              * @param {number} scalar
-             * @return {number[]}
+             * @returns {number[]}
              * @private
              */
             _convertToDigits: function (scalar) {
@@ -76,7 +76,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
             /**
              * Converts scalar value to digits according to radices
              * @param {number[]} digits
-             * @return {number}
+             * @returns {number}
              * @private
              */
             _convertToScalar: function (digits) {
@@ -134,7 +134,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
             /**
              * Sets scalar value on irregular number
              * @param {number} value
-             * @return {jorder.IrregularNumber}
+             * @returns {jorder.IrregularNumber}
              */
             setScalar: function (value) {
                 dessert.assert(value <= this.maxValue, "Value out of bounds");
@@ -151,7 +151,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
             /**
              * Sets irregular number digits
              * @param {number[]} digits
-             * @return {jorder.IrregularNumber}
+             * @returns {jorder.IrregularNumber}
              */
             setDigits: function (digits) {
                 var radices = this.radices,
@@ -176,7 +176,7 @@ troop.postpone(jorder, 'IrregularNumber', function () {
 
             /**
              * Increments current value
-             * @return {jorder.IrregularNumber}
+             * @returns {jorder.IrregularNumber}
              */
             inc: function () {
                 var digits = this.asDigits,

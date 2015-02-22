@@ -9,7 +9,7 @@ troop.postpone(jorder, 'MultiArray', function () {
      * @name jorder.MultiArray.create
      * @function
      * @param {Array[]} items Array of arrays
-     * @return {jorder.MultiArray}
+     * @returns {jorder.MultiArray}
      */
 
     /**
@@ -25,7 +25,7 @@ troop.postpone(jorder, 'MultiArray', function () {
             /**
              * Measures the number of possibilities for each item
              * and returns the counts in an array
-             * @return {Array}
+             * @returns {Array}
              * @private
              */
             _getItemLengths: function () {
@@ -73,7 +73,7 @@ troop.postpone(jorder, 'MultiArray', function () {
 
             /**
              * Retrieves all possible combinations for the array
-             * @return {Array[]} Array of all possible outcomes
+             * @returns {Array[]} Array of all possible outcomes
              */
             getCombinations: function () {
                 var result = [],
@@ -92,7 +92,7 @@ troop.postpone(jorder, 'MultiArray', function () {
 
             /**
              * Retrieves all combinations wrapped in a hash object
-             * @return {sntls.Hash}
+             * @returns {sntls.Hash}
              */
             getCombinationsAsHash: function () {
                 return sntls.Hash.create(this.getCombinations());
@@ -105,7 +105,7 @@ troop.amendPostponed(sntls, 'Hash', function () {
 
     sntls.Hash.addMethods(/** @lends sntls.Hash */{
         /**
-         * @return {jorder.MultiArray}
+         * @returns {jorder.MultiArray}
          */
         toMultiArray: function () {
             return jorder.MultiArray.create(this.items);

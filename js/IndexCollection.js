@@ -9,7 +9,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
      * @name jorder.IndexCollection.create
      * @function
      * @param {object|Array} [items] Initial contents.
-     * @return {jorder.IndexCollection}
+     * @returns {jorder.IndexCollection}
      */
 
     /**
@@ -25,7 +25,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * are present in the specified row.
              * @param {object} row Table row
              * @param {jorder.Index} index
-             * @return {Boolean}
+             * @returns {Boolean}
              * @private
              */
             _isIndexContainedByRow: function (row, index) {
@@ -35,7 +35,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             /**
              * Returns the field count for the specified index.
              * @param {jorder.Index} index
-             * @return {Number}
+             * @returns {Number}
              * @private
              */
             _indexFieldCountMapper: function (index) {
@@ -46,7 +46,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * Array.sort() comparator for descending order.
              * @param {number} a
              * @param {number} b
-             * @return {Number}
+             * @returns {Number}
              * @private
              */
             _descNumericComparator: function (a, b) {
@@ -76,7 +76,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * Sets an index in the collection.
              * Item key is calculated based index signature.
              * @param {jorder.Index} index
-             * @return {jorder.IndexCollection}
+             * @returns {jorder.IndexCollection}
              */
             setItem: function (index) {
                 dessert.isIndex(index, "Invalid index");
@@ -88,7 +88,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * Removes an index from the collection.
              * Item key is calculated based index signature.
              * @param {jorder.Index} index
-             * @return {jorder.IndexCollection}
+             * @returns {jorder.IndexCollection}
              */
             deleteItem: function (index) {
                 dessert.isIndex(index, "Invalid index");
@@ -99,7 +99,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             /**
              * Retrieves a collection of indexes that fully match the specified row.
              * @param {object} row
-             * @return {jorder.IndexCollection}
+             * @returns {jorder.IndexCollection}
              */
             getIndexesForRow: function (row) {
                 return /** @type {jorder.IndexCollection} */ this
@@ -109,7 +109,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             /**
              * Retrieves the first index matching the specified row.
              * @param {object} row
-             * @return {jorder.Index}
+             * @returns {jorder.Index}
              */
             getIndexForRow: function (row) {
                 return this
@@ -122,7 +122,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
             /**
              * Retrieves the index best matching the specified row
              * @param {object} row
-             * @return {jorder.Index}
+             * @returns {jorder.Index}
              */
             getBestIndexForRow: function (row) {
                 return this
@@ -149,7 +149,7 @@ troop.postpone(jorder, 'IndexCollection', function () {
              * @param {string[]} fieldNames
              * @param {string} [signatureType]
              * @param {string} [orderType]
-             * @return {jorder.Index}
+             * @returns {jorder.Index}
              */
             getIndexForFields: function (fieldNames, signatureType, orderType) {
                 var rowSignature = jorder.RowSignature.create(fieldNames, signatureType);

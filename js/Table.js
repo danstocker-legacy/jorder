@@ -10,7 +10,7 @@ troop.postpone(jorder, 'Table', function () {
      * @name jorder.Table.create
      * @function
      * @param {object[]} [json]
-     * @return {jorder.Table}
+     * @returns {jorder.Table}
      */
 
     /**
@@ -41,7 +41,7 @@ troop.postpone(jorder, 'Table', function () {
              * Sets row at given row ID.
              * @param {string|number} rowId
              * @param {object} row
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             setItem: function (rowId, row) {
                 // updating indexes
@@ -57,7 +57,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Sets multiple rows at once.
              * @param {object} rowIdRowPairs
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             setItems: function (rowIdRowPairs) {
                 var that = this;
@@ -71,7 +71,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Deletes a row from the given row ID.
              * @param {string|number} rowId
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             deleteItem: function (rowId) {
                 // updating indexes
@@ -85,7 +85,7 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Clones table.
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             clone: function () {
                 // cloning collection
@@ -106,7 +106,7 @@ troop.postpone(jorder, 'Table', function () {
              * @param {string} [signatureType] Index type
              * @param {boolean} [isCaseInsensitive=false] Whether signature is case insensitive.
              * @param {string} [orderType='ascending'] Order type. Either 'ascending' or 'descending'.
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             addIndex: function (fieldNames, signatureType, isCaseInsensitive, orderType) {
                 var index = jorder.Index.create(fieldNames, signatureType, isCaseInsensitive, orderType);
@@ -122,7 +122,7 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Re-indexes table by rebuilding all indexes associated with table.
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             reIndex: function () {
                 var indexCollection = this.indexCollection;
@@ -158,7 +158,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Fetches table rows that match specified row expression and wraps them in a hash.
              * @param {object} rowExpr Row expression.
-             * @return {sntls.Hash}
+             * @returns {sntls.Hash}
              */
             queryByRowAsHash: function (rowExpr) {
                 var index = this.indexCollection.getBestIndexForRow(rowExpr);
@@ -176,7 +176,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Fetches table rows that match specified row expression.
              * @param {object} rowExpr Table row or relevant field w/ value
-             * @return {Array}
+             * @returns {Array}
              */
             queryByRow: function (rowExpr) {
                 return this.queryByRowAsHash(rowExpr).items;
@@ -185,7 +185,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Fetches table rows that match specified rows or row fractions and wraps them in a hash.
              * @param {object[]} rows Table rows or relevant fields w/ values
-             * @return {sntls.Hash}
+             * @returns {sntls.Hash}
              */
             queryByRowsAsHash: function (rows) {
                 dessert.isArray(rows, "Invalid rows expression");
@@ -214,7 +214,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Fetches table rows that match specified rows or row fractions.
              * @param {object[]} rows Table rows or relevant fields w/ values
-             * @return {Array}
+             * @returns {Array}
              */
             queryByRows: function (rows) {
                 return this.queryByRowsAsHash(rows).items;
@@ -364,7 +364,7 @@ troop.postpone(jorder, 'Table', function () {
             /**
              * Inserts multiple rows into the table. Updates all relevant indexes.
              * @param {object[]} rows Array of table rows.
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             insertRows: function (rows) {
                 sntls.Collection.create(rows)
@@ -414,7 +414,7 @@ troop.postpone(jorder, 'Table', function () {
              * Removes rows from the table that match the specified row.
              * @param {object} rowExpr Row expression to be matched.
              * @param {jorder.Index} [index] Index to be used for identifying row IDs. (For ambiguous indexes)
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             deleteRowsByRow: function (rowExpr, index) {
                 dessert
@@ -443,7 +443,7 @@ troop.postpone(jorder, 'Table', function () {
 
             /**
              * Clears rows and associated indexes.
-             * @return {jorder.Table}
+             * @returns {jorder.Table}
              */
             clear: function () {
                 base.clear.call(this);
@@ -461,7 +461,7 @@ troop.postpone(jorder, 'Table', function () {
          * @function
          * @param {string|number} rowId
          * @param {object} row
-         * @return {jorder.Table}
+         * @returns {jorder.Table}
          * @see jorder.Table#setItem
          */
         setRow: self.setItem,
@@ -469,7 +469,7 @@ troop.postpone(jorder, 'Table', function () {
         /**
          * @function
          * @param {object} rowIdRowPairs
-         * @return {jorder.Table}
+         * @returns {jorder.Table}
          * @see jorder.Table#setItems
          */
         setRows: self.setItems,
@@ -477,7 +477,7 @@ troop.postpone(jorder, 'Table', function () {
         /**
          * @function
          * @param {string|number} rowId
-         * @return {jorder.Table}
+         * @returns {jorder.Table}
          * @see jorder.Table#deleteItem
          */
         deleteRow: self.deleteItem
@@ -490,7 +490,7 @@ troop.amendPostponed(sntls, 'Hash', function () {
     sntls.Hash.addMethods(/** @lends sntls.Hash */{
         /**
          * Reinterprets hash as table. Hash must contain array buffer.
-         * @return {jorder.Table}
+         * @returns {jorder.Table}
          */
         toTable: function () {
             return jorder.Table.create(this.items);
