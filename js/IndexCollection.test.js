@@ -43,15 +43,25 @@
         var index = jorder.Index.create(['foo', 'bar']),
             indexCollection = jorder.IndexCollection.create();
 
-        indexCollection.setItem(index);
+        strictEqual(indexCollection.setItem(index), indexCollection, "should be chainable");
 
-        deepEqual(
-            indexCollection.items,
-            {
-                'foo|bar%string%ascending': index
-            },
-            "Index added to collection"
-        );
+        deepEqual(indexCollection.items, {
+            'foo|bar%string%ascending': index
+        }, "Index added to collection");
+    });
+
+    test("Index removal", function () {
+        var index1 = jorder.Index.create(['foo', 'bar']),
+            index2 = jorder.Index.create(['hello', 'world']),
+            indexCollection = jorder.IndexCollection.create()
+                .setItem(index1)
+                .setItem(index2);
+
+        strictEqual(indexCollection.deleteItem(index2), indexCollection, "should be chainable");
+
+        deepEqual(indexCollection.items, {
+            'foo|bar%string%ascending': index1
+        }, "should remove index from items");
     });
 
     test("Exact index lookup by field names", function () {

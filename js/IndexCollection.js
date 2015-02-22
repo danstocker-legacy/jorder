@@ -80,9 +80,19 @@ troop.postpone(jorder, 'IndexCollection', function () {
              */
             setItem: function (index) {
                 dessert.isIndex(index, "Invalid index");
-
                 base.setItem.call(this, this._getIndexSignature(index), index);
+                return this;
+            },
 
+            /**
+             * Removes an index from the collection.
+             * Item key is calculated based index signature.
+             * @param {jorder.Index} index
+             * @return {jorder.IndexCollection}
+             */
+            deleteItem: function (index) {
+                dessert.isIndex(index, "Invalid index");
+                base.deleteItem.call(this, this._getIndexSignature(index), index);
                 return this;
             },
 
