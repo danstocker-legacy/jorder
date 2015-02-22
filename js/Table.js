@@ -94,10 +94,27 @@ troop.postpone(jorder, 'Table', function () {
                 // adding table specific properties
                 this.indexCollection.forEachItem(function (/**jorder.Index*/ index) {
                     var rowSignature = index.rowSignature;
-                    result.addIndex(rowSignature.fieldNames, rowSignature.signatureType);
+                    result.addIndexByFieldNames(rowSignature.fieldNames, rowSignature.signatureType);
                 });
 
                 return result;
+            },
+
+            /**
+             * Adds an index to the table.
+             * @param {jorder.Index} index
+             * @returns {jorder.Table}
+             */
+            addIndex: function (index) {
+                dessert.isIndex(index, "Invalid index");
+
+                // adding index to collection
+                this.indexCollection.setItem(index);
+
+                // initializing index with table rows
+                this.forEachItem(index.addRow, index);
+
+                return this;
             },
 
             /**
@@ -108,15 +125,10 @@ troop.postpone(jorder, 'Table', function () {
              * @param {string} [orderType='ascending'] Order type. Either 'ascending' or 'descending'.
              * @returns {jorder.Table}
              */
-            addIndex: function (fieldNames, signatureType, isCaseInsensitive, orderType) {
-                var index = jorder.Index.create(fieldNames, signatureType, isCaseInsensitive, orderType);
-
-                // adding index to collection
-                this.indexCollection.setItem(index);
-
-                // initializing index with table rows
-                this.forEachItem(index.addRow, index);
-
+            addIndexByFieldNames: function (fieldNames, signatureType, isCaseInsensitive, orderType) {
+                dessert.isArray(fieldNames, "Invalid field names");
+                var index = fieldNames.toIndex(signatureType, isCaseInsensitive, orderType);
+                this.addIndex(index);
                 return this;
             },
 

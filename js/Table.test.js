@@ -66,7 +66,7 @@
 
     test("Item setting", function () {
         var table = jorder.Table.create()
-            .addIndex(['foo'])
+            .addIndex(['foo'].toIndex())
             .setItem('0', {foo: "hello"});
 
         deepEqual(
@@ -85,7 +85,7 @@
 
     test("Setting multiple items", function () {
         var table = jorder.Table.create()
-            .addIndex(['foo'])
+            .addIndex(['foo'].toIndex())
             .setItem('0', {foo: "hello"});
 
         table.setItems({
@@ -115,7 +115,7 @@
                     {foo: "hello"},
                     {foo: "world"}
                 ])
-            .addIndex(['foo'])
+            .addIndex(['foo'].toIndex())
             .deleteItem(0);
 
         deepEqual(
@@ -139,7 +139,7 @@
                         {foo: "hello"},
                         {foo: "world"}
                     ])
-                .addIndex(['foo']),
+                .addIndex(['foo'].toIndex()),
             cloneTable;
 
         cloneTable = table.clone();
@@ -174,7 +174,7 @@
                         {foo: "hello"},
                         {foo: "world"}
                     ])
-                .addIndex(['foo']),
+                .addIndex(['foo'].toIndex()),
             result;
 
         result = /** @type jorder.Table */ table.mergeWith(jorder.Table.create([
@@ -214,10 +214,28 @@
 
     test("Index addition", function () {
         var table = jorder.Table.create([
+                {foo: 'hello', bar: 'world'}
+            ]),
+            index = ['foo', 'bar'].toIndex('string', false, 'descending');
+
+        strictEqual(table.addIndex(index), table, "should be chainable");
+
+        equal(table.indexCollection.getKeyCount(), 1, "should increase index collection count");
+        deepEqual(table.indexCollection.getKeys(), ['foo|bar%string%descending'],
+            "should set index in collection by the signature as key");
+
+        strictEqual(
+            table.indexCollection.getIndexForFields(['foo', 'bar'], 'string', 'descending'),
+            index,
+            "should set index on table");
+    });
+
+    test("Index addition by field names", function () {
+        var table = jorder.Table.create([
             {foo: 'hello', bar: 'world'}
         ]);
 
-        table.addIndex(['foo', 'bar'], 'string', false, 'descending');
+        table.addIndexByFieldNames(['foo', 'bar'], 'string', false, 'descending');
 
         equal(table.indexCollection.getKeyCount(), 1, "should increase index collection count");
         deepEqual(table.indexCollection.getKeys(), ['foo|bar%string%descending'],
@@ -227,18 +245,18 @@
 
         ok(index.isA(jorder.Index), "Index instance");
         equal(index.rowSignature.isCaseInsensitive, false, "Case sensitive by default");
+
         deepEqual(
             index.rowIdLookup.items,
             {
                 'hello|world': '0'
             },
-            "Lookup of index"
-        );
+            "Lookup of index");
+
         deepEqual(
             index.sortedKeys.items,
             ['hello|world'],
-            "Keys in index"
-        );
+            "Keys in index");
     });
 
     test("Re-indexing", function () {
@@ -246,7 +264,7 @@
             {foo: 'hello', bar: 'world'}
         ]);
 
-        table.addIndex(['foo', 'bar']);
+        table.addIndex(['foo', 'bar'].toIndex());
 
         var index = table.indexCollection.getIndexForFields(['foo', 'bar']);
 
@@ -300,9 +318,9 @@
     test("Query by single row", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText)
-                .addIndex(['author'], SIGNATURE_TYPES.string)
-                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string))
+                .addIndex(['volumes'].toIndex(SIGNATURE_TYPES.number));
 
         deepEqual(
             table.queryByRowAsHash({author: 'Tolkien'}).items,
@@ -336,9 +354,9 @@
     test("Query by multiple rows", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText)
-                .addIndex(['author'], SIGNATURE_TYPES.string)
-                .addIndex(['volumes'], SIGNATURE_TYPES.number);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string))
+                .addIndex(['volumes'].toIndex(SIGNATURE_TYPES.number));
 
         deepEqual(
             table.queryByRowsAsHash([
@@ -373,7 +391,7 @@
     test("Querying by offset", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.string),
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.string)),
             result;
 
         result = table.queryByOffsetAsHash(['title'], 1);
@@ -400,7 +418,7 @@
     test("Querying by offset range", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.string),
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.string)),
             result;
 
         result = table.queryByOffsetRangeAsHash(['title'], 1, 3);
@@ -433,7 +451,7 @@
 
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['author'], SIGNATURE_TYPES.string);
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string));
 
         jorder.Index.addMocks({
             getRowIdsForKeyRangeAsHash: function (startValue, endValue, offset, limit) {
@@ -453,8 +471,8 @@
     test("Query by range", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText)
-                .addIndex(['author'], SIGNATURE_TYPES.string);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string));
 
         deepEqual(
             table.queryByRangeAsHash(['author'], "M", "Z").items
@@ -475,8 +493,8 @@
     test("Query by range (case insensitive)", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText, true)
-                .addIndex(['author'], SIGNATURE_TYPES.string, true);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText, true))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string, true));
 
         deepEqual(
             table.queryByRangeAsHash(['author'], "m", "z").items
@@ -499,7 +517,7 @@
 
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['author'], SIGNATURE_TYPES.string);
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string));
 
         jorder.Index.addMocks({
             getRowIdsForPrefixAsHash: function (prefix, offset, limit) {
@@ -518,8 +536,8 @@
     test("Query by prefix", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText)
-                .addIndex(['author'], SIGNATURE_TYPES.string);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string));
 
         deepEqual(
             table.queryByPrefixAsHash(['author'], "Tol").items,
@@ -543,8 +561,8 @@
     test("Query by prefix (case insensitive)", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(json)
-                .addIndex(['title'], SIGNATURE_TYPES.fullText, true)
-                .addIndex(['author'], SIGNATURE_TYPES.string, true);
+                .addIndex(['title'].toIndex(SIGNATURE_TYPES.fullText, true))
+                .addIndex(['author'].toIndex(SIGNATURE_TYPES.string, true));
 
         deepEqual(
             table.queryByPrefixAsHash(['author'], "tol").items,
@@ -570,9 +588,9 @@
             result;
 
         table
-            .addIndex(['foo', 'bar'])
-            .addIndex(['foo'])
-            .addIndex(['foo', 'baz']);
+            .addIndex(['foo', 'bar'].toIndex())
+            .addIndex(['foo'].toIndex())
+            .addIndex(['foo', 'baz'].toIndex());
 
         deepEqual(table.items, [], "Table is empty by default");
 
@@ -628,7 +646,7 @@
     test("Updating rows matching row expression", function () {
         var SIGNATURE_TYPES = jorder.RowSignature.SIGNATURE_TYPES,
             table = jorder.Table.create(sntls.Utils.shallowCopy(json))
-                .addIndex(['volumes'], SIGNATURE_TYPES.number),
+                .addIndex(['volumes'].toIndex(SIGNATURE_TYPES.number)),
             row = {
                 'order'  : 0,
                 'title'  : 'Green Hills of Africa',
@@ -671,8 +689,14 @@
             "should update all matching rows");
 
         deepEqual(rowsRemoved, [
-            [{volumes: 1}, '1'],
-            [{volumes: 1}, '2']
+            [
+                {volumes: 1},
+                '1'
+            ],
+            [
+                {volumes: 1},
+                '2'
+            ]
         ], "should remove matching rows from affected indexes");
 
         deepEqual(rowsAdded, [
@@ -689,9 +713,9 @@
                     {foo: "howdy", bar: "yall", baz: "!"},
                     {foo: "greetings", bar: "everyone", baz: "."}
                 ])
-                .addIndex(['foo', 'bar'])
-                .addIndex(['foo'])
-                .addIndex(['foo', 'baz']),
+                .addIndex(['foo', 'bar'].toIndex())
+                .addIndex(['foo'].toIndex())
+                .addIndex(['foo', 'baz'].toIndex()),
             rowExpression = {foo: "hello", bar: "world"},
             affectedSignatures = [];
 
