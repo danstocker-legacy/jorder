@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.6",
+    "version": "0.2.7",
     "description"    : "Indexed table cache",
     "keywords"       : [
         "table", "indexed",
