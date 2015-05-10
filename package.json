@@ -1,11 +1,13 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.6",
+    "version"        : "0.2.7",
     "description"    : "Indexed table cache",
     "keywords"       : [
-        "table", "indexed",
+        "table",
+        "indexed",
         "data",
-        "query", "queries"
+        "query",
+        "queries"
     ],
     "author"         : "Dan Stocker <dan@kwaia.com>",
     "copyright"      : "Copyright (c) 2010-2015 Dan Stocker",
@@ -16,21 +18,22 @@
     },
     "dependencies"   : {
         "dessert": "~0.3.2",
-        "troop"  : "~0.8.0",
-        "sntls": "~0.18.0 || ~0.18.0"
+        "sntls": "~0.20.0",
+        "troop": "~0.8.0"
     },
     "devDependencies": {
-        "phil"                : "~0.2.3",
-        "grunt"               : "~0.4.1",
-        "grunt-jstestdriver"  : "git://github.com/danstocker/grunt-jstestdriver.git",
-        "grunt-contrib-concat": "~0.3.0",
-        "grunt-contrib-jshint": "~0.5.4",
-        "grunt-yui-compressor": "~0.3.0",
-        "grunt-contrib-copy"  : "~0.4.1",
-        "grunt-jsdoc"         : "~0.3.3",
-        "grunt-regex-replace" : "~0.2.5",
+        "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz",
         "common-gruntfile"    : "git://github.com/danstocker/common-gruntfile.git#0.1.5",
-        "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz"
+        "grunt"               : "~0.4.5",
+        "grunt-contrib-concat": "~0.5.1",
+        "grunt-contrib-copy"  : "~0.8.0",
+        "grunt-contrib-jshint": "~0.11.1",
+        "grunt-jsdoc"         : "~0.3.3",
+        "grunt-jstestdriver"  : "git://github.com/danstocker/grunt-jstestdriver.git",
+        "grunt-regex-replace" : "~0.2.6",
+        "grunt-yui-compressor": "~0.4.0",
+        "phil"                : "~0.2.3",
+        "q"                   : "^1.4.0"
     },
     "files"          : [
         "jorder.js"
