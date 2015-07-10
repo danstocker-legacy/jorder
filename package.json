@@ -1,6 +1,6 @@
 {
     "name"           : "jorder",
-    "version"        : "0.2.7",
+    "version"        : "0.3.0",
     "description"    : "Indexed table cache",
     "keywords"       : [
         "table",
@@ -18,8 +18,9 @@
     },
     "dependencies"   : {
         "dessert": "~0.3.2",
-        "sntls"  : "~0.20.0",
-        "troop"  : "~0.8.0"
+        "q"      : "^1.4.1",
+        "sntls"  : "~0.21.0",
+        "troop"  : "~0.9.0"
     },
     "devDependencies": {
         "QUnitAdapter"        : "https://dl.dropboxusercontent.com/u/9258903/packages/QUnitAdapter-0.1.0.tgz",
